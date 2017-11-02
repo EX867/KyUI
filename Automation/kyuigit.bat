@@ -1,3 +1,2 @@
-cd C:\Users\user\Documents\[Programs]\gitbatch
+cd C:\Users\user\Documents\[Projects]\KyUI\Automation
 gitpush "C:\Users\user\Documents\[Projects]\KyUI" "%~1"
-x

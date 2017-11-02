@@ -9,22 +9,24 @@ public class Element {
   protected ArrayList<Element> parents=new ArrayList<Element>();
   protected ArrayList<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   //
-  private Rect pos;
+  public Rect pos=new Rect(0, 0, 0, 0);
   public Description description;
   //
   private String Name;//identifier.
-  private boolean enabled;// this parameter controls object's existence.
-  private boolean visible;// this parameter controls object rendering
-  private boolean active;// this parameter controls object control (use inputs)
-  protected boolean renderFlag=false;// this parameter makes calling renderlater() renders on parent's render().
+  private boolean enabled=true;// this parameter controls object's existence.
+  private boolean visible=true;// this parameter controls object rendering
+  private boolean active=true;// this parameter controls object control (use inputs)
+  protected boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
+  //temp vars
+  protected boolean mouseOn=false;
   public Element(String name) {
     Name=name;
     KyUI.addElement(this);
-    setPosition(new Rect(0,0,0,0));
   }
   public final void addChild(Element object) {
     children.add(object);
     object.parents.add(this);
+    onLayout_(pos);
   }
   public final void removeChild(String name) {
     Element object=KyUI.get(name);
@@ -35,14 +37,14 @@ public class Element {
   public boolean equals(Object other) {
     return (other instanceof Element && ((Element)other).Name.equals(Name));
   }
-  //그냥 있는거임!!
-  public void setPosition(Rect rect) {
-    KyUI.invalidate(pos);
+  void onLayout_(Rect rect) {
+    renderFlag=true;
     pos=rect;
-    KyUI.invalidate(pos);
+    onLayout();
   }
-  public Rect getPosition(){
-    return pos;
+  public void onLayout() {
+    //update children.position.
+    //default not modify child's position.
   }
   public final String getName() {
     return Name;
@@ -82,14 +84,19 @@ public class Element {
     KyUI.invalidate(rect);
   }
   final void render_(PGraphics g) {
-    if(renderFlag)return;//don't need to render.
+    if (!renderFlag) return;//don't need to render.
     renderFlag=false;
+    g.clip(pos.left, pos.top, pos.right, pos.bottom);
     for (Element child : children) {
       if (child.isVisible() && child.isEnabled()) child.render_(g);
     }
     render(g);
+    g.noClip();
   }
-  protected void render(PGraphics g) {//override this!
+  public void render(PGraphics g) {//override this!
+  }
+  public void renderlater() {
+    renderFlag=true;//is this really work?
   }
   final void keyEvent_(KeyEvent e) {
     for (Element child : children) {
@@ -97,7 +104,7 @@ public class Element {
     }
     keyEvent(e);
   }
-  protected void keyEvent(KeyEvent e) {//override this!
+  public void keyEvent(KeyEvent e) {//override this!
     //if(e.getAction()==KeyEvent.PRESS)
   }
   final void keyTyped_(KeyEvent e) {//keyTyped is special, so handled in other method.
@@ -106,15 +113,26 @@ public class Element {
     }
     keyTyped(e);
   }
-  protected void keyTyped(KeyEvent e) {//override this!
+  public void keyTyped(KeyEvent e) {//override this!
     //do not use e.getAction() in here! (incorrect)
   }
   final void mouseEvent_(MouseEvent e) {
+    if (pos.contains(e.getX(), e.getY()) == false) {
+      mouseOn=false;
+      if (mouseOn) {
+        mouseExited();
+      }
+      return;
+    }
     for (Element child : children) {
       if (child.isActive() && child.isEnabled()) child.mouseEvent_(e);
     }
     mouseEvent(e);
   }
-  protected void mouseEvent(MouseEvent e) {//override this!
+  public void mouseEvent(MouseEvent e) {//override this!
+  }
+  public void mouseEntered() {
+  }
+  public void mouseExited() {
   }
 }

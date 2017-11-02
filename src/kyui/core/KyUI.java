@@ -13,7 +13,7 @@ import processing.event.MouseEvent;
 import processing.event.KeyEvent;
 public class KyUI {
   //
-  protected static PApplet Ref;
+  public static PApplet Ref;
   private static boolean ready=false;
   private static boolean end=false;
   // object control
@@ -21,7 +21,7 @@ public class KyUI {
   protected static Element root=new Element("root");//no support multi window.
   public static int focus=0;
   // events
-  public static LinkedList<ModEvent> EventQueue=new LinkedList<ModEvent>();//items popped from update thread.
+  public static LinkedList<Event> EventQueue=new LinkedList<Event>();//items popped from update thread.
   //
   public static final int STATE_PRESS=1;
   public static final int STATE_PRESSED=2;
@@ -59,6 +59,7 @@ public class KyUI {
   public static void start(PApplet ref, int rate) {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
+    resize();
     try {
       Field pressedKeys;
       pressedKeys=PApplet.class.getDeclaredField("pressedKeys");
@@ -72,8 +73,11 @@ public class KyUI {
     frameRate(rate);
     updater.start();
   }
-  void end() {
+  public static void end() {
     end=true;
+  }
+  public static void resize() {
+    root.onLayout_(new Rect(0, 0, Ref.width, Ref.height));
   }
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
@@ -84,8 +88,8 @@ public class KyUI {
   protected static void removeElement(String name) {
     Elements.remove(name);
   }
-  public static Element getRoot() {
-    return root;
+  public static void addChild(Element object) {
+    root.addChild(object);
   }
   public static Element get(String name) {
     return Elements.get(name);
@@ -97,6 +101,7 @@ public class KyUI {
   public static void render(PGraphics g) {
     drawStart=drawEnd;
     g.rectMode(PApplet.CORNERS);
+    root.renderFlag=true;
     root.render_(g);
     drawEnd=System.currentTimeMillis();
     drawInterval=drawEnd - drawStart;
@@ -111,13 +116,11 @@ public class KyUI {
         }
         //empty EventQueue.
         while (EventQueue.size() > 0) {
-          ModEvent e=EventQueue.pollFirst();
-          if (e.type == ModEvent.KEY_EVENT) {
-            root.keyEvent_((KeyEvent)e.e);
-          } else if (e.type == ModEvent.KEY_TYPED) {
-            root.keyTyped_((KeyEvent)e.e);
-          } else if (e.type == ModEvent.MOUSE_EVENT) {
-            root.mouseEvent_((MouseEvent)e.e);
+          Event e=EventQueue.pollFirst();
+          if (e instanceof KeyEvent) {
+            keyEvent((KeyEvent)e);
+          } else if (e instanceof MouseEvent) {
+            mouseEvent((MouseEvent)e);
           }
         }
         //
@@ -126,18 +129,10 @@ public class KyUI {
     }
   }
   //
-  static class ModEvent {
-    static final int KEY_TYPED=1;
-    static final int KEY_EVENT=2;
-    static final int MOUSE_EVENT=3;
-    int type;
-    Event e;
-    public ModEvent(int type_, Event e_) {
-      type=type;
-      e=e_;
-    }
+  public static void handleEvent(Event e) {
+    EventQueue.addLast(e);
   }
-  public static void handleKeyEvent(KeyEvent e) {// FIX >> This code is unstable. test and fix!
+  static void keyEvent(KeyEvent e) {// FIX >> This code is unstable. test and fix!
     if (Ref.key == PApplet.ESC) {
       Ref.key=0; // Fools! don't let them escape!
     }
@@ -152,10 +147,8 @@ public class KyUI {
         else if (e.getKey() == PApplet.ALT) altPressed=false;
       }
     }
-    EventQueue.add(new ModEvent(ModEvent.KEY_EVENT, e));
-    if (keyState == false) {
-      EventQueue.add(new ModEvent(ModEvent.KEY_TYPED, e));
-    }
+    root.keyEvent_((KeyEvent)e);
+    if (!keyState) root.keyTyped_((KeyEvent)e);
     keyState=true;
     if (Ref.keyPressed == false) keyTime=System.currentTimeMillis();
     if (keyInit) {
@@ -172,9 +165,9 @@ public class KyUI {
         keyInit=false;
       }
     }
-    updater.interrupt();
+    //updater.interrupt();
   }
-  public static synchronized void handleMouseEvent(MouseEvent e) {
+  static void mouseEvent(MouseEvent e) {
     mouseGlobal.assign(Ref.mouseX / scaleGlobal, Ref.mouseY / scaleGlobal);
     if (Ref.mousePressed) {
       if (mouseState == STATE_PRESS) mouseState=STATE_PRESSED;
@@ -186,12 +179,11 @@ public class KyUI {
       if (mouseState == STATE_RELEASE) mouseState=STATE_RELEASED;
       if (mouseState == STATE_PRESS || mouseState == STATE_PRESSED) mouseState=STATE_RELEASE;
     }
-    EventQueue.add(new ModEvent(ModEvent.MOUSE_EVENT, e));
-    updater.interrupt();
+    root.mouseEvent_(e);
+    //updater.interrupt();
   }
   //
-  public static void invalidate(Rect rect){//adjust renderFlag.
-    //asfasdfasasadfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  public static void invalidate(Rect rect) {//adjust renderFlag.
+    //ADD>> here!!
   }
-
 }
