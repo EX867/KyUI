@@ -18,17 +18,17 @@ public class Element {
   private boolean active=true;// this parameter controls object control (use inputs)
   protected boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
   //temp vars
-  protected boolean mouseOn=false;
+  protected boolean entered=false;
   public Element(String name) {
     Name=name;
     KyUI.addElement(this);
   }
-  public final void addChild(Element object) {
+  protected final void addChild(Element object) {
     children.add(object);
     object.parents.add(this);
-    onLayout_(pos);
+    setPosition(pos);
   }
-  public final void removeChild(String name) {
+  protected final void removeChild(String name) {
     Element object=KyUI.get(name);
     object.parents.remove(this);
     children.remove(object);
@@ -37,35 +37,39 @@ public class Element {
   public boolean equals(Object other) {
     return (other instanceof Element && ((Element)other).Name.equals(Name));
   }
-  void onLayout_(Rect rect) {
-    renderFlag=true;
+  public void setPosition(Rect rect) {
+    invalidate(pos);
     pos=rect;
+    invalidate();
     onLayout();
   }
   public void onLayout() {
     //update children.position.
     //default not modify child's position.
   }
+  protected synchronized final void localLayout() {
+    setPosition(pos);
+  }
   public final String getName() {
     return Name;
   }
   //
-  public final void setEnabled(boolean state) {
+  public void setEnabled(boolean state) {
     enabled=state;
   }
-  public final void setVisible(boolean state) {
+  public void setVisible(boolean state) {
     visible=state;
   }
-  public final void setActive(boolean state) {
+  public void setActive(boolean state) {
     active=state;
   }
-  public final boolean isEnabled() {
+  public boolean isEnabled() {
     return enabled;
   }
-  public final boolean isVisible() {
+  public boolean isVisible() {
     return visible;
   }
-  public final boolean isActive() {
+  public boolean isActive() {
     return active;
   }
   //
@@ -78,25 +82,46 @@ public class Element {
   public void update() {//override this!
   }
   public final void invalidate() {
-    KyUI.invalidate(pos);
+    //KyUI.invalidate(pos);
+    renderFlag=true;
   }
   public final void invalidate(Rect rect) {
     KyUI.invalidate(rect);
   }
   final void render_(PGraphics g) {
-    if (!renderFlag) return;//don't need to render.
-    renderFlag=false;
     g.clip(pos.left, pos.top, pos.right, pos.bottom);
+    if (renderFlag) render(g);
     for (Element child : children) {
-      if (child.isVisible() && child.isEnabled()) child.render_(g);
+      if (child.isVisible() && child.isEnabled()) {
+        if (renderFlag) child.renderFlag=true;
+        child.render_(g);
+      }
     }
-    render(g);
+    if (renderFlag) overlay(g);
+    renderFlag=false;
     g.noClip();
   }
   public void render(PGraphics g) {//override this!
   }
+  public void overlay(PGraphics g) {//override this!
+  }
   public void renderlater() {
-    renderFlag=true;//is this really work?
+    renderFlag=true;
+  }
+  final boolean checkInvalid(Rect rect) {
+    if (pos.contains(rect)) {
+      if (children.size() == 0) renderFlag=true;
+      for (Element child : children) {
+        if (child.isVisible() && child.isEnabled()) {
+          if (child.checkInvalid(rect)) {//child not contains rect.
+            renderFlag=true;
+          }
+        }
+      }
+      return false;
+    } else {
+      return true;
+    }
   }
   final void keyEvent_(KeyEvent e) {
     for (Element child : children) {
@@ -117,11 +142,16 @@ public class Element {
     //do not use e.getAction() in here! (incorrect)
   }
   final void mouseEvent_(MouseEvent e) {
-    if (pos.contains(e.getX(), e.getY()) == false) {
-      mouseOn=false;
-      if (mouseOn) {
+    if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      if (!entered) {
+        mouseEntered();
+      }
+      entered=true;
+    } else {
+      if (entered) {
         mouseExited();
       }
+      entered=false;
       return;
     }
     for (Element child : children) {
@@ -134,5 +164,15 @@ public class Element {
   public void mouseEntered() {
   }
   public void mouseExited() {
+  }
+  //
+  public final void requestFocus() {//make onRequestListener?
+    if (KyUI.focus != null) KyUI.focus.renderFlag=true;
+    KyUI.focus=this;
+    renderFlag=true;
+  }
+  public final void releaseFocus() {
+    KyUI.focus=null;
+    renderFlag=true;
   }
 }

@@ -18,8 +18,8 @@ public class KyUI {
   private static boolean end=false;
   // object control
   protected static final HashMap<String, Element> Elements=new HashMap<String, Element>();
-  protected static Element root=new Element("root");//no support multi window.
-  public static int focus=0;
+  protected static Element root;//no support multi window.
+  public static Element focus=null;
   // events
   public static LinkedList<Event> EventQueue=new LinkedList<Event>();//items popped from update thread.
   //
@@ -50,7 +50,7 @@ public class KyUI {
   public static Thread updater;
   public static int updater_interval;
   //public Thread animation;
-  private KyUI() {
+  private KyUI() {//WARNING! names must not contains ':'.
   }
   public static void start(PApplet ref) {
     start(ref, 30);
@@ -58,6 +58,7 @@ public class KyUI {
   @SuppressWarnings("unchecked")
   public static void start(PApplet ref, int rate) {
     if (ready) return;// this makes setup() only called once.
+    if (root == null) root=new Element("root");
     Ref=ref;
     resize();
     try {
@@ -77,18 +78,21 @@ public class KyUI {
     end=true;
   }
   public static void resize() {
-    root.onLayout_(new Rect(0, 0, Ref.width, Ref.height));
+    root.setPosition(new Rect(0, 0, Ref.width, Ref.height));
   }
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
   }
+  public static void setRoot(Element root_) {
+    root=root_;
+  }
   protected static void addElement(Element object) {
     Elements.put(object.getName(), object);
   }
-  protected static void removeElement(String name) {
+  public static void removeElement(String name) {
     Elements.remove(name);
   }
-  public static void addChild(Element object) {
+  public static void add(Element object) {
     root.addChild(object);
   }
   public static Element get(String name) {
@@ -101,7 +105,8 @@ public class KyUI {
   public static void render(PGraphics g) {
     drawStart=drawEnd;
     g.rectMode(PApplet.CORNERS);
-    root.renderFlag=true;
+    g.textAlign(PApplet.CENTER, PApplet.CENTER);
+    g.noStroke();
     root.render_(g);
     drawEnd=System.currentTimeMillis();
     drawInterval=drawEnd - drawStart;
@@ -183,7 +188,7 @@ public class KyUI {
     //updater.interrupt();
   }
   //
-  public static void invalidate(Rect rect) {//adjust renderFlag.
-    //ADD>> here!!
+  public synchronized static void invalidate(Rect rect) {//adjust renderFlag.
+    root.checkInvalid(rect);
   }
 }

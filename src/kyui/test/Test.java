@@ -1,6 +1,6 @@
 package kyui.test;
 import kyui.core.KyUI;
-import kyui.element.AbstractButton;
+import kyui.element.*;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
@@ -13,19 +13,30 @@ public class Test extends PApplet {
   public void settings() {
     size(300, 300);
   }
+  int count=0;
+  TabFrame f;
   @Override
   public void setup() {
+    //KyUI.setRoot(new Background("root", color(255, 255, 255)));
     KyUI.start(this);
-    AbstractButton b=new AbstractButton("Asdf");
-    KyUI.addChild(b);
-    b.pos=new Rect(100, 100, 200, 200);
+    f=new TabFrame("tabs", new Rect(0, 0, width, height));
+    KyUI.add(f);
     // write your other code
   }
   @Override
   public void draw() {
-    background(255);
     KyUI.render(g);
     // write your other code
+  }
+  @Override
+  public void keyTyped() {
+    if (key == '>') {
+      f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
+      count++;
+    } else if (key == '<') {
+      //f.removeTab(f.size() - 1);
+      f.removeTab(0);
+    }
   }
   @Override
   protected void handleKeyEvent(KeyEvent e) {
