@@ -1,16 +1,20 @@
 package kyui.core;
 import kyui.util.Rect;
+import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 public class Element {
-  protected ArrayList<Element> parents=new ArrayList<Element>();
-  protected ArrayList<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
+  protected LinkedList<Element> parents=new LinkedList<Element>();
+  public LinkedList<Element> children=new LinkedList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   //
   public Rect pos=new Rect(0, 0, 0, 0);
   public Description description;
+  public int bgColor=0;
+  public int margin=0;
+  public int padding=0;
   //
   private String Name;//identifier.
   private boolean enabled=true;// this parameter controls object's existence.
@@ -23,12 +27,12 @@ public class Element {
     Name=name;
     KyUI.addElement(this);
   }
-  protected final void addChild(Element object) {
+  public final void addChild(Element object) {
     children.add(object);
     object.parents.add(this);
     setPosition(pos);
   }
-  protected final void removeChild(String name) {
+  public final void removeChild(String name) {
     Element object=KyUI.get(name);
     object.parents.remove(this);
     children.remove(object);
@@ -48,7 +52,8 @@ public class Element {
     //default not modify child's position.
   }
   protected synchronized final void localLayout() {
-    setPosition(pos);
+    onLayout();
+    invalidate();
   }
   public final String getName() {
     return Name;
@@ -89,7 +94,7 @@ public class Element {
     KyUI.invalidate(rect);
   }
   final void render_(PGraphics g) {
-    g.clip(pos.left, pos.top, pos.right, pos.bottom);
+    //g.clip(pos.left, pos.top, pos.right, pos.bottom);
     if (renderFlag) render(g);
     for (Element child : children) {
       if (child.isVisible() && child.isEnabled()) {
@@ -99,7 +104,7 @@ public class Element {
     }
     if (renderFlag) overlay(g);
     renderFlag=false;
-    g.noClip();
+    //g.noClip();
   }
   public void render(PGraphics g) {//override this!
   }
@@ -141,7 +146,7 @@ public class Element {
   public void keyTyped(KeyEvent e) {//override this!
     //do not use e.getAction() in here! (incorrect)
   }
-  final void mouseEvent_(MouseEvent e) {
+  final boolean mouseEvent_(MouseEvent e) {
     if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       if (!entered) {
         mouseEntered();
@@ -152,14 +157,25 @@ public class Element {
         mouseExited();
       }
       entered=false;
-      return;
+      return true;
     }
+    boolean childrenIntercept=false;
+    if (!mouseEventIntercept(e)) return false;
     for (Element child : children) {
-      if (child.isActive() && child.isEnabled()) child.mouseEvent_(e);
+      if (child.isActive() && child.isEnabled()) {
+        if (!child.mouseEvent_(e)) {
+          childrenIntercept=true;
+        }
+      }
     }
-    mouseEvent(e);
+    if (childrenIntercept) return false;
+    return mouseEvent(e);
   }
-  public void mouseEvent(MouseEvent e) {//override this!
+  public boolean mouseEventIntercept(MouseEvent e) {//override this!
+    return true;
+  }
+  public boolean mouseEvent(MouseEvent e) {//override this!
+    return true;
   }
   public void mouseEntered() {
   }
@@ -174,5 +190,11 @@ public class Element {
   public final void releaseFocus() {
     KyUI.focus=null;
     renderFlag=true;
+  }
+  public Vector2 getPreferredSize() {
+    return new Vector2(pos.right - pos.left, pos.bottom - pos.top);
+  }
+  public void refreshElement() {//localLayout for public...it is not so good.
+    localLayout();
   }
 }

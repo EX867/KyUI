@@ -31,6 +31,7 @@ public class KyUI {
   public static int mouseTime=0;// this parameter indicates the time after mouse clicked.
   public static Vector2 mouseClick=new Vector2();// this parameter stores mouse click position.
   public static Vector2 mouseGlobal=new Vector2();// this parameter stores global mouse position.(scaled)
+  public static final int GESTURE_THRESHOLD=13;
   //
   public static int KEY_INIT_DELAY=600;// you can change this value.
   public static int KEY_INTERVAL=50;
@@ -102,7 +103,7 @@ public class KyUI {
   public static void update() {
     root.update_();
   }
-  public static void render(PGraphics g) {
+  public synchronized static void render(PGraphics g) {
     drawStart=drawEnd;
     g.rectMode(PApplet.CORNERS);
     g.textAlign(PApplet.CENTER, PApplet.CENTER);

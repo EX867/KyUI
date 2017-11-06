@@ -8,6 +8,12 @@ public class Rect implements Cloneable {//it is like android's rect...
     right=right_;
     bottom=bottom_;
   }
+  public Rect(float left_, float top_, float right_, float bottom_) {
+    left=(int)left_;
+    top=(int)top_;
+    right=(int)right_;
+    bottom=(int)bottom_;
+  }
   public void set(int left_, int top_, int right_, int bottom_) {
     left=left_;
     top=top_;

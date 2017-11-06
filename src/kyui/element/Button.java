@@ -1,25 +1,37 @@
 package kyui.element;
+import kyui.core.Attributes;
 import kyui.core.Element;
+import kyui.core.KyUI;
 import kyui.event.listeners.EventListener;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
+import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class Button extends Element {
   protected boolean pressed;//this parameter indicates this element have been pressed.
   protected EventListener pressListener;
   //modifiable values
-  public int bgColor=50;
-  public int textColor=255;
-  public int textSize=15;
+  public int textColor;
+  public int textSize;
   public String text="Button";
-  //
+  public int rotation=Attributes.ROTATE_NONE;
+  //in-class values
+  protected int textOffset=0;
   public Button(String name) {
     super(name);
+    init();
   }
   public Button(String name, Rect pos_) {
     super(name);
     pos=pos_;
+    init();
+  }
+  private void init() {
+    bgColor=50;
+    textColor=255;
+    textSize=15;
+    padding=10;
   }
   public void setPressListener(EventListener el) {
     pressListener=el;
@@ -39,10 +51,16 @@ public class Button extends Element {
     pos.render(g);
     g.fill(textColor);
     g.textSize(textSize);
-    g.text(text, (pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
+    g.pushMatrix();
+    g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
+    for (int a=1; a < rotation; a++) {
+      g.rotate(KyUI.Ref.radians(90));
+    }
+    g.text(text, 0, textOffset);
+    g.popMatrix();
   }
   @Override
-  public void mouseEvent(MouseEvent e) {
+  public boolean mouseEvent(MouseEvent e) {
     if (e.getAction() == MouseEvent.PRESS) {
       requestFocus();
       pressed=true;
@@ -53,7 +71,9 @@ public class Button extends Element {
         onPress();
         invalidate();
       }
+      return false;
     }
+    return true;
   }
   public void onPress() {
   }
@@ -65,5 +85,9 @@ public class Button extends Element {
   @Override
   public void mouseEntered() {
     invalidate();
+  }
+  @Override
+  public Vector2 getPreferredSize() {
+    return new Vector2(KyUI.Ref.textWidth(text) + padding * 2, textSize + padding * 2);
   }
 }
