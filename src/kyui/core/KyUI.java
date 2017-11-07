@@ -138,7 +138,7 @@ public class KyUI {
   public static void handleEvent(Event e) {
     EventQueue.addLast(e);
   }
-  static void keyEvent(KeyEvent e) {// FIX >> This code is unstable. test and fix!
+  synchronized static void keyEvent(KeyEvent e) {// FIX >> This code is unstable. test and fix!
     if (Ref.key == PApplet.ESC) {
       Ref.key=0; // Fools! don't let them escape!
     }
@@ -173,7 +173,7 @@ public class KyUI {
     }
     //updater.interrupt();
   }
-  static void mouseEvent(MouseEvent e) {
+  synchronized static void mouseEvent(MouseEvent e) {
     mouseGlobal.assign(Ref.mouseX / scaleGlobal, Ref.mouseY / scaleGlobal);
     if (Ref.mousePressed) {
       if (mouseState == STATE_PRESS) mouseState=STATE_PRESSED;
@@ -185,8 +185,8 @@ public class KyUI {
       if (mouseState == STATE_RELEASE) mouseState=STATE_RELEASED;
       if (mouseState == STATE_PRESS || mouseState == STATE_PRESSED) mouseState=STATE_RELEASE;
     }
-    if(e.getAction()==MouseEvent.EXIT){
-      mouseGlobal.assign(-1,-1);//make no element contains this.
+    if (e.getAction() == MouseEvent.EXIT) {
+      mouseGlobal.assign(-1, -1);//make no element contains this.
     }
     root.mouseEvent_(e);
     //updater.interrupt();

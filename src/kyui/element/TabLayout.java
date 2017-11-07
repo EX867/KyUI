@@ -2,9 +2,12 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.EventListener;
+import kyui.event.listeners.MouseEventListener;
+import kyui.util.ColorExt;
 import kyui.util.Rect;
+import kyui.util.Vector2;
 import processing.core.PGraphics;
+import processing.event.MouseEvent;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,6 +15,8 @@ public class TabLayout extends Element {
   protected LinkedList<Element> tabs;//only contains TabButton...
   public LinkedList<Element> contents;//content filled in empty space.
   public HashMap<Integer, Integer> idToIndex;
+  //
+  LinkedList<ModificationData> tasks=new LinkedList<ModificationData>();
   //pointers
   protected DivisionLayout linkLayout;
   protected LinearLayout tabLayout;
@@ -25,6 +30,7 @@ public class TabLayout extends Element {
   protected int rotation=Attributes.ROTATE_NONE;
   protected int buttonRotation=Attributes.ROTATE_NONE;
   protected int buttonEdgeRotation=Attributes.ROTATE_NONE;
+  protected boolean enableX=true;
   //in-class values
   public int selection=0;
   //temp vars
@@ -45,7 +51,7 @@ public class TabLayout extends Element {
     linkLayout.addChild(contentLayout);
     tabs=tabLayout.children;
     contents=contentLayout.children;
-    addTab("", new Element(getName() + ":default"));
+    addTab_(0, "", new Element(getName() + ":default"));
     tabs.get(0).setEnabled(false);
     selectTab(0);//0 means no tab selected.
     localLayout();
@@ -56,49 +62,99 @@ public class TabLayout extends Element {
     tabColor2=KyUI.Ref.color(0, 0, 127);
     tabSize=38;
   }
-  public void addTab(String text, Element content) {
-    idToIndex.put(count, tabs.size());
+  public synchronized void addTab_(int index, String text, Element content) {
+    idToIndex.put(count, index);
     TabButton btn=new TabButton(getName() + ":" + count);
-    btn.setPressListener(new TabFramePressListener(count));
+    btn.setPressListener(new TabLayoutPressListener(count));
     btn.text=text;
     btn.edgeColor=tabColor2;
     btn.rotation=buttonRotation;
     btn.edgeRotation=buttonEdgeRotation;
     count++;
-    tabLayout.addChild(btn);
-    contentLayout.addChild(content);
+    tabLayout.addChild(index, btn);
+    contentLayout.addChild(index, content);
     content.setEnabled(false);
+    //
+    if (selection >= index) selectTab(selection + 1);
+    for (int a=index; a < tabs.size(); a++) {
+      int id2=((TabLayoutPressListener)((TabButton)tabs.get(a)).getPressListener()).id;
+      idToIndex.put(id2, a);
+    }
   }
-  public synchronized void removeTab(int index) {
+  public void addTab(int index, String text, Element content) {
+    tasks.add(new ModificationData(index + 1, text, content));
+  }
+  public void addTab(String text, Element content) {
+    tasks.add(new ModificationData(tabs.size(), text, content));
+  }
+  public synchronized void removeTab_(int index) {
     if (index < 0 || index >= tabs.size() - 1) return;
     index+=1;
     Element content=contents.get(index);
     contentLayout.removeChild(content.getName());
     Element btn=tabs.get(index);
     tabLayout.removeChild(btn.getName());
-    int id=idToIndex.get(((TabFramePressListener)((TabButton)btn).getPressListener()).id);
+    if (((TabButton)btn).getPressListener() == null) {
+      System.err.println("adsf");
+    }
+    int id=idToIndex.get(((TabLayoutPressListener)((TabButton)btn).getPressListener()).id);
     idToIndex.remove(id);
     KyUI.removeElement(btn.getName());
     //
     if (selection == index) selectTab(0);
     else if (selection > index) selectTab(selection - 1);
     for (int a=index; a < tabs.size(); a++) {
-      int id2=((TabFramePressListener)((TabButton)tabs.get(a)).getPressListener()).id;
+      int id2=((TabLayoutPressListener)((TabButton)tabs.get(a)).getPressListener()).id;
       idToIndex.put(id2, a);
     }
     localLayout();
   }
-  class TabFramePressListener implements EventListener {
+  public void removeTab(int index) {
+    tasks.add(new ModificationData(index));
+  }
+  class ModificationData {
+    static final int ADD=1;
+    static final int REMOVE=2;
+    int type;
+    int i;
+    Element e;
+    String s;
+    public ModificationData(int i_, String s_, Element e_) {
+      type=ADD;
+      i=i_;
+      e=e_;
+      s=s_;
+    }
+    public ModificationData(int i_) {
+      type=REMOVE;
+      i=i_;
+    }
+    void execute() {
+      if (type == ADD) {
+        addTab_(i, s, e);
+      } else if (type == REMOVE) {
+        removeTab_(i);
+      }
+    }
+  }
+  @Override
+  public synchronized void update() {
+    while (tasks.size() != 0) {
+      tasks.pollFirst().execute();
+    }
+  }
+  class TabLayoutPressListener implements MouseEventListener {
     int id;
-    public TabFramePressListener(int id_) {
+    public TabLayoutPressListener(int id_) {
       id=id_;
     }
     @Override
-    public void onEvent() {
+    public boolean onEvent(MouseEvent e) {
       selectTab(idToIndex.get(id));
+      return true;
     }
   }
-  public void selectTab(int selection_) {
+  public synchronized void selectTab(int selection_) {
     if (selection_ < 0 || selection_ >= tabs.size()) return;
     if (selection >= 0 && selection < tabs.size()) {
       ((TabButton)tabs.get(selection)).edgeColor=tabColor2;
@@ -147,6 +203,9 @@ public class TabLayout extends Element {
     }
     localLayout();
   }
+  public void setEnableX(boolean v) {
+    enableX=v;
+  }
   @Override
   public void onLayout() {
     linkLayout.setPosition(pos);
@@ -167,29 +226,101 @@ public class TabLayout extends Element {
   public class TabButton extends Button {
     int edgeColor;
     int edgeRotation=Attributes.ROTATE_NONE;
+    Button xButton;
     public TabButton(String name) {
       super(name);
+      init();
     }
     public TabButton(String name, Rect pos_) {
       super(name, pos_);
+      init();
+    }
+    void init() {
+      xButton=new Button(getName() + ":xButton");
+      xButton.text="x";
+      xButton.bgColor=ColorExt.brighter(bgColor, -10);
+      xButton.textOffsetY=-4;
+      addChild(xButton);
+      xButton.setPressListener(new TabXButtonListener(this));
     }
     public void render(PGraphics g) {
+      textOffsetX=0;
+      textOffsetY=0;
       if (edgeRotation == Attributes.ROTATE_NONE) {
         cacheRect.set(pos.left, pos.top, pos.right, pos.top + edgeSize);
         textOffsetY=edgeSize / 2;
       } else if (edgeRotation == Attributes.ROTATE_RIGHT) {
         cacheRect.set(pos.right - edgeSize, pos.top, pos.right, pos.bottom);
-        textOffsetX=edgeSize / 2;
+        textOffsetX=-edgeSize / 2;
       } else if (edgeRotation == Attributes.ROTATE_DOWN) {
         cacheRect.set(pos.left, pos.bottom - edgeSize, pos.right, pos.bottom);
-        textOffsetY=edgeSize / 2;
+        textOffsetY=-edgeSize / 2;
       } else if (edgeRotation == Attributes.ROTATE_LEFT) {
         cacheRect.set(pos.left, pos.top, pos.left + edgeSize, pos.bottom);
         textOffsetX=edgeSize / 2;
       }
+      if (enableX) {
+        if (rotation % 2 == 1) {
+          textOffsetX-=(pos.bottom - pos.top) / 3;
+        } else {
+          textOffsetX-=(pos.right - pos.left) / 3;
+        }
+      }
       super.render(g);
       g.fill(edgeColor);
       cacheRect.render(g);
+    }
+    @Override
+    public void onLayout() {
+      int size;
+      xButton.rotation=rotation;
+      if (rotation % 2 == 1) {
+        size=(pos.bottom - pos.top);
+      } else {
+        size=(pos.right - pos.left);
+      }
+      if (edgeRotation - rotation % 2 != 0) {
+        size-=edgeSize;
+      }
+      size/=2;
+      if (rotation == Attributes.ROTATE_NONE) {
+        xButton.setPosition(new Rect(pos.right - size * 3 / 2, pos.top + size / 2, pos.right - size / 2, pos.bottom - size / 2));
+      } else if (rotation == Attributes.ROTATE_RIGHT) {
+        xButton.setPosition(new Rect(pos.left + size / 2, pos.bottom - size * 3 / 2, pos.right - size / 2, pos.bottom - size / 2));
+      } else if (rotation == Attributes.ROTATE_DOWN) {
+        xButton.setPosition(new Rect(pos.left + size / 2, pos.top + size / 2, pos.left + size * 3 / 2, pos.bottom - size / 2));
+      } else if (rotation == Attributes.ROTATE_LEFT) {
+        xButton.setPosition(new Rect(pos.left + size / 2, pos.top + size / 2, pos.right - size / 2, pos.top + size * 3 / 2));
+      }
+      if (edgeRotation == Attributes.ROTATE_NONE) {
+        xButton.setPosition(new Rect(xButton.pos.left + edgeSize / 2, xButton.pos.top + edgeSize / 2, xButton.pos.right + edgeSize / 2, xButton.pos.bottom + edgeSize / 2));
+      } else if (edgeRotation == Attributes.ROTATE_RIGHT) {
+        xButton.setPosition(new Rect(xButton.pos.left - edgeSize, xButton.pos.top, xButton.pos.right - edgeSize, xButton.pos.bottom));
+      } else if (edgeRotation == Attributes.ROTATE_DOWN) {
+        xButton.setPosition(new Rect(xButton.pos.left - edgeSize / 2, xButton.pos.top - edgeSize / 2, xButton.pos.right - edgeSize / 2, xButton.pos.bottom - edgeSize / 2));
+      } else if (edgeRotation == Attributes.ROTATE_LEFT) {
+        xButton.setPosition(new Rect(xButton.pos.left, xButton.pos.top, xButton.pos.right, xButton.pos.bottom));
+      }
+      //super.onLayout();
+    }
+    @Override
+    public Vector2 getPreferredSize() {
+      if (!enableX) return super.getPreferredSize();
+      if (rotation == Attributes.ROTATE_NONE || rotation == Attributes.ROTATE_DOWN) {
+        return new Vector2(KyUI.Ref.textWidth(text) + padding * 2 + textSize, textSize + padding * 2);
+      } else {
+        return new Vector2(textSize + padding * 2, KyUI.Ref.textWidth(text) + padding * 2 + textSize);
+      }
+    }
+    class TabXButtonListener implements MouseEventListener {
+      TabButton Ref;
+      public TabXButtonListener(TabButton t) {
+        Ref=t;
+      }
+      public boolean onEvent(MouseEvent e) {
+        removeTab(tabs.indexOf(Ref) - 1);
+        return false;
+      }
     }
   }
 }

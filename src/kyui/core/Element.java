@@ -29,11 +29,14 @@ public class Element {
     KyUI.addElement(this);
   }
   public final void addChild(Element object) {
+    addChild(children.size(), object);
+  }
+  public final void addChild(int index, Element object) {
     if (children_max <= children.size()) {
       System.err.println("[KyUI] children.size() already reached max value.");
       return;
     }
-    children.add(object);
+    children.add(index, object);
     object.parents.add(this);
     setPosition(pos);
   }

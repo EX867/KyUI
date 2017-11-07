@@ -2,7 +2,7 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.EventListener;
+import kyui.event.listeners.MouseEventListener;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
@@ -10,7 +10,7 @@ import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class Button extends Element {
   protected boolean pressed;//this parameter indicates this element have been pressed.
-  protected EventListener pressListener;
+  protected MouseEventListener pressListener;
   //modifiable values
   public int textColor;
   public int textSize;
@@ -34,22 +34,24 @@ public class Button extends Element {
     textSize=15;
     padding=10;
   }
-  public void setPressListener(EventListener el) {
+  public void setPressListener(MouseEventListener el) {
     pressListener=el;
   }
-  public EventListener getPressListener() {
+  public MouseEventListener getPressListener() {
     return pressListener;
   }
   @Override
   public void render(PGraphics g) {
-    if (pressed) {
-      g.fill(ColorExt.brighter(bgColor, 40));
-    } else if (entered) {
-      g.fill(ColorExt.brighter(bgColor, 20));
-    } else {
-      g.fill(bgColor);
+    if (bgColor != 0) {
+      if (pressed) {
+        g.fill(ColorExt.brighter(bgColor, 40));
+      } else if (entered) {
+        g.fill(ColorExt.brighter(bgColor, 20));
+      } else {
+        g.fill(bgColor);
+      }
+      pos.render(g);
     }
-    pos.render(g);
     g.fill(textColor);
     g.textSize(textSize);
     g.pushMatrix();
@@ -67,7 +69,9 @@ public class Button extends Element {
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressed) {
         pressed=false;
-        if (pressListener != null) pressListener.onEvent();
+        if (pressListener != null) {
+          if (!pressListener.onEvent(e)) return false;
+        }
         onPress();
         invalidate();
       }
@@ -80,7 +84,7 @@ public class Button extends Element {
   @Override
   public void mouseExited() {
     pressed=false;
-    invalidate();
+    super.mouseExited();
   }
   @Override
   public Vector2 getPreferredSize() {

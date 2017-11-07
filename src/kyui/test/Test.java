@@ -28,7 +28,7 @@ public class Test extends PApplet {
     f.setRotation(Attributes.ROTATE_LEFT);
     f.setButtonRotation(Attributes.ROTATE_NONE);
     f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
-    f.setTabSize(60);
+    f.setTabSize(70);
     KyUI.add(f);
     // write your other code
   }
@@ -36,22 +36,13 @@ public class Test extends PApplet {
   public void draw() {
     //long aa=System.currentTimeMillis();
     KyUI.render(g);
-    //long bb=System.currentTimeMillis();
-    /*strokeWeight(10);
-    stroke(0);
-    for (int a=0; a < 100; a++) {
-      line(0, 0, 1000, 1000);
-    }*/
     // write your other code
   }
   @Override
   public void keyTyped() {
-    if (key == '>') {
+    if (key == ' ') {
       f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
       count++;
-    } else if (key == '<') {
-      //f.removeTab(f.size() - 1);
-      f.removeTab(0);
     }
   }
   @Override
