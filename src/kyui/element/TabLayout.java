@@ -8,31 +8,43 @@ import processing.core.PGraphics;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-public class TabFrame extends Element {
+public class TabLayout extends Element {
   protected LinkedList<Element> tabs;//only contains TabButton...
   public LinkedList<Element> contents;//content filled in empty space.
   public HashMap<Integer, Integer> idToIndex;
+  //pointers
+  protected DivisionLayout linkLayout;
   protected LinearLayout tabLayout;
+  protected FrameLayout contentLayout;
   //modifiable values
   public int tabColor1;//selected
   public int tabColor2;
+  public int edgeSize=8;
   //protected modifiable values
   protected int tabSize;
   protected int rotation=Attributes.ROTATE_NONE;
+  protected int buttonRotation=Attributes.ROTATE_NONE;
+  protected int buttonEdgeRotation=Attributes.ROTATE_NONE;
   //in-class values
   public int selection=0;
   //temp vars
   private int count=0;
   private Rect cacheRect=new Rect(0, 0, 0, 0);
-  public TabFrame(String name, Rect pos_) {
+  public TabLayout(String name, Rect pos_) {
     super(name);
     pos=pos_;
     init();
     contents=new LinkedList<Element>();
     idToIndex=new HashMap<Integer, Integer>(100);
-    tabLayout=new LinearLayout(getName() + ":layout", new Rect(pos.left, pos.top, pos.right, pos.top + tabSize));
-    addChild(tabLayout);
+    linkLayout=new DivisionLayout(getName() + ":linkLayout", pos);
+    tabLayout=new LinearLayout(getName() + ":tabLayout");
+    contentLayout=new FrameLayout(getName() + ":contentLayout");
+    linkLayout.direction=Attributes.VERTICAL;
+    addChild(linkLayout);
+    linkLayout.addChild(tabLayout);
+    linkLayout.addChild(contentLayout);
     tabs=tabLayout.children;
+    contents=contentLayout.children;
     addTab("", new Element(getName() + ":default"));
     tabs.get(0).setEnabled(false);
     selectTab(0);//0 means no tab selected.
@@ -46,26 +58,22 @@ public class TabFrame extends Element {
   }
   public void addTab(String text, Element content) {
     idToIndex.put(count, tabs.size());
-    TabButton btn=new TabButton(getName() + ":" + count, pos);
+    TabButton btn=new TabButton(getName() + ":" + count);
     btn.setPressListener(new TabFramePressListener(count));
     btn.text=text;
     btn.edgeColor=tabColor2;
-    if (rotation == Attributes.ROTATE_DOWN) {
-      btn.rotation=Attributes.ROTATE_NONE;
-    } else {
-      btn.rotation=rotation;
-    }
+    btn.rotation=buttonRotation;
+    btn.edgeRotation=buttonEdgeRotation;
     count++;
     tabLayout.addChild(btn);
-    contents.add(content);
+    contentLayout.addChild(content);
     content.setEnabled(false);
-    addChild(content);
   }
   public synchronized void removeTab(int index) {
     if (index < 0 || index >= tabs.size() - 1) return;
     index+=1;
-    removeChild(contents.get(index).getName());
-    contents.remove(index);
+    Element content=contents.get(index);
+    contentLayout.removeChild(content.getName());
     Element btn=tabs.get(index);
     tabLayout.removeChild(btn.getName());
     int id=idToIndex.get(((TabFramePressListener)((TabButton)btn).getPressListener()).id);
@@ -107,46 +115,44 @@ public class TabFrame extends Element {
   }
   public void setTabSize(int size) {
     tabSize=size;
-    tabLayout.pos.bottom=pos.top + size;
     localLayout();
   }
   public void setRotation(int rotation_) {
     rotation=rotation_;
     if (rotation == Attributes.ROTATE_DOWN || rotation == Attributes.ROTATE_NONE) {
-      for (Element e : tabs) {
-        ((TabButton)e).rotation=Attributes.ROTATE_NONE;
-      }
       tabLayout.setDirection(Attributes.HORIZONTAL);
+      linkLayout.direction=Attributes.VERTICAL;
     } else {
-      for (Element e : tabs) {
-        ((TabButton)e).rotation=rotation;
-      }
       tabLayout.setDirection(Attributes.VERTICAL);
+      linkLayout.direction=Attributes.HORIZONTAL;
+    }
+    if (rotation == Attributes.ROTATE_RIGHT || rotation == Attributes.ROTATE_DOWN) {
+      linkLayout.inverse=true;
+    } else {
+      linkLayout.inverse=false;
+    }
+    setButtonRotation(rotation);
+  }
+  public void setButtonRotation(int rotation_) {
+    buttonRotation=rotation_;
+    for (Element e : tabs) {
+      ((TabButton)e).rotation=buttonRotation;
+    }
+    setButtonEdgeRotation(buttonRotation);
+  }
+  public void setButtonEdgeRotation(int rotation_) {
+    buttonEdgeRotation=rotation_;
+    for (Element e : tabs) {
+      ((TabButton)e).edgeRotation=buttonEdgeRotation;
     }
     localLayout();
   }
   @Override
   public void onLayout() {
-    if (rotation == Attributes.ROTATE_NONE) {
-      tabLayout.setPosition(new Rect(pos.left, pos.top, pos.right, pos.top + tabSize));
-    } else if (rotation == Attributes.ROTATE_RIGHT) {
-      tabLayout.setPosition(new Rect(pos.right - tabSize, pos.top, pos.right, pos.bottom));
-    } else if (rotation == Attributes.ROTATE_DOWN) {
-      tabLayout.setPosition(new Rect(pos.left, pos.bottom - tabSize, pos.right, pos.bottom));
-    } else if (rotation == Attributes.ROTATE_LEFT) {
-      tabLayout.setPosition(new Rect(pos.left, pos.top, pos.left + tabSize, pos.bottom));
-    }
-    for (Element e : contents) {
-      if (rotation == Attributes.ROTATE_NONE) {
-        e.setPosition(new Rect(pos.left + e.margin, pos.top + tabSize + e.margin, pos.right - e.margin, pos.bottom - e.margin));
-      } else if (rotation == Attributes.ROTATE_RIGHT) {
-        e.setPosition(new Rect(pos.left + e.margin, pos.top + e.margin, pos.right - e.margin - tabSize, pos.bottom - e.margin));
-      } else if (rotation == Attributes.ROTATE_DOWN) {
-        e.setPosition(new Rect(pos.left + e.margin, pos.top + e.margin, pos.right - e.margin, pos.bottom - e.margin - tabSize));
-      } else if (rotation == Attributes.ROTATE_LEFT) {
-        e.setPosition(new Rect(pos.left + e.margin + tabSize, pos.top + e.margin, pos.right - e.margin, pos.bottom));
-      }
-    }
+    linkLayout.setPosition(pos);
+    if (linkLayout.direction == Attributes.VERTICAL) linkLayout.ratio=(float)tabSize / (pos.bottom - pos.top);
+    else linkLayout.ratio=(float)tabSize / (pos.right - pos.left);
+    super.onLayout();
   }
   @Override
   public void render(PGraphics g) {
@@ -157,5 +163,33 @@ public class TabFrame extends Element {
   }
   public int size() {
     return tabs.size() - 1;
+  }
+  public class TabButton extends Button {
+    int edgeColor;
+    int edgeRotation=Attributes.ROTATE_NONE;
+    public TabButton(String name) {
+      super(name);
+    }
+    public TabButton(String name, Rect pos_) {
+      super(name, pos_);
+    }
+    public void render(PGraphics g) {
+      if (edgeRotation == Attributes.ROTATE_NONE) {
+        cacheRect.set(pos.left, pos.top, pos.right, pos.top + edgeSize);
+        textOffsetY=edgeSize / 2;
+      } else if (edgeRotation == Attributes.ROTATE_RIGHT) {
+        cacheRect.set(pos.right - edgeSize, pos.top, pos.right, pos.bottom);
+        textOffsetX=edgeSize / 2;
+      } else if (edgeRotation == Attributes.ROTATE_DOWN) {
+        cacheRect.set(pos.left, pos.bottom - edgeSize, pos.right, pos.bottom);
+        textOffsetY=edgeSize / 2;
+      } else if (edgeRotation == Attributes.ROTATE_LEFT) {
+        cacheRect.set(pos.left, pos.top, pos.left + edgeSize, pos.bottom);
+        textOffsetX=edgeSize / 2;
+      }
+      super.render(g);
+      g.fill(edgeColor);
+      cacheRect.render(g);
+    }
   }
 }

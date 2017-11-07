@@ -1,4 +1,5 @@
 package kyui.element;
+import kyui.core.KyUI;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import processing.core.PGraphics;
@@ -25,7 +26,13 @@ public class ToggleButton extends Button {
     pos.render(g);
     g.fill(textColor);
     g.textSize(textSize);
-    g.text(text, (pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
+    g.pushMatrix();
+    g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
+    for (int a=1; a < rotation; a++) {
+      g.rotate(KyUI.Ref.radians(90));
+    }
+    g.text(text, textOffsetX, textOffsetY);
+    g.popMatrix();
   }
   @Override
   public void onPress() {

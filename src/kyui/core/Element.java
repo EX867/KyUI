@@ -9,6 +9,7 @@ import java.util.LinkedList;
 public class Element {
   protected LinkedList<Element> parents=new LinkedList<Element>();
   public LinkedList<Element> children=new LinkedList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
+  protected int children_max=987654321;
   //
   public Rect pos=new Rect(0, 0, 0, 0);
   public Description description;
@@ -28,6 +29,10 @@ public class Element {
     KyUI.addElement(this);
   }
   public final void addChild(Element object) {
+    if (children_max <= children.size()) {
+      System.err.println("[KyUI] children.size() already reached max value.");
+      return;
+    }
     children.add(object);
     object.parents.add(this);
     setPosition(pos);
@@ -41,15 +46,17 @@ public class Element {
   public boolean equals(Object other) {
     return (other instanceof Element && ((Element)other).Name.equals(Name));
   }
-  public void setPosition(Rect rect) {
+  public final void setPosition(Rect rect) {
     invalidate(pos);
     pos=rect;
-    invalidate();
-    onLayout();
+    localLayout();
   }
   public void onLayout() {
-    //update children.position.
-    //default not modify child's position.
+    //update children.pos here.
+    //default is recursive.
+    for (Element child : children) {
+      child.onLayout();
+    }
   }
   protected synchronized final void localLayout() {
     onLayout();
@@ -110,7 +117,7 @@ public class Element {
   }
   public void overlay(PGraphics g) {//override this!
   }
-  public void renderlater() {
+  public final void renderlater() {
     renderFlag=true;
   }
   final boolean checkInvalid(Rect rect) {
@@ -149,18 +156,17 @@ public class Element {
   final boolean mouseEvent_(MouseEvent e) {
     if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       if (!entered) {
+        entered=true;
         mouseEntered();
       }
-      entered=true;
     } else {
       if (entered) {
+        entered=false;
         mouseExited();
       }
-      entered=false;
-      return true;
     }
     boolean childrenIntercept=false;
-    if (!mouseEventIntercept(e)) return false;
+    if ((entered || KyUI.focus == this) && !mouseEventIntercept(e)) return false;
     for (Element child : children) {
       if (child.isActive() && child.isEnabled()) {
         if (!child.mouseEvent_(e)) {
@@ -169,7 +175,12 @@ public class Element {
       }
     }
     if (childrenIntercept) return false;
-    return mouseEvent(e);
+    boolean ret=true;
+    if (entered || KyUI.focus == this) ret=mouseEvent(e);
+    if (e.getAction() == MouseEvent.PRESS) {
+      requestFocus();
+    }
+    return ret;
   }
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
     return true;
@@ -178,23 +189,25 @@ public class Element {
     return true;
   }
   public void mouseEntered() {
+    invalidate();
   }
   public void mouseExited() {
+    invalidate();
   }
   //
   public final void requestFocus() {//make onRequestListener?
-    if (KyUI.focus != null) KyUI.focus.renderFlag=true;
+    if (KyUI.focus != null) KyUI.focus.renderlater();
     KyUI.focus=this;
-    renderFlag=true;
+    renderlater();
   }
   public final void releaseFocus() {
     KyUI.focus=null;
-    renderFlag=true;
+    renderlater();
   }
   public Vector2 getPreferredSize() {
     return new Vector2(pos.right - pos.left, pos.bottom - pos.top);
   }
-  public void refreshElement() {//localLayout for public...it is not so good.
+  public final void refreshElement() {//localLayout for public...it is not so good.
     localLayout();
   }
 }

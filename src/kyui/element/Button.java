@@ -17,7 +17,8 @@ public class Button extends Element {
   public String text="Button";
   public int rotation=Attributes.ROTATE_NONE;
   //in-class values
-  protected int textOffset=0;
+  protected int textOffsetX=0;
+  protected int textOffsetY=0;
   public Button(String name) {
     super(name);
     init();
@@ -56,13 +57,12 @@ public class Button extends Element {
     for (int a=1; a < rotation; a++) {
       g.rotate(KyUI.Ref.radians(90));
     }
-    g.text(text, 0, textOffset);
+    g.text(text, textOffsetX, textOffsetY);
     g.popMatrix();
   }
   @Override
   public boolean mouseEvent(MouseEvent e) {
     if (e.getAction() == MouseEvent.PRESS) {
-      requestFocus();
       pressed=true;
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressed) {
@@ -83,11 +83,11 @@ public class Button extends Element {
     invalidate();
   }
   @Override
-  public void mouseEntered() {
-    invalidate();
-  }
-  @Override
   public Vector2 getPreferredSize() {
-    return new Vector2(KyUI.Ref.textWidth(text) + padding * 2, textSize + padding * 2);
+    if (rotation == Attributes.ROTATE_NONE || rotation == Attributes.ROTATE_DOWN) {
+      return new Vector2(KyUI.Ref.textWidth(text) + padding * 2, textSize + padding * 2);
+    } else {
+      return new Vector2(textSize + padding * 2, KyUI.Ref.textWidth(text) + padding * 2);
+    }
   }
 }

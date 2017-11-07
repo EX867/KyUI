@@ -185,6 +185,9 @@ public class KyUI {
       if (mouseState == STATE_RELEASE) mouseState=STATE_RELEASED;
       if (mouseState == STATE_PRESS || mouseState == STATE_PRESSED) mouseState=STATE_RELEASE;
     }
+    if(e.getAction()==MouseEvent.EXIT){
+      mouseGlobal.assign(-1,-1);//make no element contains this.
+    }
     root.mouseEvent_(e);
     //updater.interrupt();
   }

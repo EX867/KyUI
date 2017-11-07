@@ -17,19 +17,31 @@ public class Test extends PApplet {
   int count=0;
   int rcount=0;
   int mcount=0;
-  TabFrame f;
+  TabLayout f;
   @Override
   public void setup() {
     //frameRate(10);
+    frameRate(1000);
     //KyUI.setRoot(new Background("root", color(255, 255, 255)));
     KyUI.start(this);
-    f=new TabFrame("tabs", new Rect(0, 0, width, height));
+    f=new TabLayout("tabs", new Rect(0, 0, width, height));
+    f.setRotation(Attributes.ROTATE_LEFT);
+    f.setButtonRotation(Attributes.ROTATE_NONE);
+    f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
+    f.setTabSize(60);
     KyUI.add(f);
     // write your other code
   }
   @Override
   public void draw() {
+    //long aa=System.currentTimeMillis();
     KyUI.render(g);
+    //long bb=System.currentTimeMillis();
+    /*strokeWeight(10);
+    stroke(0);
+    for (int a=0; a < 100; a++) {
+      line(0, 0, 1000, 1000);
+    }*/
     // write your other code
   }
   @Override
@@ -40,12 +52,6 @@ public class Test extends PApplet {
     } else if (key == '<') {
       //f.removeTab(f.size() - 1);
       f.removeTab(0);
-    } else if (key == ' ') {
-      rcount++;
-      f.setRotation(rcount % 4 + 1);
-    } else if (key == '1') {
-      f.setMode(mcount % 2 + 1);
-      mcount++;
     }
   }
   @Override

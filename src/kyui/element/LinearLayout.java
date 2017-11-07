@@ -56,7 +56,7 @@ public class LinearLayout extends Element {
       for (Element e : children) {
         if (e.isEnabled()) {
           if (mode == Attributes.DYNAMIC) {
-            height=e.getPreferredSize().x;
+            height=e.getPreferredSize().y;
           }
           e.setPosition(new Rect(pos.left, pos.top - offset + childrenSize, pos.right, pos.top - offset + childrenSize + height));
           childrenSize+=height;
