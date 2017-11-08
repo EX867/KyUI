@@ -11,9 +11,10 @@ import processing.event.MouseEvent;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 public class TabLayout extends Element {
-  protected LinkedList<Element> tabs;//only contains TabButton...
-  public LinkedList<Element> contents;//content filled in empty space.
+  protected List<Element> tabs;//only contains TabButton...
+  protected List<Element> contents;//content filled in empty space.
   public HashMap<Integer, Integer> idToIndex;
   //
   LinkedList<ModificationData> tasks=new LinkedList<ModificationData>();
@@ -40,7 +41,6 @@ public class TabLayout extends Element {
     super(name);
     pos=pos_;
     init();
-    contents=new LinkedList<Element>();
     idToIndex=new HashMap<Integer, Integer>(100);
     linkLayout=new DivisionLayout(getName() + ":linkLayout", pos);
     tabLayout=new LinearLayout(getName() + ":tabLayout");
@@ -55,14 +55,15 @@ public class TabLayout extends Element {
     tabs.get(0).setEnabled(false);
     selectTab(0);//0 means no tab selected.
     localLayout();
-  }
-  private void init() {
-    bgColor=KyUI.Ref.color(127);
+    tabLayout.bgColor=KyUI.Ref.color(127);
+    contentLayout.bgColor=KyUI.Ref.color(127);
     tabColor1=KyUI.Ref.color(0, 0, 255);
     tabColor2=KyUI.Ref.color(0, 0, 127);
+  }
+  private void init() {
     tabSize=38;
   }
-  public synchronized void addTab_(int index, String text, Element content) {
+  public void addTab_(int index, String text, Element content) {
     idToIndex.put(count, index);
     TabButton btn=new TabButton(getName() + ":" + count);
     btn.setPressListener(new TabLayoutPressListener(count));
@@ -87,7 +88,7 @@ public class TabLayout extends Element {
   public void addTab(String text, Element content) {
     tasks.add(new ModificationData(tabs.size(), text, content));
   }
-  public synchronized void removeTab_(int index) {
+  public void removeTab_(int index) {
     if (index < 0 || index >= tabs.size() - 1) return;
     index+=1;
     Element content=contents.get(index);
@@ -138,7 +139,7 @@ public class TabLayout extends Element {
     }
   }
   @Override
-  public synchronized void update() {
+  public void update() {
     while (tasks.size() != 0) {
       tasks.pollFirst().execute();
     }
@@ -154,7 +155,7 @@ public class TabLayout extends Element {
       return true;
     }
   }
-  public synchronized void selectTab(int selection_) {
+  public void selectTab(int selection_) {
     if (selection_ < 0 || selection_ >= tabs.size()) return;
     if (selection >= 0 && selection < tabs.size()) {
       ((TabButton)tabs.get(selection)).edgeColor=tabColor2;
@@ -213,13 +214,6 @@ public class TabLayout extends Element {
     else linkLayout.ratio=(float)tabSize / (pos.right - pos.left);
     super.onLayout();
   }
-  @Override
-  public void render(PGraphics g) {
-    if (bgColor != 0) {
-      g.fill(bgColor);
-      pos.render(g);
-    }
-  }
   public int size() {
     return tabs.size() - 1;
   }
@@ -239,7 +233,7 @@ public class TabLayout extends Element {
       xButton=new Button(getName() + ":xButton");
       xButton.text="x";
       xButton.bgColor=ColorExt.brighter(bgColor, -10);
-      xButton.textOffsetY=-4;
+      xButton.textOffsetY=-textSize / 4;
       addChild(xButton);
       xButton.setPressListener(new TabXButtonListener(this));
     }
@@ -301,6 +295,7 @@ public class TabLayout extends Element {
       } else if (edgeRotation == Attributes.ROTATE_LEFT) {
         xButton.setPosition(new Rect(xButton.pos.left, xButton.pos.top, xButton.pos.right, xButton.pos.bottom));
       }
+      xButton.setEnabled(enableX);
       //super.onLayout();
     }
     @Override

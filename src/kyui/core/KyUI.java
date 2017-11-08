@@ -7,10 +7,15 @@ import java.util.List;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.event.Event;
 import processing.event.MouseEvent;
 import processing.event.KeyEvent;
+//===To ADD list===//
+//ADD>>optimize mouseEvent and rendering chain!!
+//ADD>>resizing functions**
+//ADD>>name duplication error
 public class KyUI {
   //
   public static PApplet Ref;
@@ -18,7 +23,7 @@ public class KyUI {
   private static boolean end=false;
   // object control
   protected static final HashMap<String, Element> Elements=new HashMap<String, Element>();
-  protected static Element root;//no support multi window.
+  protected static LinkedList<CachingFrame> roots=new LinkedList<CachingFrame>();//no support multi window.
   public static Element focus=null;
   // events
   public static LinkedList<Event> EventQueue=new LinkedList<Event>();//items popped from update thread.
@@ -47,6 +52,7 @@ public class KyUI {
   public static long drawEnd=0;
   public static long drawInterval=0;
   public static float scaleGlobal=1.0F;// this parameter stores global window scale.
+  public static PFont fontMain;//set manually! (so public)
   //thread
   public static Thread updater;
   public static int updater_interval;
@@ -59,9 +65,9 @@ public class KyUI {
   @SuppressWarnings("unchecked")
   public static void start(PApplet ref, int rate) {
     if (ready) return;// this makes setup() only called once.
-    if (root == null) root=new Element("root");
     Ref=ref;
-    resize();
+    fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
+    if (roots.size() == 0) addLayer();
     try {
       Field pressedKeys;
       pressedKeys=PApplet.class.getDeclaredField("pressedKeys");
@@ -79,13 +85,17 @@ public class KyUI {
     end=true;
   }
   public static void resize() {
-    root.setPosition(new Rect(0, 0, Ref.width, Ref.height));
+    roots.getLast().setPosition(new Rect(0, 0, Ref.width, Ref.height));
   }
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
   }
-  public static void setRoot(Element root_) {
-    root=root_;
+  public static void addLayer() {
+    roots.addLast(new CachingFrame("KyUI:" + roots.size(), new Rect(0, 0, Ref.width, Ref.height)));
+  }
+  public static void removeLayer() {
+    roots.pollLast();
+    roots.peekLast().renderFlag=true;
   }
   protected static void addElement(Element object) {
     Elements.put(object.getName(), object);
@@ -94,21 +104,21 @@ public class KyUI {
     Elements.remove(name);
   }
   public static void add(Element object) {
-    root.addChild(object);
+    roots.getLast().addChild(object);
   }
   public static Element get(String name) {
     return Elements.get(name);
   }
   // called by processing animation thread
   public static void update() {
-    root.update_();
+    roots.getLast().update_();
   }
-  public synchronized static void render(PGraphics g) {
+  public static void render(PGraphics g) {
     drawStart=drawEnd;
-    g.rectMode(PApplet.CORNERS);
-    g.textAlign(PApplet.CENTER, PApplet.CENTER);
-    g.noStroke();
-    root.render_(g);
+    g.imageMode(PApplet.CENTER);
+    for (Element root : roots) {
+      root.render_(g);//render all...
+    }
     drawEnd=System.currentTimeMillis();
     drawInterval=drawEnd - drawStart;
   }
@@ -130,7 +140,7 @@ public class KyUI {
           }
         }
         //
-        root.update_();
+        roots.getLast().update_();
       }
     }
   }
@@ -138,7 +148,7 @@ public class KyUI {
   public static void handleEvent(Event e) {
     EventQueue.addLast(e);
   }
-  synchronized static void keyEvent(KeyEvent e) {// FIX >> This code is unstable. test and fix!
+  static void keyEvent(KeyEvent e) {// FIX >> This code is unstable. test and fix!
     if (Ref.key == PApplet.ESC) {
       Ref.key=0; // Fools! don't let them escape!
     }
@@ -153,8 +163,8 @@ public class KyUI {
         else if (e.getKey() == PApplet.ALT) altPressed=false;
       }
     }
-    root.keyEvent_((KeyEvent)e);
-    if (!keyState) root.keyTyped_((KeyEvent)e);
+    roots.getLast().keyEvent_((KeyEvent)e);
+    if (!keyState) roots.getLast().keyTyped_((KeyEvent)e);
     keyState=true;
     if (Ref.keyPressed == false) keyTime=System.currentTimeMillis();
     if (keyInit) {
@@ -173,7 +183,7 @@ public class KyUI {
     }
     //updater.interrupt();
   }
-  synchronized static void mouseEvent(MouseEvent e) {
+  static void mouseEvent(MouseEvent e) {
     mouseGlobal.assign(Ref.mouseX / scaleGlobal, Ref.mouseY / scaleGlobal);
     if (Ref.mousePressed) {
       if (mouseState == STATE_PRESS) mouseState=STATE_PRESSED;
@@ -188,11 +198,14 @@ public class KyUI {
     if (e.getAction() == MouseEvent.EXIT) {
       mouseGlobal.assign(-1, -1);//make no element contains this.
     }
-    root.mouseEvent_(e);
+    int a=roots.size() - 1;
+    while (a >= 0 && roots.get(a).mouseEvent_(e)) {
+      a--;
+    }
     //updater.interrupt();
   }
   //
-  public synchronized static void invalidate(Rect rect) {//adjust renderFlag.
-    root.checkInvalid(rect);
+  public static void invalidate(Rect rect) {//adjust renderFlag.
+    roots.getLast().checkInvalid(rect);
   }
 }

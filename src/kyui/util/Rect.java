@@ -30,12 +30,12 @@ public class Rect implements Cloneable {//it is like android's rect...
     return x >= left && x <= right && y >= top && y <= bottom;
   }
   public boolean contains(Rect r) {
-    if (left == r.left && r.right == right && top == r.top && bottom == r.bottom) return true;
-    if (left < r.left && right > r.right && top < r.top && bottom > r.bottom) return true;
+    //if (left == r.left && r.right == right && top == r.top && bottom == r.bottom) return true;
+    if (left <= r.left && right >= r.right && top <= r.top && bottom >= r.bottom) return true;
     return false;
   }
   public boolean intersects(Rect r) {
-    if (r.right <= left || r.left >= right || r.top >= bottom || r.bottom <= top) return false;
+    if (r.right < left || r.left > right || r.top > bottom || r.bottom < top) return false;
     return true;
   }
   @Override

@@ -13,7 +13,7 @@ public class ToggleButton extends Button {
     super(name, pos_);
   }
   @Override
-  public void render(PGraphics g) {
+  protected void setDrawBgColor(PGraphics g) {
     if (pressed) {
       g.fill(bgColor);
     } else if (entered) {
@@ -23,16 +23,6 @@ public class ToggleButton extends Button {
       if (value) g.fill(ColorExt.brighter(bgColor, 40));
       else g.fill(ColorExt.brighter(bgColor, -40));
     }
-    pos.render(g);
-    g.fill(textColor);
-    g.textSize(textSize);
-    g.pushMatrix();
-    g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
-    for (int a=1; a < rotation; a++) {
-      g.rotate(KyUI.Ref.radians(90));
-    }
-    g.text(text, textOffsetX, textOffsetY);
-    g.popMatrix();
   }
   @Override
   public void onPress() {

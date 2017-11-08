@@ -1,8 +1,11 @@
 package kyui.test;
 import kyui.core.Attributes;
+import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.element.*;
+import kyui.event.listeners.ItemSelectListener;
 import kyui.util.Rect;
+import kyui.util.Vector2;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -21,7 +24,6 @@ public class Test extends PApplet {
   @Override
   public void setup() {
     //frameRate(10);
-    frameRate(1000);
     //KyUI.setRoot(new Background("root", color(255, 255, 255)));
     KyUI.start(this);
     f=new TabLayout("tabs", new Rect(0, 0, width, height));
@@ -30,6 +32,18 @@ public class Test extends PApplet {
     f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
     f.setTabSize(70);
     KyUI.add(f);
+    f.addTab("A", new Element("asdf"));
+    DropDown d=new DropDown("droptest");
+    d.text="aggdagga";
+    d.setSelectListener(new ItemSelectListener() {
+      @Override
+      public void onEvent(int index) {
+        d.text=index+"";
+      }
+    });
+    Vector2 s=d.getPreferredSize();
+    d.setPosition(new Rect(70, 0, 70 + s.x, s.y));
+    KyUI.get("asdf").addChild(d);
     // write your other code
   }
   @Override

@@ -5,10 +5,12 @@ import processing.core.PGraphics;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 public class Element {
-  protected LinkedList<Element> parents=new LinkedList<Element>();
-  public LinkedList<Element> children=new LinkedList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
+  protected List<Element> parents=new LinkedList<Element>();
+  public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   protected int children_max=987654321;
   //
   public Rect pos=new Rect(0, 0, 0, 0);
@@ -21,7 +23,7 @@ public class Element {
   private boolean enabled=true;// this parameter controls object's existence.
   private boolean visible=true;// this parameter controls object rendering
   private boolean active=true;// this parameter controls object control (use inputs)
-  protected boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
+  boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
   //temp vars
   protected boolean entered=false;
   public Element(String name) {
@@ -61,7 +63,7 @@ public class Element {
       child.onLayout();
     }
   }
-  protected synchronized final void localLayout() {
+  protected final void localLayout() {
     onLayout();
     invalidate();
   }
@@ -97,38 +99,46 @@ public class Element {
   public void update() {//override this!
   }
   public final void invalidate() {
-    //KyUI.invalidate(pos);
-    renderFlag=true;
+    KyUI.invalidate(pos);
   }
   public final void invalidate(Rect rect) {
     KyUI.invalidate(rect);
   }
-  final void render_(PGraphics g) {
+  void render_(PGraphics g) {
     //g.clip(pos.left, pos.top, pos.right, pos.bottom);
     if (renderFlag) render(g);
+    renderChildren(g);
+    if (renderFlag) overlay(g);
+    renderFlag=false;
+    //g.noClip();
+  }
+  final void renderChildren(PGraphics g) {
     for (Element child : children) {
       if (child.isVisible() && child.isEnabled()) {
         if (renderFlag) child.renderFlag=true;
         child.render_(g);
       }
     }
-    if (renderFlag) overlay(g);
-    renderFlag=false;
-    //g.noClip();
   }
   public void render(PGraphics g) {//override this!
+    if (bgColor != 0) {
+      g.fill(bgColor);
+      pos.render(g);
+    }
   }
   public void overlay(PGraphics g) {//override this!
   }
   public final void renderlater() {
-    renderFlag=true;
+    invalidate();
   }
-  final boolean checkInvalid(Rect rect) {
+  boolean checkInvalid(Rect rect) {
     if (pos.contains(rect)) {
-      if (children.size() == 0) renderFlag=true;
+      if (children.size() == 0) {
+        renderFlag=true;
+      }
       for (Element child : children) {
         if (child.isVisible() && child.isEnabled()) {
-          if (child.checkInvalid(rect)) {//child not contains rect.
+          if (child.checkInvalid(rect)) {//child not contains rect.\
             renderFlag=true;
           }
         }

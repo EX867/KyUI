@@ -43,13 +43,7 @@ public class Button extends Element {
   @Override
   public void render(PGraphics g) {
     if (bgColor != 0) {
-      if (pressed) {
-        g.fill(ColorExt.brighter(bgColor, 40));
-      } else if (entered) {
-        g.fill(ColorExt.brighter(bgColor, 20));
-      } else {
-        g.fill(bgColor);
-      }
+      setDrawBgColor(g);
       pos.render(g);
     }
     g.fill(textColor);
@@ -59,8 +53,20 @@ public class Button extends Element {
     for (int a=1; a < rotation; a++) {
       g.rotate(KyUI.Ref.radians(90));
     }
-    g.text(text, textOffsetX, textOffsetY);
+    drawContent(g);
     g.popMatrix();
+  }
+  protected void setDrawBgColor(PGraphics g) {
+    if (pressed) {
+      g.fill(ColorExt.brighter(bgColor, 40));
+    } else if (entered) {
+      g.fill(ColorExt.brighter(bgColor, 20));
+    } else {
+      g.fill(bgColor);
+    }
+  }
+  protected void drawContent(PGraphics g) {
+    g.text(text, textOffsetX, textOffsetY);
   }
   @Override
   public boolean mouseEvent(MouseEvent e) {
