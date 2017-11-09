@@ -1,12 +1,14 @@
 package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
+import kyui.event.listeners.OnAdjustListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class Slider extends Element {
-  int strokeWeight=6;
+  int strokeWeight=4;
   int direction=Attributes.HORIZONTAL;
+  OnAdjustListener adjustListener;
   Number max;
   Number min;
   Number value;
@@ -38,6 +40,9 @@ public class Slider extends Element {
     value=value_;
     value=Math.min(Math.max(value.floatValue(), min.floatValue()), max.floatValue());
   }
+  public void setAdjustListener(OnAdjustListener l) {
+    adjustListener=l;
+  }
   @Override
   public void render(PGraphics g) {
     super.render(g);
@@ -56,22 +61,29 @@ public class Slider extends Element {
     float value=this.value.floatValue();
     if (min < max) {
       if (direction == Attributes.HORIZONTAL) {
-        int sizeX=pos.right - pos.left;
-        int sizeYh=(pos.bottom-pos.top)/2;
-        int posYm=(pos.top + pos.bottom) / 2;
-        float point=pos.left+value*(sizeX/(max-min));
-        g.rect(point-sliderSize,posYm-sizeYh,point+sliderSize,posYm+sizeYh);
+        float sizeX=pos.right - pos.left;
+        float sizeYh=(pos.bottom - pos.top) / 2;
+        float posYm=(pos.top + pos.bottom) / 2;
+        float point=pos.left + value * (sizeX / (max - min));
+        g.rect(point - sliderSize, posYm - sizeYh, point + sliderSize, posYm + sizeYh);
       } else if (direction == Attributes.VERTICAL) {
-        int sizeX=pos.bottom-pos.top;
-        int sizeYh=(pos.right-pos.left)/2;
-        int posYm=(pos.left + pos.right) / 2;
-        float point=pos.top+value*(sizeX/(max-min));
-        g.rect(posYm-sizeYh,point+sliderSize,posYm+sizeYh,point-sliderSize);
+        float sizeX=pos.bottom - pos.top;
+        float sizeYh=(pos.right - pos.left) / 2;
+        float posYm=(pos.left + pos.right) / 2;
+        float point=pos.top + value * (sizeX / (max - min));
+        g.rect(posYm - sizeYh, point + sliderSize, posYm + sizeYh, point - sliderSize);
       }
     }
     g.noStroke();
   }
-  @Override public boolean mouseEvent(MouseEvent e,int index){
+  @Override
+  public boolean mouseEvent(MouseEvent e, int index) {
+    if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.MOVE) {
+      if (adjustListener != null) {
+        adjustListener.onAdjust();
+      }
+      return false;
+    }
     return true;
   }
 }

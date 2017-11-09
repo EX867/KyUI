@@ -4,6 +4,7 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.event.listeners.ItemSelectListener;
 import kyui.event.listeners.MouseEventListener;
+import kyui.event.listeners.OnAdjustListener;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
@@ -22,6 +23,8 @@ public class LinearList extends Element {
   //modifiable values
   public int sliderSize;
   public int fgColor;
+  //temp values
+  Rect cacheRect=new Rect();
   public LinearList(String name) {
     super(name);
     init();
@@ -42,26 +45,49 @@ public class LinearList extends Element {
     linkLayout.addChild(slider);
     listLayout.setDirection(Attributes.VERTICAL);
     listLayout.setMode(Attributes.FIXED);
+    listLayout.padding=strokeWeight;
+    slider.margin=0;
+    listLayout.setAdjustListener(new OnAdjustListener() {
+      @Override
+      public void onAdjust() {
+        setSlider();
+      }
+    });
+    slider.setAdjustListener(new OnAdjustListener() {
+      @Override
+      public void onAdjust() {
+        setList();
+        listLayout.invalidate();
+      }
+    });
+    bgColor=KyUI.Ref.color(127);
     addChild(linkLayout);
   }
   public void addItem(String text) {
     listLayout.addChild(listLayout.children.size(), new SelectableButton(getName() + ":" + count, this));
     count++;
+    setSlider();
   }
   public void addItem(int index, String text) {
     listLayout.addChild(index, new SelectableButton(getName() + ":" + count, this));
     count++;
+    setSlider();
   }
   public void addItem(SelectableButton e) {
     listLayout.addChild(listLayout.children.size(), e);
     e.Ref=this;
+    setSlider();
   }
   public void addItem(int index, SelectableButton e) {
     listLayout.addChild(index, e);
     e.Ref=this;
+    setSlider();
   }
   public void removeItem(int index) {
+    if (index < 0 || index >= size()) return;
     listLayout.removeChild(listLayout.children.get(index).getName());
+    setList();
+    setSlider();
   }
   public void setSelectListener(ItemSelectListener l) {
     selectListener=l;
@@ -71,16 +97,27 @@ public class LinearList extends Element {
     localLayout();
   }
   @Override
-  public void onLayout() {
+  public synchronized void onLayout() {
     linkLayout.ratio=1 - (float)sliderSize / (pos.right - pos.left);
     linkLayout.setPosition(pos);
+    setSlider();
   }
   @Override
   public void render(PGraphics g) {
     g.strokeWeight(strokeWeight);
     g.stroke(fgColor);
-    super.render(g);
+    g.noFill();
+    pos.render(g);
+    g.fill(bgColor);
+    listLayout.pos.render(g);
+    //slider.pos.render(g);
     g.noStroke();
+  }
+  void setSlider() {//when move slider
+    slider.set(listLayout.getTotalSize(), pos.bottom - pos.top, listLayout.offset);
+  }
+  void setList() {//when move list
+    listLayout.setOffset(slider.getOffset(listLayout.getTotalSize()));
   }
   public static class SelectableButton extends Button {
     //modifiable values
@@ -135,6 +172,7 @@ public class LinearList extends Element {
   public Vector2 getPreferredSize() {
     return new Vector2(pos.right - pos.left, listLayout.fixedSize * listLayout.children.size());
   }
+  @Override
   public int size() {
     return listLayout.size();
   }

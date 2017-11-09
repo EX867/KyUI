@@ -31,8 +31,8 @@ public class DropDown extends Button {
     downButton.bgColor=0;
     downButton.text=DOWN;
     setPressListener(new DropButtonListener());
-    addChild(downButton);
     picker.setSelectListener(new DropDownClickListener());
+    addChild(downButton);
     downLayer=KyUI.getNewLayer();
     downLayer.addChild(picker);
   }
@@ -63,14 +63,14 @@ public class DropDown extends Button {
   }
   @Override
   public void onLayout() {
-    int size;
+    float size;
     downButton.rotation=rotation;
     if (rotation % 2 == 1) {
       size=(pos.bottom - pos.top);
     } else {
       size=(pos.right - pos.left);
     }
-    int x=0, y=0;
+    float x=0, y=0;
     if (rotation == Attributes.ROTATE_NONE) {
       x=pos.right - size / 2;
       y=(pos.top + pos.bottom) / 2;
@@ -112,7 +112,6 @@ public class DropDown extends Button {
       invalidate();
       KyUI.addLayer(downLayer);
       picker.setPosition(new Rect(pos.left, pos.bottom, pos.right, pos.bottom + picker.getPreferredSize().y));//!!!
-      picker.bgColor=bgColor;
       return false;
     }
   }

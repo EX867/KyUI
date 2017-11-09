@@ -48,6 +48,7 @@ public class KyUI {
   public static boolean keyInit=false;// this used on textEdit and etc...
   protected static List<Long> reflectedPressedKeys;
   // graphics
+  public static LinkedList<Rect> clipArea=new LinkedList<Rect>();
   public static long drawStart=0;// these 3 parameters used to measure elapsed time.
   public static long drawEnd=0;
   public static long drawInterval=0;
@@ -85,9 +86,9 @@ public class KyUI {
   public static void end() {
     end=true;
   }
-  public static void resize() {
-    roots.getLast().setPosition(new Rect(0, 0, Ref.width, Ref.height));
-  }
+  //  public static void resize() {
+  //    roots.getLast().setPosition(new Rect(0, 0, Ref.width, Ref.height));
+  //  }
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
   }
@@ -202,10 +203,11 @@ public class KyUI {
     if (e.getAction() == MouseEvent.EXIT) {
       mouseGlobal.assign(-1, -1);//make no element contains this.
     }
-    int a=roots.size() - 1;
-    while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
-      a--;
-    }
+    roots.getLast().mouseEvent_(e, roots.size() - 1);
+    //    int a=roots.size() - 1;
+    //    while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
+    //      a--;
+    //    }
     //updater.interrupt();
   }
   //
@@ -214,5 +216,21 @@ public class KyUI {
   }
   public static void invalidate(Rect rect) {//adjust renderFlag.
     roots.getLast().checkInvalid(rect);
+  }
+  public static void clipRect(PGraphics g, Rect rect) {
+    g.imageMode(PApplet.CORNERS);
+    g.clip(rect.left, rect.top, rect.right, rect.bottom);
+    g.imageMode(PApplet.CENTER);
+    clipArea.add(rect);
+  }
+  public static void removeClip(PGraphics g) {
+    if (clipArea.size() > 0) {
+      clipArea.removeLast();
+    }
+    if (clipArea.size() == 0) {
+      g.noClip();
+    } else {
+      g.clip(clipArea.getLast().left, clipArea.getLast().top, clipArea.getLast().right, clipArea.getLast().bottom);
+    }
   }
 }

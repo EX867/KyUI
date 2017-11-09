@@ -10,7 +10,7 @@ public class CachingFrame extends Element {
   public CachingFrame(String name, Rect pos_) {
     super(name);
     pos=pos_;
-    display=KyUI.Ref.createGraphics(pos.right - pos.left, pos.bottom - pos.top);
+    display=KyUI.Ref.createGraphics((int)(pos.right - pos.left), (int)(pos.bottom - pos.top));
   }
   @Override
   void render_(PGraphics g) {

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 public class Element {
-  protected List<Element> parents=new LinkedList<Element>();
+  protected List<Element> parents=new ArrayList<Element>();
   public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   protected int children_max=987654321;
   //
@@ -18,6 +18,9 @@ public class Element {
   public int bgColor=0;
   public int margin=0;
   public int padding=0;
+  //
+  protected int startClip=0;//used in rendering or
+  protected int endClip=KyUI.INF;
   //
   private String Name;//identifier.
   private boolean enabled=true;// this parameter controls object's existence.
@@ -33,7 +36,7 @@ public class Element {
   public final void addChild(Element object) {
     addChild(children.size(), object);
   }
-  public final void addChild(int index, Element object) {
+  public synchronized final void addChild(int index, Element object) {
     if (children_max <= children.size()) {
       System.err.println("[KyUI] children.size() already reached max value.");
       return;
@@ -42,10 +45,11 @@ public class Element {
     object.parents.add(this);
     setPosition(pos);
   }
-  public final void removeChild(String name) {
+  public synchronized final void removeChild(String name) {
     Element object=KyUI.get(name);
     object.parents.remove(this);
     children.remove(object);
+    localLayout();
   }
   @Override
   public boolean equals(Object other) {
@@ -56,14 +60,14 @@ public class Element {
     pos=rect;
     localLayout();
   }
-  public void onLayout() {
+  public synchronized void onLayout() {
     //update children.pos here.
     //default is recursive.
     for (Element child : children) {
       child.onLayout();
     }
   }
-  protected final void localLayout() {
+  protected synchronized final void localLayout() {
     onLayout();
     invalidate();
   }
@@ -90,7 +94,7 @@ public class Element {
     return active;
   }
   //
-  public final void update_() {
+  public synchronized final void update_() {
     for (int a=0; a < children.size(); a++) {
       if (children.get(a).isEnabled()) children.get(a).update_();
     }
@@ -112,8 +116,10 @@ public class Element {
     renderFlag=false;
     //g.noClip();
   }
-  final void renderChildren(PGraphics g) {
-    for (Element child : children) {
+  synchronized final void renderChildren(PGraphics g) {
+    int end=Math.min(children.size(), endClip);
+    for (int a=Math.max(0, startClip); a < end; a++) {
+      Element child=children.get(a);
       if (child.isVisible() && child.isEnabled()) {
         if (renderFlag) child.renderFlag=true;
         child.render_(g);
@@ -131,12 +137,14 @@ public class Element {
   public final void renderlater() {
     invalidate();
   }
-  boolean checkInvalid(Rect rect) {
+  synchronized boolean checkInvalid(Rect rect) {
     if (pos.contains(rect)) {
       if (children.size() == 0) {
         renderFlag=true;
       }
-      for (Element child : children) {
+      int end=Math.min(children.size(), endClip);
+      for (int a=Math.max(0, startClip); a < end; a++) {
+        Element child=children.get(a);
         if (child.isVisible() && child.isEnabled()) {
           if (child.checkInvalid(rect)) {//child not contains rect.\
             renderFlag=true;
@@ -166,7 +174,7 @@ public class Element {
   public void keyTyped(KeyEvent e) {//override this!
     //do not use e.getAction() in here! (incorrect)
   }
-  final boolean mouseEvent_(MouseEvent e, int index) {
+  synchronized final boolean mouseEvent_(MouseEvent e, int index) {
     if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       if (!entered) {
         entered=true;
@@ -180,15 +188,15 @@ public class Element {
     }
     boolean childrenIntercept=false;
     if ((entered || KyUI.focus == this) && !mouseEventIntercept(e)) return false;
-    int index2=0;
-    for (Element child : children) {
+    int end=Math.min(children.size(), endClip);
+    for (int a=Math.max(0, startClip); a < end; a++) {
+      Element child=children.get(a);
       if (child.isEnabled()) {
         if (child.isActive()) {
-          if (!child.mouseEvent_(e, index2)) {
+          if (!child.mouseEvent_(e, a)) {
             childrenIntercept=true;
           }
         }
-        index2++;
       }
     }
     if (childrenIntercept) return false;
@@ -209,7 +217,6 @@ public class Element {
   }
   public void mouseEntered() {
     invalidate();
-    System.out.println(getName() + " " + KyUI.Ref.frameCount);
   }
   public void mouseExited() {
     invalidate();
@@ -229,5 +236,8 @@ public class Element {
   }
   public final void refreshElement() {//localLayout for public...it is not so good.
     localLayout();
+  }
+  public int size() {
+    return children.size();
   }
 }

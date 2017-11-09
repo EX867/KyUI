@@ -41,6 +41,9 @@ public class TabLayout extends Element {
     super(name);
     pos=pos_;
     init();
+  }
+  private void init() {
+    tabSize=38;
     idToIndex=new HashMap<Integer, Integer>(100);
     linkLayout=new DivisionLayout(getName() + ":linkLayout", pos);
     tabLayout=new LinearLayout(getName() + ":tabLayout");
@@ -59,9 +62,6 @@ public class TabLayout extends Element {
     contentLayout.bgColor=KyUI.Ref.color(127);
     tabColor1=KyUI.Ref.color(0, 0, 255);
     tabColor2=KyUI.Ref.color(0, 0, 127);
-  }
-  private void init() {
-    tabSize=38;
   }
   public void addTab_(int index, String text, Element content) {
     idToIndex.put(count, index);
@@ -89,8 +89,7 @@ public class TabLayout extends Element {
     addTab(KyUI.INF, text, content);//add to last!!
   }
   public void removeTab_(int index) {
-    if (index < 0 || index >= tabs.size() - 1) return;
-    index+=1;
+    if (index < 0 || index >= tabs.size()) return;
     Element content=contents.get(index);
     contentLayout.removeChild(content.getName());
     Element btn=tabs.get(index);
@@ -111,7 +110,7 @@ public class TabLayout extends Element {
     localLayout();
   }
   public void removeTab(int index) {
-    tasks.add(new ModificationData(index));
+    tasks.add(new ModificationData(index + 1));
   }
   class ModificationData {
     static final int ADD=1;
@@ -131,18 +130,18 @@ public class TabLayout extends Element {
       i=i_;
     }
     void execute() {
+      if (i > tabs.size() - 1) {
+        i=tabs.size() - 1;
+      }
       if (type == ADD) {
-        if (i > tabs.size() - 1) {
-          i=tabs.size() - 1;
-        }
-        addTab_(i, s, e);
+        if (i >= 0) addTab_(i, s, e);
       } else if (type == REMOVE) {
-        removeTab_(i);
+        if (i >= 0) removeTab_(i);
       }
     }
   }
   @Override
-  public void update() {
+  public synchronized void update() {
     while (tasks.size() != 0) {
       tasks.pollFirst().execute();
     }
@@ -217,15 +216,6 @@ public class TabLayout extends Element {
     else linkLayout.ratio=(float)tabSize / (pos.right - pos.left);
     super.onLayout();
   }
-  public int size() {
-    int count=0;
-    for (Element e : children) {
-      if (e.isEnabled()) {
-        count++;
-      }
-    }
-    return count;
-  }
   public class TabButton extends Button {
     int edgeColor;
     int edgeRotation=Attributes.ROTATE_NONE;
@@ -275,7 +265,7 @@ public class TabLayout extends Element {
     }
     @Override
     public void onLayout() {
-      int size;
+      float size;
       xButton.rotation=rotation;
       if (rotation % 2 == 1) {
         size=(pos.bottom - pos.top);

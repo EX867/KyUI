@@ -1,19 +1,28 @@
 package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
+import kyui.core.KyUI;
+import kyui.event.listeners.OnAdjustListener;
+import kyui.util.ColorExt;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-public class RangeSlider extends Element {
-  int strokeWeight=6;
+public class RangeSlider extends Button {
+  int strokeWeight=4;
   int direction=Attributes.VERTICAL;
+  OnAdjustListener adjustListener;
   //
   float sliderRatio;//ratio of startPoint
-  int sliderLength;
+  float sliderLength;
   //modifiable values
   int fgColor;
+  int sliderBgColor;
   //temp values
   Rect cacheRect=new Rect();
+  private float clickRatio=0;
+  private float clickOffset=0;
+  private float childrenSize=0;
+  private float clickScrollMax=0;
   public RangeSlider(String name) {
     super(name);
     init();
@@ -25,42 +34,89 @@ public class RangeSlider extends Element {
   }
   private void init() {
     margin=strokeWeight / 2;
+    fgColor=0xFF000000;
+    sliderBgColor=KyUI.Ref.color(127);
+    bgColor=50;
   }
-  public void set(int totalSize, int visibleSize, int offset) {
-    sliderLength=visibleSize * visibleSize * totalSize;
+  public void set(float totalSize, float visibleSize, float offset) {
+    if (visibleSize > totalSize) {
+      totalSize=visibleSize;
+    }
+    sliderLength=visibleSize * getSize() / totalSize;
     sliderRatio=(float)offset / totalSize;
   }
-  public float getOffset(int totalSize) {
-    int size=1;
+  public float getOffset(float totalSize) {
+    //float size=getSize();
+    return totalSize * sliderRatio;
+  }
+  public void setAdjustListener(OnAdjustListener l) {
+    adjustListener=l;
+  }
+  float getSize() {
     if (direction == Attributes.VERTICAL) {
-      size=pos.bottom - pos.top - sliderLength;
+      return pos.bottom - pos.top;
     } else if (direction == Attributes.HORIZONTAL) {
-      size=pos.right - pos.left - sliderLength;
+      return pos.right - pos.left;
     }
-    return totalSize * sliderRatio / size;
+    return 1;
   }
   @Override
   public void render(PGraphics g) {
-    g.fill(bgColor);
-    g.strokeWeight(strokeWeight);
-    g.stroke(fgColor);
+    if (fgColor != 0) {
+      g.strokeWeight(strokeWeight);
+      g.stroke(fgColor);
+    }
+    g.fill(sliderBgColor);
     pos.render(g);
     if (direction == Attributes.VERTICAL) {
-      float sliderPoint=(pos.bottom - pos.top) * sliderRatio;
+      float sliderPoint=pos.top + (pos.bottom - pos.top) * sliderRatio;
       float sliderPointXm=(float)(pos.right + pos.left) / 2;
-      float sliderSizeX=(float)(pos.right - pos.left) * 2 / 5;
-      cacheRect.set(sliderPointXm - sliderSizeX, sliderPoint - sliderLength, sliderPointXm + sliderSizeX, sliderPoint + sliderLength);
+      float sliderSizeX=(float)(pos.right - pos.left) / 2 - strokeWeight;
+      cacheRect.set(sliderPointXm - sliderSizeX, sliderPoint + strokeWeight, sliderPointXm + sliderSizeX, sliderPoint + sliderLength - strokeWeight);
     } else if (direction == Attributes.HORIZONTAL) {
-      float sliderPoint=(pos.right - pos.left) * sliderRatio;
+      float sliderPoint=pos.left + (pos.right - pos.left) * sliderRatio;
       float sliderPointXm=(float)(pos.bottom + pos.top) / 2;
-      float sliderSizeX=(float)(pos.bottom - pos.top) * 2 / 5;
-      cacheRect.set(sliderPointXm - sliderSizeX, sliderPoint - sliderLength, sliderPointXm + sliderSizeX, sliderPoint + sliderLength);//same...
+      float sliderSizeX=(float)(pos.bottom - pos.top) / 2 - strokeWeight;
+      cacheRect.set(sliderPoint + strokeWeight, sliderPointXm - sliderSizeX, sliderPointXm + sliderSizeX - strokeWeight, sliderPoint + sliderLength);//same...
     }
-    cacheRect.render(g);
     g.noStroke();
+    setDrawBgColor(g);
+    //System.out.println(cacheRect);
+    cacheRect.render(g);
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
+    if (e.getAction() == MouseEvent.PRESS) {
+      clickRatio=sliderRatio;
+      pressed=true;
+      invalidate();
+    } else if (e.getAction() == MouseEvent.DRAG) {
+      requestFocus();
+      float value=0;
+      float size=getSize();
+      if (direction == Attributes.HORIZONTAL) {
+        value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
+      } else if (direction == Attributes.VERTICAL) {
+        value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
+      }
+      if (size == 0) {
+        sliderRatio=0;
+      } else {
+        sliderRatio=clickRatio + (value / size);
+        sliderRatio=Math.min(Math.max(sliderRatio, 0), (size - sliderLength) / size);
+      }
+      if (adjustListener != null) {
+        adjustListener.onAdjust();
+      }
+      invalidate();
+      return false;
+    } else if (e.getAction() == MouseEvent.RELEASE) {
+      pressed=false;
+      invalidate();
+    }
     return true;
+  }
+  @Override
+  public void mouseExited() {
   }
 }
