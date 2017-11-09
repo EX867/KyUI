@@ -11,4 +11,5 @@ public class Attributes {
   //behavior values
   public static final int STATIC=1;
   public static final int DYNAMIC=2;
+  public static final int FIXED=3;
 }

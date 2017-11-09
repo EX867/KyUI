@@ -46,15 +46,7 @@ public class Button extends Element {
       setDrawBgColor(g);
       pos.render(g);
     }
-    g.fill(textColor);
-    g.textSize(textSize);
-    g.pushMatrix();
-    g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
-    for (int a=1; a < rotation; a++) {
-      g.rotate(KyUI.Ref.radians(90));
-    }
     drawContent(g);
-    g.popMatrix();
   }
   protected void setDrawBgColor(PGraphics g) {
     if (pressed) {
@@ -66,20 +58,30 @@ public class Button extends Element {
     }
   }
   protected void drawContent(PGraphics g) {
+    g.fill(textColor);
+    g.textSize(textSize);
+    g.pushMatrix();
+    g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
+    for (int a=1; a < rotation; a++) {
+      g.rotate(KyUI.Ref.radians(90));
+    }
     g.text(text, textOffsetX, textOffsetY);
+    g.popMatrix();
   }
   @Override
-  public boolean mouseEvent(MouseEvent e) {
+  public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS) {
       pressed=true;
     } else if (e.getAction() == MouseEvent.RELEASE) {
-      if (pressed) {
-        pressed=false;
-        if (pressListener != null) {
-          if (!pressListener.onEvent(e)) return false;
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        if (pressed) {
+          pressed=false;
+          if (pressListener != null) {
+            if (!pressListener.onEvent(e,index)) return false;
+          }
+          onPress();
+          invalidate();
         }
-        onPress();
-        invalidate();
       }
       return false;
     }

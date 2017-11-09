@@ -2,6 +2,12 @@ package kyui.util;
 import processing.core.PGraphics;
 public class Rect implements Cloneable {//it is like android's rect...
   public int left, right, top, bottom;
+  public Rect(){
+    left=0;
+    right=0;
+    top=0;
+    bottom=0;
+  }
   public Rect(int left_, int top_, int right_, int bottom_) {
     left=left_;
     top=top_;
@@ -19,6 +25,12 @@ public class Rect implements Cloneable {//it is like android's rect...
     top=top_;
     right=right_;
     bottom=bottom_;
+  }
+  public void set(float left_, float top_, float right_, float bottom_) {
+    left=(int)left_;
+    top=(int)top_;
+    right=(int)right_;
+    bottom=(int)bottom_;
   }
   public void render(PGraphics g) {
     g.rect(left, top, right, bottom);

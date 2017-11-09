@@ -86,7 +86,7 @@ public class TabLayout extends Element {
     tasks.add(new ModificationData(index + 1, text, content));
   }
   public void addTab(String text, Element content) {
-    tasks.add(new ModificationData(tabs.size(), text, content));
+    addTab(KyUI.INF, text, content);//add to last!!
   }
   public void removeTab_(int index) {
     if (index < 0 || index >= tabs.size() - 1) return;
@@ -132,6 +132,9 @@ public class TabLayout extends Element {
     }
     void execute() {
       if (type == ADD) {
+        if (i > tabs.size() - 1) {
+          i=tabs.size() - 1;
+        }
         addTab_(i, s, e);
       } else if (type == REMOVE) {
         removeTab_(i);
@@ -150,8 +153,8 @@ public class TabLayout extends Element {
       id=id_;
     }
     @Override
-    public boolean onEvent(MouseEvent e) {
-      selectTab(idToIndex.get(id));
+    public boolean onEvent(MouseEvent e, int index) {
+      selectTab(index);
       return true;
     }
   }
@@ -215,7 +218,13 @@ public class TabLayout extends Element {
     super.onLayout();
   }
   public int size() {
-    return tabs.size() - 1;
+    int count=0;
+    for (Element e : children) {
+      if (e.isEnabled()) {
+        count++;
+      }
+    }
+    return count;
   }
   public class TabButton extends Button {
     int edgeColor;
@@ -312,7 +321,7 @@ public class TabLayout extends Element {
       public TabXButtonListener(TabButton t) {
         Ref=t;
       }
-      public boolean onEvent(MouseEvent e) {
+      public boolean onEvent(MouseEvent e, int index) {
         removeTab(tabs.indexOf(Ref) - 1);
         return false;
       }

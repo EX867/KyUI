@@ -166,7 +166,7 @@ public class Element {
   public void keyTyped(KeyEvent e) {//override this!
     //do not use e.getAction() in here! (incorrect)
   }
-  final boolean mouseEvent_(MouseEvent e) {
+  final boolean mouseEvent_(MouseEvent e, int index) {
     if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       if (!entered) {
         entered=true;
@@ -180,29 +180,36 @@ public class Element {
     }
     boolean childrenIntercept=false;
     if ((entered || KyUI.focus == this) && !mouseEventIntercept(e)) return false;
+    int index2=0;
     for (Element child : children) {
-      if (child.isActive() && child.isEnabled()) {
-        if (!child.mouseEvent_(e)) {
-          childrenIntercept=true;
+      if (child.isEnabled()) {
+        if (child.isActive()) {
+          if (!child.mouseEvent_(e, index2)) {
+            childrenIntercept=true;
+          }
         }
+        index2++;
       }
     }
     if (childrenIntercept) return false;
     boolean ret=true;
-    if (entered || KyUI.focus == this) ret=mouseEvent(e);
+    if (entered || KyUI.focus == this) ret=mouseEvent(e, index);
     if (e.getAction() == MouseEvent.PRESS) {
-      requestFocus();
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        requestFocus();
+      }
     }
     return ret;
   }
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
     return true;
   }
-  public boolean mouseEvent(MouseEvent e) {//override this!
+  public boolean mouseEvent(MouseEvent e, int index) {//override this!
     return true;
   }
   public void mouseEntered() {
     invalidate();
+    System.out.println(getName() + " " + KyUI.Ref.frameCount);
   }
   public void mouseExited() {
     invalidate();

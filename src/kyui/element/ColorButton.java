@@ -20,10 +20,10 @@ public class ColorButton extends Button {
     g.fill(c);
     g.rect(-sizeX, -sizeY, sizeX, sizeY);
   }
-  public class OpenColoPickerEvent implements MouseEventListener{
+  public class OpenColorPickerEvent implements MouseEventListener {
     @Override
-    public boolean onEvent(MouseEvent e) {
-      return false;
+    public boolean onEvent(MouseEvent e, int index) {
+      return true;
     }
   }
 }

@@ -11,16 +11,22 @@ public class LinearLayout extends Element {
   //protected modifiable values
   protected int mode=Attributes.DYNAMIC;
   protected int direction=Attributes.HORIZONTAL;
+  protected int fixedSize;
   //temp vars
   private float clickOffset=0;
   private float childrenSize=0;
   private float clickScrollMax=0;
   public LinearLayout(String name_) {
     super(name_);
+    init();
   }
   public LinearLayout(String name_, Rect pos_) {
     super(name_);
     pos=pos_;
+    init();
+  }
+  private void init() {
+    fixedSize=40;
   }
   public void setMode(int mode_) {
     offset=0;
@@ -29,6 +35,10 @@ public class LinearLayout extends Element {
   public void setDirection(int dir) {
     offset=0;
     direction=dir;
+  }
+  public void setFixedSize(int size) {
+    fixedSize=size;
+    localLayout();
   }
   @Override
   public void onLayout() {
@@ -41,7 +51,10 @@ public class LinearLayout extends Element {
     }
     if (count == 0) return;//no need to layout.
     if (direction == Attributes.HORIZONTAL) {
-      float width=(float)(pos.right - pos.left) / count;
+      float width=fixedSize;
+      if (mode == Attributes.STATIC) {
+        width=(float)(pos.right - pos.left) / count;
+      }
       for (Element e : children) {
         if (e.isEnabled()) {
           if (mode == Attributes.DYNAMIC) {
@@ -52,7 +65,10 @@ public class LinearLayout extends Element {
         }
       }
     } else if (direction == Attributes.VERTICAL) {
-      float height=(float)(pos.bottom - pos.top) / count;
+      float height=fixedSize;
+      if (mode == Attributes.STATIC) {
+        height=(float)(pos.bottom - pos.top) / count;
+      }
       for (Element e : children) {
         if (e.isEnabled()) {
           if (mode == Attributes.DYNAMIC) {
@@ -105,5 +121,14 @@ public class LinearLayout extends Element {
       if (clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
     }
     return true;
+  }
+  public int size() {
+    int count=0;
+    for (Element e : children) {
+      if (e.isEnabled()) {
+        count++;
+      }
+    }
+    return count;
   }
 }

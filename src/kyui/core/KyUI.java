@@ -53,6 +53,7 @@ public class KyUI {
   public static long drawInterval=0;
   public static float scaleGlobal=1.0F;// this parameter stores global window scale.
   public static PFont fontMain;//set manually! (so public)
+  public static int INF=987654321;
   //thread
   public static Thread updater;
   public static int updater_interval;
@@ -67,7 +68,7 @@ public class KyUI {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
     fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
-    if (roots.size() == 0) addLayer();
+    if (roots.size() == 0) addLayer(getNewLayer());
     try {
       Field pressedKeys;
       pressedKeys=PApplet.class.getDeclaredField("pressedKeys");
@@ -90,12 +91,15 @@ public class KyUI {
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
   }
-  public static void addLayer() {
-    roots.addLast(new CachingFrame("KyUI:" + roots.size(), new Rect(0, 0, Ref.width, Ref.height)));
+  public static void addLayer(CachingFrame root) {
+    roots.addLast(root);
   }
   public static void removeLayer() {
     roots.pollLast();
     roots.peekLast().renderFlag=true;
+  }
+  public static CachingFrame getNewLayer() {
+    return new CachingFrame("KyUI:" + roots.size(), new Rect(0, 0, Ref.width, Ref.height));
   }
   protected static void addElement(Element object) {
     Elements.put(object.getName(), object);
@@ -199,12 +203,15 @@ public class KyUI {
       mouseGlobal.assign(-1, -1);//make no element contains this.
     }
     int a=roots.size() - 1;
-    while (a >= 0 && roots.get(a).mouseEvent_(e)) {
+    while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
       a--;
     }
     //updater.interrupt();
   }
   //
+  public static void changeLayout() {
+    roots.getLast().onLayout();
+  }
   public static void invalidate(Rect rect) {//adjust renderFlag.
     roots.getLast().checkInvalid(rect);
   }

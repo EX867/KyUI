@@ -33,18 +33,27 @@ public class Test extends PApplet {
     f.setTabSize(70);
     KyUI.add(f);
     f.addTab("A", new Element("asdf"));
+    f.addTab("A1", new LinearList("adfad"));
     DropDown d=new DropDown("droptest");
     d.text="aggdagga";
     d.setSelectListener(new ItemSelectListener() {
       @Override
       public void onEvent(int index) {
-        d.text=index+"";
+        d.text=index + "";
       }
     });
     Vector2 s=d.getPreferredSize();
     d.setPosition(new Rect(70, 0, 70 + s.x, s.y));
+    d.addItem("item");
+    System.out.println();
     KyUI.get("asdf").addChild(d);
+    LinearList e=(LinearList)KyUI.get("adfad");
+    e.addItem("asdf");
+    e.addItem("asdf");
+    e.addItem("asdf");
+    e.bgColor=color(127);
     // write your other code
+    KyUI.changeLayout();
   }
   @Override
   public void draw() {
@@ -57,6 +66,8 @@ public class Test extends PApplet {
     if (key == ' ') {
       f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
       count++;
+    } else if (key == '1') {
+      System.out.println(KyUI.get("adfad").pos);
     }
   }
   @Override

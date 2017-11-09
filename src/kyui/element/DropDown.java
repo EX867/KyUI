@@ -1,5 +1,6 @@
 package kyui.element;
 import kyui.core.Attributes;
+import kyui.core.CachingFrame;
 import kyui.core.KyUI;
 import kyui.event.listeners.ItemSelectListener;
 import kyui.event.listeners.MouseEventListener;
@@ -13,6 +14,8 @@ public class DropDown extends Button {
   protected Button downButton;
   protected LinearList picker;
   protected ItemSelectListener selectListener;
+  protected CachingFrame downLayer;
+  //
   public DropDown(String name) {
     super(name);
     init();
@@ -24,15 +27,39 @@ public class DropDown extends Button {
   private void init() {
     picker=new LinearList(getName() + ":picker");
     downButton=new Button(getName() + ":downButton");
+    picker.setFixedSize(40);
     downButton.bgColor=0;
     downButton.text=DOWN;
     setPressListener(new DropButtonListener());
     addChild(downButton);
-    //test
     picker.setSelectListener(new DropDownClickListener());
+    downLayer=KyUI.getNewLayer();
+    downLayer.addChild(picker);
   }
   public void setSelectListener(ItemSelectListener l) {
     selectListener=l;
+  }
+  //picker functions.
+  public LinearList getPicker() {
+    return picker;
+  }
+  public void addItem(LinearList.SelectableButton e) {
+    picker.addItem(e);
+  }
+  public void addItem(int index, LinearList.SelectableButton e) {
+    picker.addItem(index, e);
+  }
+  public void addItem(String e) {
+    picker.addItem(e);
+  }
+  public void addItem(int index, String e) {
+    picker.addItem(index, e);
+  }
+  public void setFixedSize(int size) {
+    picker.setFixedSize(size);
+  }
+  public void removeItem(int index) {
+    picker.removeItem(index);
   }
   @Override
   public void onLayout() {
@@ -79,13 +106,13 @@ public class DropDown extends Button {
     }
   }
   class DropButtonListener implements MouseEventListener {
-    public boolean onEvent(MouseEvent e) {
+    public boolean onEvent(MouseEvent e, int index) {
+      if (picker.size() == 0) return true;
       downButton.text=UP;
       invalidate();
-      KyUI.addLayer();
-      picker.setPosition(new Rect(pos.left, pos.bottom, pos.right, pos.bottom * 2 - pos.top));//!!!
+      KyUI.addLayer(downLayer);
+      picker.setPosition(new Rect(pos.left, pos.bottom, pos.right, pos.bottom + picker.getPreferredSize().y));//!!!
       picker.bgColor=bgColor;
-      KyUI.add(picker);
       return false;
     }
   }
