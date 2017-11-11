@@ -1,14 +1,15 @@
 package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
-import kyui.event.listeners.OnAdjustListener;
+import kyui.event.listeners.AdjustListener;
+import kyui.event.listeners.AdjustListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class Slider extends Element {
   int strokeWeight=4;
   int direction=Attributes.HORIZONTAL;
-  OnAdjustListener adjustListener;
+  AdjustListener adjustListener;
   Number max;
   Number min;
   Number value;
@@ -40,7 +41,7 @@ public class Slider extends Element {
     value=value_;
     value=Math.min(Math.max(value.floatValue(), min.floatValue()), max.floatValue());
   }
-  public void setAdjustListener(OnAdjustListener l) {
+  public void setAdjustListener(AdjustListener l) {
     adjustListener=l;
   }
   @Override

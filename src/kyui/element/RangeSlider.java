@@ -2,7 +2,7 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.OnAdjustListener;
+import kyui.event.listeners.AdjustListener;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import processing.core.PGraphics;
@@ -10,7 +10,7 @@ import processing.event.MouseEvent;
 public class RangeSlider extends Button {
   int strokeWeight=4;
   int direction=Attributes.VERTICAL;
-  OnAdjustListener adjustListener;
+  AdjustListener adjustListener;
   //
   float sliderRatio;//ratio of startPoint
   float sliderLength;
@@ -34,7 +34,7 @@ public class RangeSlider extends Button {
   }
   private void init() {
     margin=strokeWeight / 2;
-    fgColor=0xFF000000;
+    fgColor=50;
     sliderBgColor=KyUI.Ref.color(127);
     bgColor=50;
   }
@@ -49,7 +49,7 @@ public class RangeSlider extends Button {
     //float size=getSize();
     return totalSize * sliderRatio;
   }
-  public void setAdjustListener(OnAdjustListener l) {
+  public void setAdjustListener(AdjustListener l) {
     adjustListener=l;
   }
   float getSize() {
@@ -80,7 +80,7 @@ public class RangeSlider extends Button {
       cacheRect.set(sliderPoint + strokeWeight, sliderPointXm - sliderSizeX, sliderPointXm + sliderSizeX - strokeWeight, sliderPoint + sliderLength);//same...
     }
     g.noStroke();
-    setDrawBgColor(g);
+    g.fill(getDrawBgColor(g));
     //System.out.println(cacheRect);
     cacheRect.render(g);
   }
@@ -88,7 +88,6 @@ public class RangeSlider extends Button {
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS) {
       clickRatio=sliderRatio;
-      pressed=true;
       invalidate();
     } else if (e.getAction() == MouseEvent.DRAG) {
       requestFocus();
@@ -111,12 +110,9 @@ public class RangeSlider extends Button {
       invalidate();
       return false;
     } else if (e.getAction() == MouseEvent.RELEASE) {
-      pressed=false;
+      releaseFocus();
       invalidate();
     }
     return true;
-  }
-  @Override
-  public void mouseExited() {
   }
 }

@@ -6,7 +6,6 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 public class Element {
   protected List<Element> parents=new ArrayList<Element>();
@@ -27,8 +26,11 @@ public class Element {
   private boolean visible=true;// this parameter controls object rendering
   private boolean active=true;// this parameter controls object control (use inputs)
   boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
+  public boolean droppableStart=false;//this element can be start of drag.
+  public boolean droppableEnd=false;//this element can be end of drag.
   //temp vars
   protected boolean entered=false;
+  protected boolean pressed=false;//this parameter indicates this element have been pressed.
   public Element(String name) {
     Name=name;
     KyUI.addElement(this);
@@ -178,36 +180,62 @@ public class Element {
     if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       if (!entered) {
         entered=true;
-        mouseEntered();
+        mouseEntered(e, index);
+      }
+      if (e.getAction() == MouseEvent.PRESS) {
+        pressed=true;
+        invalidate();
       }
     } else {
       if (entered) {
         entered=false;
-        mouseExited();
+        mouseExited(e, index);
       }
     }
+    boolean ret=true;
     boolean childrenIntercept=false;
-    if ((entered || KyUI.focus == this) && !mouseEventIntercept(e)) return false;
-    int end=Math.min(children.size(), endClip);
-    for (int a=Math.max(0, startClip); a < end; a++) {
-      Element child=children.get(a);
-      if (child.isEnabled()) {
-        if (child.isActive()) {
-          if (!child.mouseEvent_(e, a)) {
-            childrenIntercept=true;
+    if ((entered || KyUI.focus == this) && !mouseEventIntercept(e)) {
+      if (e.getAction() == MouseEvent.RELEASE) intercepted();
+      ret=false;
+    } else {
+      int end=Math.min(children.size(), endClip);
+      for (int a=Math.max(0, startClip); a < end; a++) {
+        Element child=children.get(a);
+        if (child.isEnabled()) {
+          if (child.isActive()) {
+            if (!child.mouseEvent_(e, a)) {
+              childrenIntercept=true;
+            }
+          }
+        }
+      }
+      if (childrenIntercept) {
+        ret=false;
+      } else {
+        if (entered || KyUI.focus == this) {
+          ret=mouseEvent(e, index);
+        }
+        if (e.getAction() == MouseEvent.PRESS) {
+          if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+            requestFocus();
           }
         }
       }
     }
-    if (childrenIntercept) return false;
-    boolean ret=true;
-    if (entered || KyUI.focus == this) ret=mouseEvent(e, index);
-    if (e.getAction() == MouseEvent.PRESS) {
+    if (e.getAction() == MouseEvent.RELEASE) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-        requestFocus();
+        KyUI.dropEnd(this, e, index);
       }
+      pressed=false;
+      if (KyUI.focus == this) releaseFocus();
     }
     return ret;
+  }
+  protected void intercepted() {
+    for (Element child : children) {
+      child.intercepted();
+      child.pressed=false;
+    }
   }
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
     return true;
@@ -215,21 +243,29 @@ public class Element {
   public boolean mouseEvent(MouseEvent e, int index) {//override this!
     return true;
   }
-  public void mouseEntered() {
+  public void mouseEntered(MouseEvent e, int index) {
     invalidate();
   }
-  public void mouseExited() {
+  public void mouseExited(MouseEvent e, int index) {
+    if (pressed && droppableStart) {
+      startDrop(e, index);
+    }
     invalidate();
+  }
+  public void startDrop(MouseEvent e, int index) {
+    KyUI.dropStart(this, e, index, "", getName());
   }
   //
   public final void requestFocus() {//make onRequestListener?
-    if (KyUI.focus != null) KyUI.focus.renderlater();
+    //    if (KyUI.focus != null) {
+    //      KyUI.focus.renderlater();
+    //    }
     KyUI.focus=this;
-    renderlater();
+    invalidate();
   }
   public final void releaseFocus() {
     KyUI.focus=null;
-    renderlater();
+    invalidate();
   }
   public Vector2 getPreferredSize() {
     return new Vector2(pos.right - pos.left, pos.bottom - pos.top);

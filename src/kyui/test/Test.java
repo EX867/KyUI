@@ -1,8 +1,10 @@
 package kyui.test;
 import kyui.core.Attributes;
+import kyui.core.DropMessenger;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.element.*;
+import kyui.event.listeners.DropEventListener;
 import kyui.event.listeners.ItemSelectListener;
 import kyui.util.Rect;
 import kyui.util.Vector2;
@@ -34,7 +36,7 @@ public class Test extends PApplet {
     f.setTabSize(70);
     KyUI.add(f);
     f.addTab("A", new Element("asdf"));
-    f.addTab("A1", new LinearList("adfad"));
+    f.addTab("A1", new DivisionLayout("division"));
     DropDown d=new DropDown("droptest");
     d.text="aggdagga";
     d.setSelectListener(new ItemSelectListener() {
@@ -45,16 +47,33 @@ public class Test extends PApplet {
     });
     Vector2 s=d.getPreferredSize();
     d.setPosition(new Rect(70, 0, 70 + s.x, s.y));
-    d.addItem("item");
-    d.addItem("item");
-    d.addItem("item");
-    d.addItem("item");
-    d.addItem("item");
-    KyUI.get("asdf").addChild(d);
-    LinearList e=(LinearList)KyUI.get("adfad");
-    for (int a=0; a < 10; a++) {
-      e.addItem("" + a);
+    for (int a=0; a < 30; a++) {
+      d.addItem("item");
     }
+    KyUI.get("asdf").addChild(d);
+    ((DivisionLayout)KyUI.get("division")).direction=Attributes.VERTICAL;
+    KyUI.get("division").addChild(new LinearList("list"));
+    KyUI.get("division").addChild(new LinearList("list2"));
+    LinearList e=(LinearList)KyUI.get("list");
+    for (int a=0; a < 10; a++) {
+      e.addItem("e" + a);
+    }
+    LinearList f=(LinearList)KyUI.get("list2");
+    for (int a=0; a < 10; a++) {
+      f.addItem("f" + a);
+    }
+    KyUI.addDragAndDrop(e, f, new DropEventListener() {
+      @Override
+      public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
+        System.out.println("dropped " + e.getName() + " to " + f.getName() + " with " + messenger.message);
+      }
+    });
+    KyUI.addDragAndDrop(f, e, new DropEventListener() {
+      @Override
+      public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
+        System.out.println("dropped " + f.getName() + " to " + e.getName() + " with " + messenger.message);
+      }
+    });
     // write your other code
     KyUI.changeLayout();
   }
@@ -71,10 +90,10 @@ public class Test extends PApplet {
       f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
       count++;
     } else if (key == '>') {
-      LinearList e=(LinearList)KyUI.get("adfad");
+      LinearList e=(LinearList)KyUI.get("list");
       e.addItem("" + lcount++);
     } else if (key == '<') {
-      LinearList e=(LinearList)KyUI.get("adfad");
+      LinearList e=(LinearList)KyUI.get("list");
       e.removeItem(e.size() - 1);
     }
   }

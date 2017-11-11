@@ -4,7 +4,7 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.event.listeners.ItemSelectListener;
 import kyui.event.listeners.MouseEventListener;
-import kyui.event.listeners.OnAdjustListener;
+import kyui.event.listeners.AdjustListener;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
@@ -19,6 +19,7 @@ public class LinearList extends Element {
   protected RangeSlider slider;
   protected ItemSelectListener selectListener;
   protected SelectableButton selection=null;
+  protected SelectableButton pressItem;
   int count=0;
   //modifiable values
   public int sliderSize;
@@ -47,13 +48,13 @@ public class LinearList extends Element {
     listLayout.setMode(Attributes.FIXED);
     listLayout.padding=strokeWeight;
     slider.margin=0;
-    listLayout.setAdjustListener(new OnAdjustListener() {
+    listLayout.setAdjustListener(new AdjustListener() {
       @Override
       public void onAdjust() {
         setSlider();
       }
     });
-    slider.setAdjustListener(new OnAdjustListener() {
+    slider.setAdjustListener(new AdjustListener() {
       @Override
       public void onAdjust() {
         setList();
@@ -61,15 +62,20 @@ public class LinearList extends Element {
       }
     });
     bgColor=KyUI.Ref.color(127);
+    fgColor=50;
     addChild(linkLayout);
   }
   public void addItem(String text) {
-    listLayout.addChild(listLayout.children.size(), new SelectableButton(getName() + ":" + count, this));
+    SelectableButton btn=new SelectableButton(getName() + ":" + count, this);
+    btn.text=text;
+    listLayout.addChild(listLayout.children.size(), btn);
     count++;
     setSlider();
   }
   public void addItem(int index, String text) {
-    listLayout.addChild(index, new SelectableButton(getName() + ":" + count, this));
+    SelectableButton btn=new SelectableButton(getName() + ":" + count, this);
+    btn.text=text;
+    listLayout.addChild(index, btn);
     count++;
     setSlider();
   }
@@ -85,7 +91,14 @@ public class LinearList extends Element {
   }
   public void removeItem(int index) {
     if (index < 0 || index >= size()) return;
+    ((SelectableButton)listLayout.children.get(index)).Ref=null;
     listLayout.removeChild(listLayout.children.get(index).getName());
+    setList();
+    setSlider();
+  }
+  public void removeItem(String name) {
+    ((SelectableButton)KyUI.get(name)).Ref=null;
+    listLayout.removeChild(name);
     setList();
     setSlider();
   }
@@ -113,13 +126,26 @@ public class LinearList extends Element {
     //slider.pos.render(g);
     g.noStroke();
   }
+  @Override
+  public boolean mouseEventIntercept(MouseEvent e) {
+    if (e.getAction() == MouseEvent.PRESS) {
+      pressItem=null;
+    }
+    return true;
+  }
+  @Override
+  public void startDrop(MouseEvent e, int index) {
+    if (pressItem != null) {
+      KyUI.dropStart(this, e, index, pressItem.getName(), pressItem.text);
+    }
+  }
   void setSlider() {//when move slider
     slider.set(listLayout.getTotalSize(), pos.bottom - pos.top, listLayout.offset);
   }
   void setList() {//when move list
     listLayout.setOffset(slider.getOffset(listLayout.getTotalSize()));
   }
-  public static class SelectableButton extends Button {
+  public static class SelectableButton extends Button {//parent_max=1;
     //modifiable values
     boolean selected=false;
     LinearList Ref;
@@ -138,16 +164,41 @@ public class LinearList extends Element {
     }
     @Override
     public void render(PGraphics g) {
+      float height=(pos.bottom - pos.top);
+      float overlap=height;
+      if (Ref.pos.top > pos.top) {//up overlap
+        overlap=(height - Ref.pos.top + pos.top);
+      } else if (Ref.pos.bottom < pos.bottom) {//down overlap
+        overlap=(height + Ref.pos.bottom - pos.bottom);
+      }
       if (bgColor != 0) {
-        setDrawBgColor(g);
+        int c=getDrawBgColor(g);
         if (selected) {
-          g.fill(ColorExt.brighter(bgColor, 40));
+          c=(ColorExt.brighter(bgColor, 40));
         }
+        c=ColorExt.scale(c, overlap / height);
+        g.fill(c);
         pos.render(g);
       }
-      drawContent(g);
+      if (Ref.pos.top > pos.top) {//up overlap
+        textOffsetY=(int)(Ref.pos.top - pos.top) / 2;
+      } else if (Ref.pos.bottom < pos.bottom) {//down overlap
+        textOffsetY=(int)(Ref.pos.bottom - pos.bottom) / 2;
+      } else {
+        textOffsetY=0;
+      }
+      if (overlap > textSize) {
+        drawContent(g, ColorExt.scale(textColor, overlap / height));
+      }
     }
-    class ListItemPressListener implements MouseEventListener {
+    @Override
+    public boolean mouseEvent(MouseEvent e, int index) {
+      if (e.getAction() == MouseEvent.PRESS) {
+        Ref.pressItem=this;
+      }
+      return super.mouseEvent(e,index);
+    }
+    class ListItemPressListener implements MouseEventListener {//why!!! why you don't make MouseEvent "Press Action" Listener for button...
       SelectableButton Ref2;
       public ListItemPressListener(SelectableButton Ref2_) {
         Ref2=Ref2_;

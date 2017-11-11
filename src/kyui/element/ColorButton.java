@@ -14,7 +14,7 @@ public class ColorButton extends Button {
     c=c_;
   }
   @Override
-  protected void drawContent(PGraphics g) {
+  protected void drawContent(PGraphics g, int textC) {
     float sizeX=(pos.right - pos.left) * 4 / 10;
     float sizeY=(pos.bottom - pos.top) * 4 / 10;
     g.fill(c);

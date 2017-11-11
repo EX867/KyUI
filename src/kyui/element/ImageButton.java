@@ -13,7 +13,7 @@ public class ImageButton extends Button {
     image=image_;
   }
   @Override
-  protected void drawContent(PGraphics g) {
+  protected void drawContent(PGraphics g, int textC) {
     g.image(image, 0, 0);
   }
 }

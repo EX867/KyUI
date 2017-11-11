@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import kyui.event.listeners.DropEventListener;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PApplet;
@@ -16,6 +17,8 @@ import processing.event.KeyEvent;
 //ADD>>optimize mouseEvent and rendering chain!!
 //ADD>>resizing functions**
 //ADD>>name duplication error
+//ADD>>change rendering point to update thread!!** and only render full images on render.
+//ADD>>clear canvas on redraw.(cachingFrame)
 public class KyUI {
   //
   public static PApplet Ref;
@@ -37,6 +40,9 @@ public class KyUI {
   public static Vector2 mouseClick=new Vector2();// this parameter stores mouse click position.
   public static Vector2 mouseGlobal=new Vector2();// this parameter stores global mouse position.(scaled)
   public static final int GESTURE_THRESHOLD=13;
+  public static HashMap<String, DropEventListener> dropEvents=new HashMap<String, DropEventListener>();//dnd
+  public static DropMessenger dropMessenger;//
+  public static CachingFrame dropLayer;
   //
   public static int KEY_INIT_DELAY=600;// you can change this value.
   public static int KEY_INTERVAL=50;
@@ -59,7 +65,7 @@ public class KyUI {
   public static Thread updater;
   public static int updater_interval;
   //public Thread animation;
-  private KyUI() {//WARNING! names must not contains ':'.
+  private KyUI() {//WARNING! names must not contains ':' and "->".
   }
   public static void start(PApplet ref) {
     start(ref, 30);
@@ -69,6 +75,7 @@ public class KyUI {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
     fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
+    dropLayer=new CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
     if (roots.size() == 0) addLayer(getNewLayer());
     try {
       Field pressedKeys;
@@ -92,11 +99,15 @@ public class KyUI {
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
   }
-  public static void addLayer(CachingFrame root) {
+  public synchronized static void addLayer(CachingFrame root) {
     roots.addLast(root);
   }
-  public static void removeLayer() {
+  public synchronized static void removeLayer() {
     roots.pollLast();
+    if (roots.size() == 0) {
+      System.err.println("there is some error!");
+      return;
+    }
     roots.peekLast().renderFlag=true;
   }
   public static CachingFrame getNewLayer() {
@@ -118,11 +129,11 @@ public class KyUI {
   public static void update() {
     roots.getLast().update_();
   }
-  public static void render(PGraphics g) {
+  public synchronized static void render(PGraphics g) {
     drawStart=drawEnd;
     g.imageMode(PApplet.CENTER);
-    for (Element root : roots) {
-      root.render_(g);//render all...
+    for (CachingFrame root : roots) {
+      root.renderReal(g);//render all...
     }
     drawEnd=System.currentTimeMillis();
     drawInterval=drawEnd - drawStart;
@@ -134,6 +145,9 @@ public class KyUI {
         try {
           Thread.sleep(updater_interval);
         } catch (InterruptedException e) {
+        }
+        for (int a=0; a < roots.size(); a++) {
+          roots.get(a).render_(null);//FIX>> after making Modifiable Element!!
         }
         //empty EventQueue.
         while (EventQueue.size() > 0) {
@@ -232,5 +246,30 @@ public class KyUI {
     } else {
       g.clip(clipArea.getLast().left, clipArea.getLast().top, clipArea.getLast().right, clipArea.getLast().bottom);
     }
+  }
+  public static void dropStart(Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
+    dropMessenger=new DropMessenger("KyUI:messenger", start_, startEvent_, startIndex_, message_, displayText_);
+    dropLayer.addChild(dropMessenger);
+    addLayer(dropLayer);
+  }
+  public static void dropEnd(Element end, MouseEvent endEvent, int endIndex) {
+    if (!end.droppableEnd) return;//this is : ignoring. so please check this thing
+    if (dropMessenger != null) {
+      if (end.droppableEnd) {
+        if (getDropEvent(end) != null) {
+          dropMessenger.onEvent(end, endEvent, endIndex);
+        }
+      }
+      dropMessenger=null;
+    }
+  }
+  public static void addDragAndDrop(Element start, Element end, DropEventListener listener) {
+    dropEvents.put(start.getName() + "->" + end.getName(), listener);
+    start.droppableStart=true;
+    end.droppableEnd=true;
+  }
+  public static DropEventListener getDropEvent(Element end) {
+    if (dropMessenger == null) return null;
+    return dropEvents.get(dropMessenger.start.getName() + "->" + end.getName());
   }
 }

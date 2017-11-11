@@ -111,7 +111,7 @@ public class DropDown extends Button {
       downButton.text=UP;
       invalidate();
       KyUI.addLayer(downLayer);
-      picker.setPosition(new Rect(pos.left, pos.bottom, pos.right, pos.bottom + picker.getPreferredSize().y));//!!!
+      picker.setPosition(new Rect(pos.left, pos.bottom, pos.right, Math.min(pos.bottom + picker.getPreferredSize().y, KyUI.Ref.height)));//!!!
       return false;
     }
   }

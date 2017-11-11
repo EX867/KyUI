@@ -13,10 +13,10 @@ public class CachingFrame extends Element {
     display=KyUI.Ref.createGraphics((int)(pos.right - pos.left), (int)(pos.bottom - pos.top));
   }
   @Override
-  void render_(PGraphics g) {
-    if (renderFlag || invalidated) render(g);
+  synchronized void render_(PGraphics g) {
+    if (renderFlag || invalidated) render(null);//???
     renderChildren(display);
-    if (renderFlag || invalidated) overlay(g);
+    if (renderFlag || invalidated) overlay(null);
     renderFlag=false;
     invalidated=false;
   }
@@ -40,6 +40,8 @@ public class CachingFrame extends Element {
   @Override
   public void overlay(PGraphics g) {
     display.endDraw();
+  }
+  public synchronized void renderReal(PGraphics g) {
     g.image(display, (pos.left + pos.right) / 2, (pos.bottom + pos.top) / 2);
   }
 }

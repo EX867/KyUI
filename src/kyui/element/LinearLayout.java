@@ -2,14 +2,14 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.OnAdjustListener;
+import kyui.event.listeners.AdjustListener;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class LinearLayout extends Element {
   protected float offset=0;
-  OnAdjustListener adjustListener;
+  AdjustListener adjustListener;
   //protected modifiable values
   protected int mode=Attributes.DYNAMIC;
   protected int direction=Attributes.HORIZONTAL;
@@ -19,7 +19,6 @@ public class LinearLayout extends Element {
   private float childrenSize=0;
   private float clickScrollMax=0;
   private Rect cacheRect=new Rect();
-  boolean pressed=false;
   public LinearLayout(String name_) {
     super(name_);
     init();
@@ -71,7 +70,7 @@ public class LinearLayout extends Element {
     }
     localLayout();
   }
-  public void setAdjustListener(OnAdjustListener l) {
+  public void setAdjustListener(AdjustListener l) {
     adjustListener=l;
   }
   @Override
@@ -95,21 +94,21 @@ public class LinearLayout extends Element {
           Element e=children.get(a);
           if (e.isEnabled()) {
             e.setPosition(new Rect(pos.left - offset + childrenSize + (first ? padding : 0), pos.top + padding, pos.left - offset + childrenSize + fixedSize - padding, pos.bottom - padding));
-            childrenSize+=fixedSize;
           }
           first=false;
+          childrenSize+=fixedSize;
         }
       } else if (direction == Attributes.VERTICAL) {
-        for (int a=Math.max(0, startClip); a < end; a++) {
+        for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
             e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + (first ? padding : 0), pos.right - padding, pos.top - offset + childrenSize + fixedSize - padding));
-            childrenSize+=fixedSize;
           }
           first=false;
+          childrenSize+=fixedSize;
         }
       }
-      childrenSize=(size() - 1) * fixedSize;
+      childrenSize=(size()) * fixedSize;
     } else {
       if (direction == Attributes.HORIZONTAL) {
         float width=(float)(pos.right - pos.left) / count;
@@ -168,7 +167,6 @@ public class LinearLayout extends Element {
       if (adjustListener != null) {
         adjustListener.onAdjust();
       }
-      pressed=true;
     } else if (e.getAction() == MouseEvent.DRAG) {
       if (pressed) {
         float value=0;
@@ -189,8 +187,7 @@ public class LinearLayout extends Element {
         }
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
-      pressed=false;
-      if (clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
+      if (pressed && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
     }
     return true;
   }

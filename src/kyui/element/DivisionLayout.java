@@ -5,7 +5,7 @@ import kyui.util.Rect;
 public class DivisionLayout extends Element {
   public float ratio=0.5F;//first's size
   public boolean inverse=false;
-  int direction=Attributes.HORIZONTAL;
+  public int direction=Attributes.HORIZONTAL;
   public DivisionLayout(String name) {
     super(name);
     children_max=2;

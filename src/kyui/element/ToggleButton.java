@@ -13,15 +13,15 @@ public class ToggleButton extends Button {
     super(name, pos_);
   }
   @Override
-  protected void setDrawBgColor(PGraphics g) {
+  protected int getDrawBgColor(PGraphics g) {
     if (pressed) {
-      g.fill(bgColor);
+      return (bgColor);
     } else if (entered) {
-      if (value) g.fill(ColorExt.brighter(bgColor, 20));
-      else g.fill(ColorExt.brighter(bgColor, -20));
+      if (value) return (ColorExt.brighter(bgColor, 20));
+      else return (ColorExt.brighter(bgColor, -20));
     } else {
-      if (value) g.fill(ColorExt.brighter(bgColor, 40));
-      else g.fill(ColorExt.brighter(bgColor, -40));
+      if (value) return (ColorExt.brighter(bgColor, 40));
+      else return (ColorExt.brighter(bgColor, -40));
     }
   }
   @Override
