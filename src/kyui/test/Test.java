@@ -1,8 +1,5 @@
 package kyui.test;
-import kyui.core.Attributes;
-import kyui.core.DropMessenger;
-import kyui.core.Element;
-import kyui.core.KyUI;
+import kyui.core.*;
 import kyui.element.*;
 import kyui.event.listeners.DropEventListener;
 import kyui.event.listeners.ItemSelectListener;
@@ -30,13 +27,14 @@ public class Test extends PApplet {
     //KyUI.setRoot(new Background("root", color(255, 255, 255)));
     KyUI.start(this);
     f=new TabLayout("tabs", new Rect(0, 0, width, height));
-    f.setRotation(Attributes.ROTATE_LEFT);
-    f.setButtonRotation(Attributes.ROTATE_NONE);
-    f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
-    f.setTabSize(70);
+    //f.setRotation(Attributes.ROTATE_LEFT);
+    //f.setButtonRotation(Attributes.ROTATE_NONE);
+    //f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
+    //f.setTabSize(70);
     KyUI.add(f);
     f.addTab("A", new Element("asdf"));
     f.addTab("A1", new DivisionLayout("division"));
+    f.addTab("A2", new Slider("slider"));
     DropDown d=new DropDown("droptest");
     d.text="aggdagga";
     d.setSelectListener(new ItemSelectListener() {
@@ -46,7 +44,7 @@ public class Test extends PApplet {
       }
     });
     Vector2 s=d.getPreferredSize();
-    d.setPosition(new Rect(70, 0, 70 + s.x, s.y));
+    d.setPosition(new Rect(0, 40, 0 + s.x, 40 + s.y));
     for (int a=0; a < 30; a++) {
       d.addItem("item");
     }
@@ -68,26 +66,35 @@ public class Test extends PApplet {
         System.out.println("dropped " + e.getName() + " to " + f.getName() + " with " + messenger.message);
       }
     });
-    KyUI.addDragAndDrop(f, e, new DropEventListener() {
-      @Override
-      public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
-        System.out.println("dropped " + f.getName() + " to " + e.getName() + " with " + messenger.message);
-      }
-    });
+    //    KyUI.addDragAndDrop(f, e, new DropEventListener() {
+    //      @Override
+    //      public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
+    //        System.out.println("dropped " + f.getName() + " to " + e.getName() + " with " + messenger.message);
+    //      }
+    //    });
     // write your other code
     KyUI.changeLayout();
   }
   @Override
   public void draw() {
-    //long aa=System.currentTimeMillis();
     KyUI.render(g);
     // write your other code
+    strokeWeight(2);
+    noFill();
+    ellipse(mouseX, mouseY, 20, 20);
+    fill(0);
+    line(0, mouseY, width, mouseY);
+    line(mouseX, 0, mouseX, height);
+    strokeWeight(5);
+    line(mouseX, mouseY, pmouseX, pmouseY);
+    text(frameRate, mouseX + 10, mouseY + 12);
   }
   int lcount=0;
   @Override
   public void keyTyped() {
     if (key == ' ') {
       f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
+      f.localLayout();
       count++;
     } else if (key == '>') {
       LinearList e=(LinearList)KyUI.get("list");

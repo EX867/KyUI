@@ -14,16 +14,20 @@ public class Slider extends Element {
   Number min;
   Number value;
   int sliderSize=3;//half of width
+  //modifiable values
+  public int fgColor=50;
   public Slider(String name) {
     super(name);
+    init();
   }
   public Slider(String name, Rect pos_) {
     super(name);
     pos=pos_;
+    init();
   }
   private void init() {
     margin=strokeWeight / 2;
-    max=new Integer(0);
+    max=new Integer(10);//FIX>>test for 10.
     min=new Integer(0);
     value=new Integer(0);
   }
@@ -48,6 +52,7 @@ public class Slider extends Element {
   public void render(PGraphics g) {
     super.render(g);
     g.strokeWeight(strokeWeight);
+    g.stroke(fgColor);
     if (direction == Attributes.HORIZONTAL) {
       g.line(pos.left, pos.top, pos.left, pos.bottom);
       g.line(pos.right, pos.top, pos.right, pos.bottom);
@@ -79,11 +84,13 @@ public class Slider extends Element {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.MOVE) {
-      if (adjustListener != null) {
-        adjustListener.onAdjust();
+    if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG) {
+      if (pressed) {
+        if (adjustListener != null) {
+          adjustListener.onAdjust();
+        }
+        return false;
       }
-      return false;
     }
     return true;
   }

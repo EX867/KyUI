@@ -38,12 +38,15 @@ public class RangeSlider extends Button {
     sliderBgColor=KyUI.Ref.color(127);
     bgColor=50;
   }
-  public void set(float totalSize, float visibleSize, float offset) {
+  public void setOffset(float totalSize, float offset) {
+    if (totalSize == 0) sliderRatio=0;
+    else sliderRatio=(float)offset / totalSize;
+  }
+  public void setLength(float totalSize, float visibleSize) {
     if (visibleSize > totalSize) {
       totalSize=visibleSize;
     }
     sliderLength=visibleSize * getSize() / totalSize;
-    sliderRatio=(float)offset / totalSize;
   }
   public float getOffset(float totalSize) {
     //float size=getSize();
@@ -90,25 +93,27 @@ public class RangeSlider extends Button {
       clickRatio=sliderRatio;
       invalidate();
     } else if (e.getAction() == MouseEvent.DRAG) {
-      requestFocus();
-      float value=0;
-      float size=getSize();
-      if (direction == Attributes.HORIZONTAL) {
-        value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
-      } else if (direction == Attributes.VERTICAL) {
-        value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
+      if (pressed) {
+        requestFocus();
+        float value=0;
+        float size=getSize();
+        if (direction == Attributes.HORIZONTAL) {
+          value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
+        } else if (direction == Attributes.VERTICAL) {
+          value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
+        }
+        if (size == 0) {
+          sliderRatio=0;
+        } else {
+          sliderRatio=clickRatio + (value / size);
+          sliderRatio=Math.min(Math.max(sliderRatio, 0), (size - sliderLength) / size);
+        }
+        if (adjustListener != null) {
+          adjustListener.onAdjust();
+        }
+        //invalidate();
+        return false;
       }
-      if (size == 0) {
-        sliderRatio=0;
-      } else {
-        sliderRatio=clickRatio + (value / size);
-        sliderRatio=Math.min(Math.max(sliderRatio, 0), (size - sliderLength) / size);
-      }
-      if (adjustListener != null) {
-        adjustListener.onAdjust();
-      }
-      invalidate();
-      return false;
     } else if (e.getAction() == MouseEvent.RELEASE) {
       releaseFocus();
       invalidate();

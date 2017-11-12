@@ -1,4 +1,6 @@
 package kyui.core;
+import kyui.task.Task;
+import kyui.task.TaskManager;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
@@ -11,7 +13,67 @@ public class Element {
   protected List<Element> parents=new ArrayList<Element>();
   public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   protected int children_max=987654321;
+  //tasks
+  static class ModifyChildrenTask implements Task {
+    Element parent;
+    public ModifyChildrenTask(Element parent_) {
+      parent=parent_;
+    }
+    @Override
+    public void execute(Object data_raw) {
+      if (data_raw instanceof AddChildData) {
+        AddChildData data=(AddChildData)data_raw;
+        if (parent.children_max <= parent.children.size()) {
+          System.err.println("[KyUI] children.size() already reached max value.");
+          return;
+        }
+        KyUI.addElement(data.element);
+        parent.children.add(Math.min(data.index, parent.children.size()), data.element);
+        data.element.parents.add(parent);
+      } else if (data_raw instanceof RemoveChildData) {
+        RemoveChildData data=(RemoveChildData)data_raw;
+        Element element=parent.children.get(data.index);
+        element.parents.remove(this);
+        parent.children.remove(data.index);
+        if (element.parents.size() == 0) KyUI.removeElement(element.getName());
+      } else if (data_raw instanceof ReorderChildData) {
+        ReorderChildData data=(ReorderChildData)data_raw;
+        Element temp=parent.children.get(data.a);
+        parent.children.set(data.a, parent.children.get(data.b));
+        parent.children.set(data.b, temp);
+      }
+      parent.localLayout();
+    }
+  }
+  ModifyChildrenTask modifyChildrenTask=new ModifyChildrenTask(this);//task for this object.
+  class AddChildData {
+    int index;
+    Element element;
+    public AddChildData(int index_, Element element_) {
+      element=element_;
+      index=index_;
+    }
+  }
+  class RemoveChildData {
+    int index;
+    public RemoveChildData(int index_) {
+      index=index_;
+    }
+  }
+  class ReorderChildData {
+    int a;
+    int b;
+    public ReorderChildData(int a_, int b_) {
+      a=a_;
+      b=b_;
+    }
+  }
   //
+  private String Name;//identifier.
+  private boolean enabled=true;// this parameter controls object's existence.
+  private boolean visible=true;// this parameter controls object rendering
+  private boolean active=true;// this parameter controls object control (use inputs)
+  boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
   public Rect pos=new Rect(0, 0, 0, 0);
   public Description description;
   public int bgColor=0;
@@ -20,12 +82,8 @@ public class Element {
   //
   protected int startClip=0;//used in rendering or
   protected int endClip=KyUI.INF;
-  //
-  private String Name;//identifier.
-  private boolean enabled=true;// this parameter controls object's existence.
-  private boolean visible=true;// this parameter controls object rendering
-  private boolean active=true;// this parameter controls object control (use inputs)
-  boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
+  //dnd
+  public DropMessenger.Visual dropVisual;//used when creating drop messenger
   public boolean droppableStart=false;//this element can be start of drag.
   public boolean droppableEnd=false;//this element can be end of drag.
   //temp vars
@@ -33,25 +91,22 @@ public class Element {
   protected boolean pressed=false;//this parameter indicates this element have been pressed.
   public Element(String name) {
     Name=name;
-    KyUI.addElement(this);
   }
+  //children modify
   public final void addChild(Element object) {
-    addChild(children.size(), object);
+    addChild(KyUI.INF, object);
   }
-  public synchronized final void addChild(int index, Element object) {
-    if (children_max <= children.size()) {
-      System.err.println("[KyUI] children.size() already reached max value.");
-      return;
-    }
-    children.add(index, object);
-    object.parents.add(this);
-    setPosition(pos);
+  public final void addChild(int index, Element element) {
+    KyUI.taskManager.addTask(modifyChildrenTask, new AddChildData(index, element));
   }
-  public synchronized final void removeChild(String name) {
-    Element object=KyUI.get(name);
-    object.parents.remove(this);
-    children.remove(object);
-    localLayout();
+  public final void removeChild(int index) {
+    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(index));
+  }
+  public final void removeChild(String name) {
+    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(children.indexOf(KyUI.get(name))));
+  }
+  public final void reorderChild(int a, int b) {
+    KyUI.taskManager.addTask(modifyChildrenTask, new ReorderChildData(a, b));
   }
   @Override
   public boolean equals(Object other) {
@@ -62,14 +117,14 @@ public class Element {
     pos=rect;
     localLayout();
   }
-  public synchronized void onLayout() {
+  public void onLayout() {
     //update children.pos here.
     //default is recursive.
     for (Element child : children) {
       child.onLayout();
     }
   }
-  protected synchronized final void localLayout() {
+  public final void localLayout() {
     onLayout();
     invalidate();
   }
@@ -96,7 +151,7 @@ public class Element {
     return active;
   }
   //
-  public synchronized final void update_() {
+  public final void update_() {
     for (int a=0; a < children.size(); a++) {
       if (children.get(a).isEnabled()) children.get(a).update_();
     }
@@ -105,6 +160,7 @@ public class Element {
   public void update() {//override this!
   }
   public final void invalidate() {
+    if (renderFlag) return;//because this will rendered!
     KyUI.invalidate(pos);
   }
   public final void invalidate(Rect rect) {
@@ -118,7 +174,7 @@ public class Element {
     renderFlag=false;
     //g.noClip();
   }
-  synchronized final void renderChildren(PGraphics g) {
+  final void renderChildren(PGraphics g) {
     int end=Math.min(children.size(), endClip);
     for (int a=Math.max(0, startClip); a < end; a++) {
       Element child=children.get(a);
@@ -136,9 +192,6 @@ public class Element {
   }
   public void overlay(PGraphics g) {//override this!
   }
-  public final void renderlater() {
-    invalidate();
-  }
   synchronized boolean checkInvalid(Rect rect) {
     if (pos.contains(rect)) {
       if (children.size() == 0) {
@@ -154,9 +207,8 @@ public class Element {
         }
       }
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
   final void keyEvent_(KeyEvent e) {
     for (Element child : children) {
@@ -176,7 +228,7 @@ public class Element {
   public void keyTyped(KeyEvent e) {//override this!
     //do not use e.getAction() in here! (incorrect)
   }
-  synchronized final boolean mouseEvent_(MouseEvent e, int index) {
+  synchronized final boolean mouseEvent_(MouseEvent e, int index, boolean trigger) {
     if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       if (!entered) {
         entered=true;
@@ -194,48 +246,44 @@ public class Element {
     }
     boolean ret=true;
     boolean childrenIntercept=false;
-    if ((entered || KyUI.focus == this) && !mouseEventIntercept(e)) {
-      if (e.getAction() == MouseEvent.RELEASE) intercepted();
+    if (trigger && (entered || KyUI.focus == this) && !mouseEventIntercept(e)) {
       ret=false;
-    } else {
-      int end=Math.min(children.size(), endClip);
-      for (int a=Math.max(0, startClip); a < end; a++) {
-        Element child=children.get(a);
-        if (child.isEnabled()) {
-          if (child.isActive()) {
-            if (!child.mouseEvent_(e, a)) {
-              childrenIntercept=true;
-            }
+      trigger=false;
+    }
+    int end=Math.min(children.size(), endClip);
+    for (int a=Math.max(0, startClip); a < end; a++) {
+      Element child=children.get(a);
+      if (child.isEnabled()) {
+        if (child.isActive()) {
+          if (!child.mouseEvent_(e, a, trigger)) {
+            childrenIntercept=true;
           }
         }
       }
-      if (childrenIntercept) {
-        ret=false;
-      } else {
-        if (entered || KyUI.focus == this) {
-          ret=mouseEvent(e, index);
-        }
-        if (e.getAction() == MouseEvent.PRESS) {
-          if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-            requestFocus();
-          }
+    }
+    if (childrenIntercept) {
+      ret=false;
+      trigger=false;
+    }
+    if (trigger) {
+      if ((entered || KyUI.focus == this)) {
+        ret=mouseEvent(e, index);
+      }
+      if (e.getAction() == MouseEvent.PRESS) {
+        if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+          requestFocus();
         }
       }
     }
     if (e.getAction() == MouseEvent.RELEASE) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
         KyUI.dropEnd(this, e, index);
+        invalidate();
       }
       pressed=false;
       if (KyUI.focus == this) releaseFocus();
     }
     return ret;
-  }
-  protected void intercepted() {
-    for (Element child : children) {
-      child.intercepted();
-      child.pressed=false;
-    }
   }
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
     return true;
@@ -261,6 +309,7 @@ public class Element {
     //      KyUI.focus.renderlater();
     //    }
     KyUI.focus=this;
+    //System.out.println("[KyUI] " + getName() + " gained focus at " + KyUI.Ref.frameCount);
     invalidate();
   }
   public final void releaseFocus() {
@@ -269,9 +318,6 @@ public class Element {
   }
   public Vector2 getPreferredSize() {
     return new Vector2(pos.right - pos.left, pos.bottom - pos.top);
-  }
-  public final void refreshElement() {//localLayout for public...it is not so good.
-    localLayout();
   }
   public int size() {
     return children.size();

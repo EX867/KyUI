@@ -10,6 +10,18 @@ public class DropMessenger extends Element {
   public int startIndex;
   public String message;
   public String displayText;
+  //
+  public int textSize=20;
+  //
+  protected Visual defaultVisual=new Visual() {
+    @Override
+    public void render(DropMessenger e, PGraphics g) {
+      g.fill(0);
+      g.textSize(e.textSize);
+      g.text(e.displayText, (e.pos.right + e.pos.left) / 2, (e.pos.top + e.pos.bottom) / 2);
+    }
+  };
+  protected Visual visual=defaultVisual;
   public DropMessenger(String name, Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
     super(name);
     start=start_;
@@ -17,29 +29,41 @@ public class DropMessenger extends Element {
     startIndex=startIndex_;
     message=message_;
     displayText=displayText_;
-    setPosition(start.pos);
+    padding=10;
+    float hwidth=KyUI.Ref.textWidth(displayText) / 2 + padding;
+    float hheight=textSize / 2 + padding;
+    setPosition(new Rect(KyUI.mouseGlobal.x - hwidth, KyUI.mouseGlobal.y - hheight, KyUI.mouseGlobal.x + hwidth, KyUI.mouseGlobal.y + hheight));
     bgColor=KyUI.Ref.color(255, 100);
   }
   @Override
   public void render(PGraphics g) {
     g.clear();
     super.render(g);
-    g.fill(0);
-    g.textSize(20);
-    g.text(displayText, (pos.right + pos.left) / 2, (pos.top + pos.bottom) / 2);
+    if (visual != null) {
+      visual.render(this, g);
+    }
+  }
+  public void setVisual(Visual v) {
+    if (v == null) {
+      visual=defaultVisual;
+    } else {
+      visual=v;
+    }
   }
   @Override
   public void update() {
-    setPosition(new Rect(KyUI.mouseGlobal.x - 50, KyUI.mouseGlobal.y - 20, KyUI.mouseGlobal.x + 50, KyUI.mouseGlobal.y + 20));
+    float hwidth=(pos.right - pos.left) / 2;
+    float hheight=(pos.bottom - pos.top) / 2;
+    setPosition(pos.set(KyUI.mouseGlobal.x - hwidth, KyUI.mouseGlobal.y - hheight, KyUI.mouseGlobal.x + hwidth, KyUI.mouseGlobal.y + hheight));
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG) {
       requestFocus();
     } else if (e.getAction() == MouseEvent.RELEASE) {
+      KyUI.dropLayer.removeChild(getName());
       KyUI.removeLayer();
-      KyUI.dropLayer.removeChild(KyUI.dropMessenger.getName());
-      KyUI.removeElement(KyUI.dropMessenger.getName());
+      KyUI.taskManager.executeAll();
       KyUI.handleEvent(e);//!!! this is bad! (but this is core thing...)
       return false;
     }
@@ -47,5 +71,8 @@ public class DropMessenger extends Element {
   }
   public void onEvent(Element end, MouseEvent endEvent, int endIndex) {
     KyUI.getDropEvent(end).onEvent(this, endEvent, endIndex);
+  }
+  public static interface Visual {
+    public void render(DropMessenger e, PGraphics g);
   }
 }

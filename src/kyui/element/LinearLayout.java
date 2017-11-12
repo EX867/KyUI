@@ -169,6 +169,7 @@ public class LinearLayout extends Element {
       }
     } else if (e.getAction() == MouseEvent.DRAG) {
       if (pressed) {
+        requestFocus();
         float value=0;
         if (direction == Attributes.HORIZONTAL) {
           value=(KyUI.mouseClick.x - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;

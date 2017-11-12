@@ -15,6 +15,7 @@ public class DropDown extends Button {
   protected LinearList picker;
   protected ItemSelectListener selectListener;
   protected CachingFrame downLayer;
+  protected Button pickerCancel;
   //
   public DropDown(String name) {
     super(name);
@@ -27,6 +28,7 @@ public class DropDown extends Button {
   private void init() {
     picker=new LinearList(getName() + ":picker");
     downButton=new Button(getName() + ":downButton");
+    pickerCancel=new Button(getName() + ":pickerCancel");
     picker.setFixedSize(40);
     downButton.bgColor=0;
     downButton.text=DOWN;
@@ -34,7 +36,19 @@ public class DropDown extends Button {
     picker.setSelectListener(new DropDownClickListener());
     addChild(downButton);
     downLayer=KyUI.getNewLayer();
-    downLayer.addChild(picker);
+    downLayer.addChild(pickerCancel);
+    pickerCancel.addChild(picker);
+    pickerCancel.text="";
+    pickerCancel.setPosition(new Rect(0, 0, KyUI.Ref.width, KyUI.Ref.height));
+    pickerCancel.setPressListener(new MouseEventListener() {
+      @Override
+      public boolean onEvent(MouseEvent e, int index) {
+        KyUI.removeLayer();
+        downButton.text=DOWN;
+        return false;
+      }
+    });
+    pickerCancel.bgColor=0;
   }
   public void setSelectListener(ItemSelectListener l) {
     selectListener=l;

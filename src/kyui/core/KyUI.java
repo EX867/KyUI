@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import kyui.event.listeners.DropEventListener;
+import kyui.task.Task;
+import kyui.task.TaskManager;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PApplet;
@@ -17,8 +19,6 @@ import processing.event.KeyEvent;
 //ADD>>optimize mouseEvent and rendering chain!!
 //ADD>>resizing functions**
 //ADD>>name duplication error
-//ADD>>change rendering point to update thread!!** and only render full images on render.
-//ADD>>clear canvas on redraw.(cachingFrame)
 public class KyUI {
   //
   public static PApplet Ref;
@@ -30,6 +30,23 @@ public class KyUI {
   public static Element focus=null;
   // events
   public static LinkedList<Event> EventQueue=new LinkedList<Event>();//items popped from update thread.
+  public static TaskManager taskManager=new TaskManager();//do it in here... add task directly to here. (in Element)
+  static class ModifyLayerTask implements Task {
+    @Override
+    public void execute(Object data_raw) {
+      if (data_raw == null) {//remove
+        roots.pollLast();
+        if (roots.size() == 0) {
+          System.err.println("there is some error!");
+          return;
+        }
+        roots.peekLast().renderFlag=true;
+      } else {
+        roots.addLast((CachingFrame)data_raw);
+      }
+    }
+  }
+  static ModifyLayerTask modifyLayerTask=new ModifyLayerTask();//task for this object.
   //
   public static final int STATE_PRESS=1;
   public static final int STATE_PRESSED=2;
@@ -99,16 +116,12 @@ public class KyUI {
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
   }
-  public synchronized static void addLayer(CachingFrame root) {
-    roots.addLast(root);
+  public static void addLayer(CachingFrame root) {
+    taskManager.addTask(modifyLayerTask, root);
   }
-  public synchronized static void removeLayer() {
-    roots.pollLast();
-    if (roots.size() == 0) {
-      System.err.println("there is some error!");
-      return;
-    }
-    roots.peekLast().renderFlag=true;
+  public static void removeLayer() {
+    taskManager.executeAll();
+    taskManager.addTask(modifyLayerTask, null);
   }
   public static CachingFrame getNewLayer() {
     return new CachingFrame("KyUI:" + roots.size(), new Rect(0, 0, Ref.width, Ref.height));
@@ -120,20 +133,21 @@ public class KyUI {
     Elements.remove(name);
   }
   public static void add(Element object) {
+    taskManager.executeAll();//because this need latest state.
     roots.getLast().addChild(object);
   }
   public static Element get(String name) {
+    taskManager.executeAll();//because this need latest state.
     return Elements.get(name);
   }
   // called by processing animation thread
-  public static void update() {
-    roots.getLast().update_();
-  }
-  public synchronized static void render(PGraphics g) {
+  public static void render(PGraphics g) {
     drawStart=drawEnd;
     g.imageMode(PApplet.CENTER);
-    for (CachingFrame root : roots) {
-      root.renderReal(g);//render all...
+    synchronized (updater) {
+      for (CachingFrame root : roots) {
+        root.renderReal(g);//render all...
+      }
     }
     drawEnd=System.currentTimeMillis();
     drawInterval=drawEnd - drawStart;
@@ -142,24 +156,27 @@ public class KyUI {
     @Override
     public void run() {
       while (!end) {
+        synchronized (updater) {
+          for (int a=0; a < roots.size(); a++) {
+            roots.get(a).render_(null);//FIX>> after making Modifiable Element!!
+          }
+          //empty EventQueue.
+          while (EventQueue.size() > 0) {
+            Event e=EventQueue.pollFirst();
+            if (e instanceof KeyEvent) {
+              keyEvent((KeyEvent)e);
+            } else if (e instanceof MouseEvent) {
+              mouseEvent((MouseEvent)e);
+            }
+          }
+          KyUI.taskManager.executeAll();
+          //
+          roots.getLast().update_();
+        }
         try {
           Thread.sleep(updater_interval);
         } catch (InterruptedException e) {
         }
-        for (int a=0; a < roots.size(); a++) {
-          roots.get(a).render_(null);//FIX>> after making Modifiable Element!!
-        }
-        //empty EventQueue.
-        while (EventQueue.size() > 0) {
-          Event e=EventQueue.pollFirst();
-          if (e instanceof KeyEvent) {
-            keyEvent((KeyEvent)e);
-          } else if (e instanceof MouseEvent) {
-            mouseEvent((MouseEvent)e);
-          }
-        }
-        //
-        roots.getLast().update_();
       }
     }
   }
@@ -217,7 +234,7 @@ public class KyUI {
     if (e.getAction() == MouseEvent.EXIT) {
       mouseGlobal.assign(-1, -1);//make no element contains this.
     }
-    roots.getLast().mouseEvent_(e, roots.size() - 1);
+    roots.getLast().mouseEvent_(e, roots.size() - 1, true);
     //    int a=roots.size() - 1;
     //    while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
     //      a--;
@@ -229,6 +246,7 @@ public class KyUI {
     roots.getLast().onLayout();
   }
   public static void invalidate(Rect rect) {//adjust renderFlag.
+    if (roots.isEmpty()) return;
     roots.getLast().checkInvalid(rect);
   }
   public static void clipRect(PGraphics g, Rect rect) {
@@ -249,6 +267,7 @@ public class KyUI {
   }
   public static void dropStart(Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
     dropMessenger=new DropMessenger("KyUI:messenger", start_, startEvent_, startIndex_, message_, displayText_);
+    dropMessenger.setVisual(start_.dropVisual);
     dropLayer.addChild(dropMessenger);
     addLayer(dropLayer);
   }

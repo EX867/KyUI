@@ -16,8 +16,6 @@ public class TabLayout extends Element {
   protected List<Element> tabs;//only contains TabButton...
   protected List<Element> contents;//content filled in empty space.
   public HashMap<Integer, Integer> idToIndex;
-  //
-  LinkedList<ModificationData> tasks=new LinkedList<ModificationData>();
   //pointers
   protected DivisionLayout linkLayout;
   protected LinearLayout tabLayout;
@@ -49,13 +47,12 @@ public class TabLayout extends Element {
     tabLayout=new LinearLayout(getName() + ":tabLayout");
     contentLayout=new FrameLayout(getName() + ":contentLayout");
     linkLayout.direction=Attributes.VERTICAL;
-    addChild(linkLayout);
     linkLayout.addChild(tabLayout);
     linkLayout.addChild(contentLayout);
+    addChild(linkLayout);
     tabs=tabLayout.children;
     contents=contentLayout.children;
-    addTab_(0, "", new Element(getName() + ":default"));
-    tabs.get(0).setEnabled(false);
+    addTab(0, "", new Element(getName() + ":default"));
     selectTab(0);//0 means no tab selected.
     localLayout();
     tabLayout.bgColor=KyUI.Ref.color(127);
@@ -63,7 +60,11 @@ public class TabLayout extends Element {
     tabColor1=KyUI.Ref.color(0, 0, 255);
     tabColor2=KyUI.Ref.color(0, 0, 127);
   }
-  public void addTab_(int index, String text, Element content) {
+  public void addTab(String text, Element content) {
+    addTab(KyUI.INF, text, content);
+  }
+  public void addTab(int index, String text, Element content) {
+    index++;
     idToIndex.put(count, index);
     TabButton btn=new TabButton(getName() + ":" + count);
     btn.setPressListener(new TabLayoutPressListener(count));
@@ -71,10 +72,13 @@ public class TabLayout extends Element {
     btn.edgeColor=tabColor2;
     btn.rotation=buttonRotation;
     btn.edgeRotation=buttonEdgeRotation;
+    if (count == 0) {
+      btn.setEnabled(false);
+    }
+    content.setEnabled(false);
     count++;
     tabLayout.addChild(index, btn);
     contentLayout.addChild(index, content);
-    content.setEnabled(false);
     //
     if (selection >= index) selectTab(selection + 1);
     for (int a=index; a < tabs.size(); a++) {
@@ -82,69 +86,19 @@ public class TabLayout extends Element {
       idToIndex.put(id2, a);
     }
   }
-  public void addTab(int index, String text, Element content) {
-    tasks.add(new ModificationData(index + 1, text, content));
-  }
-  public void addTab(String text, Element content) {
-    addTab(KyUI.INF, text, content);//add to last!!
-  }
-  public void removeTab_(int index) {
+  public void removeTab(int index) {
+    index++;
     if (index < 0 || index >= tabs.size()) return;
-    Element content=contents.get(index);
-    contentLayout.removeChild(content.getName());
-    Element btn=tabs.get(index);
-    tabLayout.removeChild(btn.getName());
-    if (((TabButton)btn).getPressListener() == null) {
-      System.err.println("adsf");
-    }
-    int id=idToIndex.get(((TabLayoutPressListener)((TabButton)btn).getPressListener()).id);
-    idToIndex.remove(id);
-    KyUI.removeElement(btn.getName());
+    contentLayout.removeChild(index);
+    idToIndex.remove(idToIndex.get(((TabLayoutPressListener)((TabButton)tabs.get(index)).getPressListener()).id));
+    tabLayout.removeChild(index);
     //
     if (selection == index) selectTab(0);
     else if (selection > index) selectTab(selection - 1);
     for (int a=index; a < tabs.size(); a++) {
-      int id2=((TabLayoutPressListener)((TabButton)tabs.get(a)).getPressListener()).id;
-      idToIndex.put(id2, a);
+      idToIndex.put(((TabLayoutPressListener)((TabButton)tabs.get(a)).getPressListener()).id, a);
     }
     localLayout();
-  }
-  public void removeTab(int index) {
-    tasks.add(new ModificationData(index + 1));
-  }
-  class ModificationData {
-    static final int ADD=1;
-    static final int REMOVE=2;
-    int type;
-    int i;
-    Element e;
-    String s;
-    public ModificationData(int i_, String s_, Element e_) {
-      type=ADD;
-      i=i_;
-      e=e_;
-      s=s_;
-    }
-    public ModificationData(int i_) {
-      type=REMOVE;
-      i=i_;
-    }
-    void execute() {
-      if (i > tabs.size() - 1) {
-        i=tabs.size() - 1;
-      }
-      if (type == ADD) {
-        if (i >= 0) addTab_(i, s, e);
-      } else if (type == REMOVE) {
-        if (i >= 0) removeTab_(i);
-      }
-    }
-  }
-  @Override
-  public synchronized void update() {
-    while (tasks.size() != 0) {
-      tasks.pollFirst().execute();
-    }
   }
   class TabLayoutPressListener implements MouseEventListener {
     int id;

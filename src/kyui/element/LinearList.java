@@ -5,6 +5,7 @@ import kyui.core.KyUI;
 import kyui.event.listeners.ItemSelectListener;
 import kyui.event.listeners.MouseEventListener;
 import kyui.event.listeners.AdjustListener;
+import kyui.task.Task;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
@@ -68,39 +69,35 @@ public class LinearList extends Element {
   public void addItem(String text) {
     SelectableButton btn=new SelectableButton(getName() + ":" + count, this);
     btn.text=text;
-    listLayout.addChild(listLayout.children.size(), btn);
+    listLayout.addChild(btn);
     count++;
-    setSlider();
+    afterModify();
   }
   public void addItem(int index, String text) {
     SelectableButton btn=new SelectableButton(getName() + ":" + count, this);
     btn.text=text;
     listLayout.addChild(index, btn);
     count++;
-    setSlider();
+    afterModify();
   }
   public void addItem(SelectableButton e) {
     listLayout.addChild(listLayout.children.size(), e);
     e.Ref=this;
-    setSlider();
+    afterModify();
   }
   public void addItem(int index, SelectableButton e) {
     listLayout.addChild(index, e);
     e.Ref=this;
-    setSlider();
+    afterModify();
   }
   public void removeItem(int index) {
     if (index < 0 || index >= size()) return;
-    ((SelectableButton)listLayout.children.get(index)).Ref=null;
-    listLayout.removeChild(listLayout.children.get(index).getName());
-    setList();
-    setSlider();
+    listLayout.removeChild(index);
+    afterModify();
   }
   public void removeItem(String name) {
-    ((SelectableButton)KyUI.get(name)).Ref=null;
-    listLayout.removeChild(name);
-    setList();
-    setSlider();
+    listLayout.removeChild(listLayout.children.indexOf(name));
+    afterModify();
   }
   public void setSelectListener(ItemSelectListener l) {
     selectListener=l;
@@ -113,7 +110,8 @@ public class LinearList extends Element {
   public synchronized void onLayout() {
     linkLayout.ratio=1 - (float)sliderSize / (pos.right - pos.left);
     linkLayout.setPosition(pos);
-    setSlider();
+    slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
+    setList();
   }
   @Override
   public void render(PGraphics g) {
@@ -139,10 +137,22 @@ public class LinearList extends Element {
       KyUI.dropStart(this, e, index, pressItem.getName(), pressItem.text);
     }
   }
+  void afterModify() {
+    KyUI.taskManager.addTask(new Task() {
+      @Override
+      public void execute(Object data) {
+        setList();
+        slider.setOffset(listLayout.getTotalSize(), listLayout.offset);
+      }
+    }, null);
+  }
   void setSlider() {//when move slider
-    slider.set(listLayout.getTotalSize(), pos.bottom - pos.top, listLayout.offset);
+    slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
+    slider.setOffset(listLayout.getTotalSize(), listLayout.offset);
   }
   void setList() {//when move list
+    //list.totalSize is from onLayout.
+    slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
     listLayout.setOffset(slider.getOffset(listLayout.getTotalSize()));
   }
   public static class SelectableButton extends Button {//parent_max=1;
@@ -196,7 +206,7 @@ public class LinearList extends Element {
       if (e.getAction() == MouseEvent.PRESS) {
         Ref.pressItem=this;
       }
-      return super.mouseEvent(e,index);
+      return super.mouseEvent(e, index);
     }
     class ListItemPressListener implements MouseEventListener {//why!!! why you don't make MouseEvent "Press Action" Listener for button...
       SelectableButton Ref2;

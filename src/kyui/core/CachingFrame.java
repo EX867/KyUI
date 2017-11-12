@@ -22,6 +22,7 @@ public class CachingFrame extends Element {
   }
   @Override
   public void render(PGraphics g) {
+    //System.out.println(getName() + " rendered in " + KyUI.Ref.frameCount);
     display.beginDraw();
     if (bgColor != 0) {
       display.fill(bgColor);
