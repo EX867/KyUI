@@ -4,15 +4,13 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.event.listeners.ItemSelectListener;
 import kyui.event.listeners.MouseEventListener;
-import kyui.event.listeners.AdjustListener;
+import kyui.event.listeners.EventListener;
 import kyui.task.Task;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-
-import java.util.ArrayList;
 public class LinearList extends Element {
   int strokeWeight=4;
   protected DivisionLayout linkLayout;
@@ -25,6 +23,7 @@ public class LinearList extends Element {
   //modifiable values
   public int sliderSize;
   public int fgColor;
+  public int direction=Attributes.VERTICAL;
   //temp values
   Rect cacheRect=new Rect();
   public LinearList(String name) {
@@ -49,15 +48,15 @@ public class LinearList extends Element {
     listLayout.setMode(Attributes.FIXED);
     listLayout.padding=strokeWeight;
     slider.margin=0;
-    listLayout.setAdjustListener(new AdjustListener() {
+    listLayout.setAdjustListener(new EventListener() {
       @Override
-      public void onAdjust() {
+      public void onEvent() {
         setSlider();
       }
     });
-    slider.setAdjustListener(new AdjustListener() {
+    slider.setAdjustListener(new EventListener() {
       @Override
-      public void onAdjust() {
+      public void onEvent() {
         setList();
         listLayout.invalidate();
       }
@@ -108,9 +107,15 @@ public class LinearList extends Element {
   }
   @Override
   public synchronized void onLayout() {
-    linkLayout.ratio=1 - (float)sliderSize / (pos.right - pos.left);
+    if (direction == Attributes.VERTICAL) {
+      linkLayout.ratio=1 - (float)sliderSize / (pos.right - pos.left);
+    } else {
+      linkLayout.ratio=1 - (float)sliderSize / (pos.bottom - pos.top);
+    }
+    linkLayout.direction=direction % 2 + 1;
+    listLayout.setDirection(direction);
+    slider.direction=direction;
     linkLayout.setPosition(pos);
-    slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
     setList();
   }
   @Override
@@ -147,13 +152,20 @@ public class LinearList extends Element {
     }, null);
   }
   void setSlider() {//when move slider
-    slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
+    setSliderLength();
     slider.setOffset(listLayout.getTotalSize(), listLayout.offset);
   }
   void setList() {//when move list
     //list.totalSize is from onLayout.
-    slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
+    setSliderLength();
     listLayout.setOffset(slider.getOffset(listLayout.getTotalSize()));
+  }
+  void setSliderLength() {
+    if (direction == Attributes.VERTICAL) {
+      slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
+    } else {
+      slider.setLength(listLayout.getTotalSize(), pos.right - pos.left);
+    }
   }
   public static class SelectableButton extends Button {//parent_max=1;
     //modifiable values
@@ -183,10 +195,11 @@ public class LinearList extends Element {
       }
       if (bgColor != 0) {
         int c=getDrawBgColor(g);
-        if (selected) {
+        if (selected) {//for identification...
           c=(ColorExt.brighter(bgColor, 40));
+        } else {
+          c=ColorExt.scale(c, overlap / height);
         }
-        c=ColorExt.scale(c, overlap / height);
         g.fill(c);
         pos.render(g);
       }
@@ -197,8 +210,20 @@ public class LinearList extends Element {
       } else {
         textOffsetY=0;
       }
-      if (overlap > textSize) {
-        drawContent(g, ColorExt.scale(textColor, overlap / height));
+      if (overlap > textSize) {//optimization needed!
+        g.fill(ColorExt.scale(textColor, overlap / height));
+        g.textSize(textSize);
+        g.pushMatrix();
+        g.translate((pos.left + pos.right) / 2 + textOffsetX, (pos.top + pos.bottom) / 2 + textOffsetY);
+        for (int a=1; a < rotation; a++) {
+          g.rotate(KyUI.Ref.radians(90));
+        }
+        if (overlap < height && overlap > 0) {
+          g.scale(1, (overlap / height));
+        }
+        g.text(text, 0, 0);
+        g.popMatrix();
+        //        drawContent(g, ColorExt.scale(textColor, overlap / height));
       }
     }
     @Override

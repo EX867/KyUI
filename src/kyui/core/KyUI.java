@@ -71,6 +71,7 @@ public class KyUI {
   public static boolean keyInit=false;// this used on textEdit and etc...
   protected static List<Long> reflectedPressedKeys;
   // graphics
+  public static PGraphics cacheGraphics;
   public static LinkedList<Rect> clipArea=new LinkedList<Rect>();
   public static long drawStart=0;// these 3 parameters used to measure elapsed time.
   public static long drawEnd=0;
@@ -92,6 +93,7 @@ public class KyUI {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
     fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
+    cacheGraphics=KyUI.Ref.createGraphics(10, 10);//small graphics...used for some functions
     dropLayer=new CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
     if (roots.size() == 0) addLayer(getNewLayer());
     try {
@@ -155,6 +157,7 @@ public class KyUI {
   static class Updater implements Runnable {
     @Override
     public void run() {
+      cacheGraphics.beginDraw();
       while (!end) {
         synchronized (updater) {
           for (int a=0; a < roots.size(); a++) {
@@ -178,6 +181,7 @@ public class KyUI {
         } catch (InterruptedException e) {
         }
       }
+      cacheGraphics.endDraw();
     }
   }
   //
@@ -235,6 +239,8 @@ public class KyUI {
       mouseGlobal.assign(-1, -1);//make no element contains this.
     }
     roots.getLast().mouseEvent_(e, roots.size() - 1, true);
+    if (dropMessenger != null && e.getAction() == MouseEvent.RELEASE) {
+    }
     //    int a=roots.size() - 1;
     //    while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
     //      a--;

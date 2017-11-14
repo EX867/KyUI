@@ -1,6 +1,5 @@
 package kyui.core;
 import kyui.task.Task;
-import kyui.task.TaskManager;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
@@ -88,7 +87,8 @@ public class Element {
   public boolean droppableEnd=false;//this element can be end of drag.
   //temp vars
   protected boolean entered=false;
-  protected boolean pressed=false;//this parameter indicates this element have been pressed.
+  protected boolean pressedL=false;//this parameter indicates this element have been pressed left.
+  protected boolean pressedR=false;//this parameter indicates this element have been pressed right.
   public Element(String name) {
     Name=name;
   }
@@ -235,7 +235,11 @@ public class Element {
         mouseEntered(e, index);
       }
       if (e.getAction() == MouseEvent.PRESS) {
-        pressed=true;
+        if (e.getButton() == KyUI.Ref.LEFT) {
+          pressedL=true;
+        } else if (e.getButton() == KyUI.Ref.RIGHT) {
+          pressedR=true;
+        }
         invalidate();
       }
     } else {
@@ -280,7 +284,7 @@ public class Element {
         KyUI.dropEnd(this, e, index);
         invalidate();
       }
-      pressed=false;
+      pressedL=false;
       if (KyUI.focus == this) releaseFocus();
     }
     return ret;
@@ -295,7 +299,7 @@ public class Element {
     invalidate();
   }
   public void mouseExited(MouseEvent e, int index) {
-    if (pressed && droppableStart) {
+    if (pressedL && droppableStart) {
       startDrop(e, index);
     }
     invalidate();

@@ -48,7 +48,7 @@ public class Button extends Element {
     drawContent(g, textColor);
   }
   protected int getDrawBgColor(PGraphics g) {
-    if (pressed) {
+    if (pressedL) {
       return (ColorExt.brighter(bgColor, 40));
     } else if (entered) {
       return (ColorExt.brighter(bgColor, 20));
@@ -71,7 +71,7 @@ public class Button extends Element {
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.RELEASE) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-        if (pressed) {
+        if (pressedL) {
           if (pressListener != null) {
             if (!pressListener.onEvent(e, index)) return false;
           }

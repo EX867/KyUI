@@ -2,14 +2,13 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.AdjustListener;
+import kyui.event.listeners.EventListener;
 import kyui.util.Rect;
-import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class LinearLayout extends Element {
   protected float offset=0;
-  AdjustListener adjustListener;
+  EventListener adjustListener;
   //protected modifiable values
   protected int mode=Attributes.DYNAMIC;
   protected int direction=Attributes.HORIZONTAL;
@@ -70,7 +69,7 @@ public class LinearLayout extends Element {
     }
     localLayout();
   }
-  public void setAdjustListener(AdjustListener l) {
+  public void setAdjustListener(EventListener l) {
     adjustListener=l;
   }
   @Override
@@ -90,7 +89,7 @@ public class LinearLayout extends Element {
       if (startClip > 0) first=false;
       childrenSize=Math.max(0, startClip - 1) * fixedSize;
       if (direction == Attributes.HORIZONTAL) {
-        for (int a=Math.max(0, startClip); a < end; a++) {
+        for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
             e.setPosition(new Rect(pos.left - offset + childrenSize + (first ? padding : 0), pos.top + padding, pos.left - offset + childrenSize + fixedSize - padding, pos.bottom - padding));
@@ -168,7 +167,7 @@ public class LinearLayout extends Element {
         adjustListener.onAdjust();
       }
     } else if (e.getAction() == MouseEvent.DRAG) {
-      if (pressed) {
+      if (pressedL) {
         requestFocus();
         float value=0;
         if (direction == Attributes.HORIZONTAL) {
@@ -188,7 +187,7 @@ public class LinearLayout extends Element {
         }
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
-      if (pressed && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
+      if (pressedL && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
     }
     return true;
   }

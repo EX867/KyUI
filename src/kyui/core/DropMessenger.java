@@ -1,6 +1,7 @@
 package kyui.core;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.task.Task;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
@@ -65,6 +66,12 @@ public class DropMessenger extends Element {
       KyUI.removeLayer();
       KyUI.taskManager.executeAll();
       KyUI.handleEvent(e);//!!! this is bad! (but this is core thing...)
+      KyUI.taskManager.addTask(new Task() {
+        @Override
+        public void execute(Object data) {
+          KyUI.dropMessenger=null;
+        }
+      }, null);
       return false;
     }
     return super.mouseEvent(e, index);

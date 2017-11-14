@@ -14,7 +14,7 @@ public class ToggleButton extends Button {
   }
   @Override
   protected int getDrawBgColor(PGraphics g) {
-    if (pressed) {
+    if (pressedL) {
       return (bgColor);
     } else if (entered) {
       if (value) return (ColorExt.brighter(bgColor, 20));

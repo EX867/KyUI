@@ -1,18 +1,18 @@
 package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
-import kyui.event.listeners.AdjustListener;
-import kyui.event.listeners.AdjustListener;
+import kyui.core.KyUI;
+import kyui.event.listeners.EventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class Slider extends Element {
   int strokeWeight=4;
   int direction=Attributes.HORIZONTAL;
-  AdjustListener adjustListener;
-  Number max;
-  Number min;
-  Number value;
+  EventListener adjustListener;
+  float max;
+  float min;
+  float value;
   int sliderSize=3;//half of width
   //modifiable values
   public int fgColor=50;
@@ -27,25 +27,25 @@ public class Slider extends Element {
   }
   private void init() {
     margin=strokeWeight / 2;
-    max=new Integer(10);//FIX>>test for 10.
-    min=new Integer(0);
-    value=new Integer(0);
+    max=10;
+    min=0;
+    value=10;
   }
-  public void set(Number min_, Number max_, Number value_) {
+  public void set(float min_, float max_, float value_) {
     min=min_;
     max=max_;
     value=value_;
   }
-  public void set(Number min_, Number max_) {
+  public void set(float min_, float max_) {
     min=min_;
     max=max_;
-    value=Math.min(Math.max(value.floatValue(), min.floatValue()), max.floatValue());
+    value=Math.min(Math.max(value, min), max);
   }
-  public void set(Number value_) {
+  public void set(float value_) {
     value=value_;
-    value=Math.min(Math.max(value.floatValue(), min.floatValue()), max.floatValue());
+    value=Math.min(Math.max(value, min), max);
   }
-  public void setAdjustListener(AdjustListener l) {
+  public void setAdjustListener(EventListener l) {
     adjustListener=l;
   }
   @Override
@@ -62,9 +62,6 @@ public class Slider extends Element {
       g.line(pos.left, pos.bottom, pos.right, pos.bottom);
       g.line((pos.left + pos.right) / 2, pos.top, (pos.left + pos.right) / 2, pos.bottom);
     }
-    float min=this.min.floatValue();
-    float max=this.max.floatValue();
-    float value=this.value.floatValue();
     if (min < max) {
       if (direction == Attributes.HORIZONTAL) {
         float sizeX=pos.right - pos.left;
@@ -82,14 +79,35 @@ public class Slider extends Element {
     }
     g.noStroke();
   }
+  private float getSize() {
+    if (direction == Attributes.VERTICAL) {
+      return pos.bottom - pos.top;
+    } else if (direction == Attributes.HORIZONTAL) {
+      return pos.right - pos.left;
+    }
+    return 1;
+  }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG) {
-      if (pressed) {
+    if ((e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG)) {//only works with left event...
+      if (pressedL) {
+        requestFocus();
+        float size=getSize();
+        if (direction == Attributes.HORIZONTAL) {
+          set(min + (max - min) * (KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left) / size);
+        } else if (direction == Attributes.VERTICAL) {
+          set(min + (max - min) * (KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top) / size);
+        }
         if (adjustListener != null) {
           adjustListener.onAdjust();
         }
+        //invalidate();
         return false;
+      }
+    } else if (e.getAction() == MouseEvent.RELEASE) {
+      if (pressedL) {
+        releaseFocus();
+        invalidate();
       }
     }
     return true;

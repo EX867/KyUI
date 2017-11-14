@@ -1,16 +1,14 @@
 package kyui.element;
 import kyui.core.Attributes;
-import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.AdjustListener;
-import kyui.util.ColorExt;
+import kyui.event.listeners.EventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class RangeSlider extends Button {
   int strokeWeight=4;
   int direction=Attributes.VERTICAL;
-  AdjustListener adjustListener;
+  EventListener adjustListener;
   //
   float sliderRatio;//ratio of startPoint
   float sliderLength;
@@ -52,10 +50,10 @@ public class RangeSlider extends Button {
     //float size=getSize();
     return totalSize * sliderRatio;
   }
-  public void setAdjustListener(AdjustListener l) {
+  public void setAdjustListener(EventListener l) {
     adjustListener=l;
   }
-  float getSize() {
+  private float getSize() {
     if (direction == Attributes.VERTICAL) {
       return pos.bottom - pos.top;
     } else if (direction == Attributes.HORIZONTAL) {
@@ -80,7 +78,7 @@ public class RangeSlider extends Button {
       float sliderPoint=pos.left + (pos.right - pos.left) * sliderRatio;
       float sliderPointXm=(float)(pos.bottom + pos.top) / 2;
       float sliderSizeX=(float)(pos.bottom - pos.top) / 2 - strokeWeight;
-      cacheRect.set(sliderPoint + strokeWeight, sliderPointXm - sliderSizeX, sliderPointXm + sliderSizeX - strokeWeight, sliderPoint + sliderLength);//same...
+      cacheRect.set(sliderPoint + strokeWeight, sliderPointXm - sliderSizeX, sliderPoint + sliderLength - strokeWeight, sliderPointXm + sliderSizeX);//same...
     }
     g.noStroke();
     g.fill(getDrawBgColor(g));
@@ -93,7 +91,7 @@ public class RangeSlider extends Button {
       clickRatio=sliderRatio;
       invalidate();
     } else if (e.getAction() == MouseEvent.DRAG) {
-      if (pressed) {
+      if (pressedL) {
         requestFocus();
         float value=0;
         float size=getSize();
@@ -115,8 +113,11 @@ public class RangeSlider extends Button {
         return false;
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
-      releaseFocus();
-      invalidate();
+      if (pressedL) {
+        releaseFocus();
+        invalidate();
+        return false;
+      }
     }
     return true;
   }

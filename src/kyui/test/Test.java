@@ -34,7 +34,9 @@ public class Test extends PApplet {
     KyUI.add(f);
     f.addTab("A", new Element("asdf"));
     f.addTab("A1", new DivisionLayout("division"));
-    f.addTab("A2", new Slider("slider"));
+    f.addTab("A2", new Element("asdf2"));
+    KyUI.get("asdf2").addChild(new IntSlider("slider"));
+    KyUI.get("slider").setPosition(new Rect(10, 40, 290, 70));
     DropDown d=new DropDown("droptest");
     d.text="aggdagga";
     d.setSelectListener(new ItemSelectListener() {
@@ -53,6 +55,7 @@ public class Test extends PApplet {
     KyUI.get("division").addChild(new LinearList("list"));
     KyUI.get("division").addChild(new LinearList("list2"));
     LinearList e=(LinearList)KyUI.get("list");
+    e.direction=Attributes.HORIZONTAL;
     for (int a=0; a < 10; a++) {
       e.addItem("e" + a);
     }
@@ -79,7 +82,7 @@ public class Test extends PApplet {
   public void draw() {
     KyUI.render(g);
     // write your other code
-    strokeWeight(2);
+    strokeWeight(1);
     noFill();
     ellipse(mouseX, mouseY, 20, 20);
     fill(0);
