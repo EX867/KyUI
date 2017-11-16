@@ -49,7 +49,6 @@ public class EditorString {//editorString is based on line.
     return l.size();
   }
   public String getLine(int line_) {
-    if (line_ >= l.get(line_).length()) return "";
     return l.get(line_);
   }
   //===Edit===// - override needed in commandScript
@@ -75,18 +74,15 @@ public class EditorString {//editorString is based on line.
     if (text.equals("")) return;
     String[] lines=PApplet.split(text, "\n");
     String endText=getLine(line_).substring(point_, getLine(line_).length());
-    System.out.println(lines.length);
-    System.out.println(getLine(line_).substring(0, point_) + lines[0]);
-    setLine(line_, getLine(line_).substring(0, point_) + lines[0]);
+    String temp=getLine(line_).substring(0, point_) + lines[0];
+    setLine(line_, temp);
     for (int a=1; a < lines.length; a++) {
       line_++;
       addLine(line_, lines[a]);
     }
-    System.out.print(endText + " - line : (" + line_ + ", " + point_ + ")->");
     if (!endText.isEmpty()) {
       setLine(line_, getLine(line_) + endText);
     }
-    System.out.println(getLine(line_));
   }
   public void delete(int startLine, int startPoint, int endLine, int endPoint) {
     if ((startLine < endLine || (startLine == endLine && startPoint < endPoint)) == false) return;
