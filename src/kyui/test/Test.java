@@ -35,8 +35,9 @@ public class Test extends PApplet {
     f.addTab("A", new Element("asdf"));
     f.addTab("A1", new DivisionLayout("division"));
     f.addTab("A2", new Element("asdf2"));
+    f.addTab("A3", new TextEdit("asdf3"));
     KyUI.get("asdf2").addChild(new IntSlider("slider"));
-    KyUI.get("slider").setPosition(new Rect(10, 40, 290, 70));
+    KyUI.get("slider").setPosition(new Rect(10, 40, 290, 80));
     DropDown d=new DropDown("droptest");
     d.text="aggdagga";
     d.setSelectListener(new ItemSelectListener() {

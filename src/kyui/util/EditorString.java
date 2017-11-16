@@ -1,4 +1,7 @@
 package kyui.util;
+import kyui.core.KyUI;
+import processing.core.PApplet;
+
 import java.util.ArrayList;
 public class EditorString {//editorString is based on line.
   // commandScript needs many overrides... because that is quite different from ordinary text editor.
@@ -46,8 +49,8 @@ public class EditorString {//editorString is based on line.
     return l.size();
   }
   public String getLine(int line_) {
-    if (line_ >= getLine(line_).length()) return "";
-    return getLine(line_);
+    if (line_ >= l.get(line_).length()) return "";
+    return l.get(line_);
   }
   //===Edit===// - override needed in commandScript
   public void addLine(String text) {
@@ -56,24 +59,12 @@ public class EditorString {//editorString is based on line.
   public void addLine(int line_, String text) {
     if (text == null) return;
     l.add(line_, text);
-    int afterLine=line;
-    if (line_ <= line) {
-      afterLine++;
-    }
   }
   public void deleteLine(int line_) {
-    int afterLine=line_ - 1;
-    int afterPoint=0;
-    if (line_ == 0) {
-      afterLine=0;
-    } else {
-      afterPoint=getLine(afterLine).length() - 1;
-    }
     l.remove(line_);
   }
   public void setLine(int line_, String text) {
     if (text == null) return;
-    int afterPoint=Math.min(point, getLine(line).length());
     l.set(line_, text);
   }
   //===Edit complicated===// - override needed in commandScript.
@@ -82,15 +73,20 @@ public class EditorString {//editorString is based on line.
   }
   public void insert(int line_, int point_, String text) {
     if (text.equals("")) return;
-    String[] lines=text.split("\n");
-    boolean reread=false;
-    String endText=getLine(line_).substring(point, getLine(line_).length());
-    setLine(line_, getLine(line_).substring(0, point) + lines[0]);
+    String[] lines=PApplet.split(text, "\n");
+    String endText=getLine(line_).substring(point_, getLine(line_).length());
+    System.out.println(lines.length);
+    System.out.println(getLine(line_).substring(0, point_) + lines[0]);
+    setLine(line_, getLine(line_).substring(0, point_) + lines[0]);
     for (int a=1; a < lines.length; a++) {
       line_++;
       addLine(line_, lines[a]);
     }
-    if (endText.equals("") == false) setLine(line_, getLine(line_) + endText);
+    System.out.print(endText + " - line : (" + line_ + ", " + point_ + ")->");
+    if (!endText.isEmpty()) {
+      setLine(line_, getLine(line_) + endText);
+    }
+    System.out.println(getLine(line_));
   }
   public void delete(int startLine, int startPoint, int endLine, int endPoint) {
     if ((startLine < endLine || (startLine == endLine && startPoint < endPoint)) == false) return;

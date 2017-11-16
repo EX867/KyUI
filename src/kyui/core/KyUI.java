@@ -61,8 +61,8 @@ public class KyUI {
   public static DropMessenger dropMessenger;//
   public static CachingFrame dropLayer;
   //
-  public static int KEY_INIT_DELAY=600;// you can change this value.
-  public static int KEY_INTERVAL=50;
+  public static int KEY_INIT_DELAY=1000;// you can change this value.
+  public static int KEY_INTERVAL=300;
   public static boolean ctrlPressed=false;
   public static boolean shiftPressed=false;
   public static boolean altPressed=false;
@@ -204,21 +204,33 @@ public class KyUI {
       }
     }
     roots.getLast().keyEvent_((KeyEvent)e);
-    if (!keyState) roots.getLast().keyTyped_((KeyEvent)e);
-    keyState=true;
-    if (Ref.keyPressed == false) keyTime=System.currentTimeMillis();
+    if (e.getAction() == KeyEvent.PRESS) {
+      roots.getLast().keyTyped_((KeyEvent)e);
+      keyInit=false;
+      keyState=false;
+      keyTime=System.currentTimeMillis();
+    } else {
+      if (!keyState) {
+        keyState=true;
+      }
+    }
     if (keyInit) {
-      if (System.currentTimeMillis() - keyTime > KEY_INTERVAL) keyState=false;
+      if (System.currentTimeMillis() - keyTime > KEY_INTERVAL) {
+        keyState=false;
+        keyTime=System.currentTimeMillis();
+      }
     } else {
       if (System.currentTimeMillis() - keyTime > KEY_INIT_DELAY) {
-        keyState=false;
         keyInit=true;
+        keyState=false;
+        keyTime=System.currentTimeMillis();
       }
     }
     if (e.getAction() == KeyEvent.RELEASE) {
       if (reflectedPressedKeys.isEmpty()) {
         keyState=false;
         keyInit=false;
+        keyTime=0;
       }
     }
     //updater.interrupt();
@@ -254,6 +266,11 @@ public class KyUI {
   public static void invalidate(Rect rect) {//adjust renderFlag.
     if (roots.isEmpty()) return;
     roots.getLast().checkInvalid(rect);
+  }
+  public static void invalidateElement(Element e) {//adjust renderFlag.
+    if (roots.isEmpty()) return;
+    roots.getLast().invalidated=true;
+    e.renderFlag=true;
   }
   public static void clipRect(PGraphics g, Rect rect) {
     g.imageMode(PApplet.CORNERS);

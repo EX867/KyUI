@@ -107,7 +107,7 @@ public class RangeSlider extends Button {
           sliderRatio=Math.min(Math.max(sliderRatio, 0), (size - sliderLength) / size);
         }
         if (adjustListener != null) {
-          adjustListener.onAdjust();
+          adjustListener.onEvent();
         }
         //invalidate();
         return false;

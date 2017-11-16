@@ -164,7 +164,7 @@ public class LinearLayout extends Element {
       clickOffset=offset;
       clickScrollMax=0;
       if (adjustListener != null) {
-        adjustListener.onAdjust();
+        adjustListener.onEvent();
       }
     } else if (e.getAction() == MouseEvent.DRAG) {
       if (pressedL) {
@@ -179,7 +179,7 @@ public class LinearLayout extends Element {
         setOffset(clickOffset + value);
         if (clickScrollMax > KyUI.GESTURE_THRESHOLD) {
           if (adjustListener != null) {
-            adjustListener.onAdjust();
+            adjustListener.onEvent();
           }
           return false;
         } else {

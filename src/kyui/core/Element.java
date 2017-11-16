@@ -160,8 +160,7 @@ public class Element {
   public void update() {//override this!
   }
   public final void invalidate() {
-    if (renderFlag) return;//because this will rendered!
-    KyUI.invalidate(pos);
+    KyUI.invalidateElement(this);
   }
   public final void invalidate(Rect rect) {
     KyUI.invalidate(rect);
@@ -270,12 +269,16 @@ public class Element {
       trigger=false;
     }
     if (trigger) {
+      if (KyUI.focus == this && e.getAction() == MouseEvent.RELEASE) {//break this with requestFocus() in release.
+        releaseFocus();
+      }
       if ((entered || KyUI.focus == this)) {
         ret=mouseEvent(e, index);
       }
       if (e.getAction() == MouseEvent.PRESS) {
         if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
           requestFocus();
+          invalidate();
         }
       }
     }
@@ -285,7 +288,6 @@ public class Element {
         invalidate();
       }
       pressedL=false;
-      if (KyUI.focus == this) releaseFocus();
     }
     return ret;
   }
@@ -314,7 +316,6 @@ public class Element {
     //    }
     KyUI.focus=this;
     //System.out.println("[KyUI] " + getName() + " gained focus at " + KyUI.Ref.frameCount);
-    invalidate();
   }
   public final void releaseFocus() {
     KyUI.focus=null;

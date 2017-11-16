@@ -44,6 +44,7 @@ public class TextEdit extends Element {//no sliderX for now...
   int clickLine=0;
   int clickPoint=0;
   float offset=0;
+  Rect cacheRect=new Rect();
   public TextEdit(String name) {
     super(name);
     init();
@@ -57,11 +58,12 @@ public class TextEdit extends Element {//no sliderX for now...
     content=new EditorString();
     filters=new ArrayList<Filter>();
     padding=8;
-    bgColor=KyUI.Ref.color(50);
+    bgColor=50;
     textColor=0xFF000000;
     selectionColor=KyUI.Ref.color(0, 0, 255);
     lineNumBgColor=ColorExt.brighter(bgColor, -10);
     lineNumColor=KyUI.Ref.color(255);
+    textFont=KyUI.fontMain;
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
@@ -85,7 +87,10 @@ public class TextEdit extends Element {//no sliderX for now...
         requestFocus();//because release action releases focus automatically.
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
-      offset+=e.getCount() * textSize / 5;//FIX>>temp value.
+      offset+=e.getCount() * textSize / 5;//FIX>>temp value.\
+      if (offset < 0) {
+        offset=0;
+      }
       updateSlider();
     }
     return true;
@@ -98,24 +103,37 @@ public class TextEdit extends Element {//no sliderX for now...
     KyUI.cacheGraphics.textFont(KyUI.fontMain);
   }
   @Override
-  public void keyEvent(KeyEvent e) {
+  public void keyTyped(KeyEvent e) {
     if (KyUI.focus == this) {
-      if (e.getKeyCode() == KyUI.Ref.CODED) {
-        if (e.getKey() == KyUI.Ref.LEFT) {
+      if (e.getKey() == KyUI.Ref.CODED) {
+        if (e.getKeyCode() == KyUI.Ref.LEFT) {
           if (KyUI.shiftPressed) content.selectionLeft(KyUI.ctrlPressed);
           else content.cursorLeft(KyUI.ctrlPressed, false);
-          return;
-        } else if (e.getKey() == KyUI.Ref.RIGHT) {
+          invalidate();
+        } else if (e.getKeyCode() == KyUI.Ref.RIGHT) {
           if (KyUI.shiftPressed) content.selectionRight(KyUI.ctrlPressed);
           else content.cursorRight(KyUI.ctrlPressed, false);
-        } else if (e.getKey() == KyUI.Ref.UP) {
+          invalidate();
+        } else if (e.getKeyCode() == KyUI.Ref.UP) {
           if (KyUI.shiftPressed) content.selectionUp(KyUI.ctrlPressed);
           else content.cursorUp(KyUI.ctrlPressed, false);
-        } else if (e.getKey() == KyUI.Ref.DOWN) {
+          invalidate();
+        } else if (e.getKeyCode() == KyUI.Ref.DOWN) {
           if (KyUI.shiftPressed) content.selectionDown(KyUI.ctrlPressed);
           else content.cursorDown(KyUI.ctrlPressed, false);
+          invalidate();
         }
+        return;
       }
+      if (KyUI.ctrlPressed || KyUI.altPressed) return;
+      content.insert(e.getKey() + "");
+      if (e.getKey() == '\n') {
+        content.line++;
+        content.point=0;
+      } else {
+        content.cursorRight(false, false);
+      }
+      invalidate();
       //process shortcuts and insert!!
     }
   }
@@ -156,6 +174,9 @@ public class TextEdit extends Element {//no sliderX for now...
   }
   @Override
   public void update() {
+    if (KyUI.focus == this) {
+      invalidate();
+    }
     //ADD>>update cursorOn
   }
   @Override
@@ -163,8 +184,9 @@ public class TextEdit extends Element {//no sliderX for now...
     //draw basic form
     g.fill(bgColor);
     pos.render(g);
-    g.fill(lineNumColor);
-    pos.render(g);
+    g.fill(lineNumBgColor);
+    cacheRect.set(pos.left, pos.top, pos.left + lineNumSize, pos.bottom);
+    cacheRect.render(g);
     //setup text
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
     g.textSize(textSize);
@@ -185,28 +207,32 @@ public class TextEdit extends Element {//no sliderX for now...
           } else g.rect(pos.left + g.textWidth(content.getSelectionPartBefore(a)) + lineNumSize + padding, pos.top + a * textSize - offset + padding, pos.left + g.textWidth(selectionPart) + lineNumSize + padding, pos.top + (a + 1) * textSize - offset + padding);
         }
       }
-      //draw text (no comment in normal textEditor implementation
       String line=content.getLine(a);
       g.fill(textColor);
-      g.text(content.getLine(a), pos.left + lineNumSize + padding, pos.top + (a + 0.5F) * textSize - offset + padding);
-      if (KyUI.focus == this) {
-        if (cursorOn) {
-          if (start <= content.line && content.line <= end) {
-            g.text("|", pos.left + g.textWidth(content.getLine(content.line).substring(0, content.point)) + lineNumSize + padding, pos.top + content.line * textSize - offset + padding);
-          }
+      g.text(line, pos.left + lineNumSize + padding, pos.top + (a + 0.5F) * textSize - offset + padding);
+    }
+    //draw text (no comment in normal textEditor implementation
+    if (KyUI.focus == this) {
+      if (cursorOn) {
+        if (start <= content.line && content.line <= end) {
+          float cursorOffsetX=g.textWidth("|") / 2;
+          String line=content.getLine(content.line);
+          g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + lineNumSize + padding - cursorOffsetX, pos.top + (content.line + 0.5F) * textSize - offset + padding);
         }
       }
-      g.textAlign(KyUI.Ref.RIGHT, KyUI.Ref.CENTER);
-      g.textFont(KyUI.fontMain);
-      g.textSize(textSize);
-      g.textLeading(textSize / 2);
-      for (a=Math.max(0, start - 1); a < content.lines() + blankLines && a < end + 1; a++) {
-        g.fill(lineNumBgColor);
-        g.rect();
-        g.fill(lineNumColor);
-        g.text(a + "", position.x - size.x + textSize * 5 / 2, position.y - size.y + (a + 1) * textSize + Yoffset);
-      }
-      g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
     }
+    g.textAlign(KyUI.Ref.RIGHT, KyUI.Ref.CENTER);
+    g.textFont(KyUI.fontMain);
+    g.textSize(textSize);
+    g.textLeading(textSize / 2);
+    for (int a=Math.max(0, start - 1); a < end + 1; a++) {
+      if (a < content.lines()) {
+        g.fill(lineNumColor);
+      } else {
+        g.fill(ColorExt.brighter(lineNumColor, -150));
+      }
+      g.text(a + "", pos.left + lineNumSize - padding, pos.top + (a + 0.5F) * textSize - offset + padding);
+    }
+    g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
   }
 }
