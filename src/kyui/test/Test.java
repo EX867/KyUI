@@ -14,7 +14,7 @@ public class Test extends PApplet {
   }
   @Override
   public void settings() {
-    size(300, 300);
+    size(/*300*/700, 700 /*300*/);
   }
   int count=0;
   int rcount=0;
@@ -22,7 +22,6 @@ public class Test extends PApplet {
   TabLayout f;
   @Override
   public void setup() {
-    height=300;
     //frameRate(10);
     //KyUI.setRoot(new Background("root", color(255, 255, 255)));
     KyUI.start(this);
@@ -97,9 +96,8 @@ public class Test extends PApplet {
   @Override
   public void keyTyped() {
     if (key == ' ') {
-      f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
-      f.localLayout();
-      count++;
+      //f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
+      //count++;
     } else if (key == '>') {
       LinearList e=(LinearList)KyUI.get("list");
       e.addItem("" + lcount++);

@@ -114,7 +114,7 @@ public class EditorString {//editorString is based on line.
       }
     } else {
       String before=getLine(line);
-      l.set(line, getLine(line).substring(0, point - 1) + getLine(line).substring(Math.min(point, getLine(line).length()), getLine(line).length()));
+      l.set(line, getLine(line).substring(0, point - 1) + getLine(line).substring(point, getLine(line).length()));
       cursorLeft(false, false);
       maxpoint=point;
     }
@@ -222,7 +222,7 @@ public class EditorString {//editorString is based on line.
       resetSelection();
     }
     cursorLeft(word, true);
-    if (line > selStartLine || (selStartPoint < point && selStartLine == line)) {
+    if (line > selStartLine || (selStartPoint <= point && selStartLine == line)) {
       selEndPoint=point;
       selEndLine=line;
     } else {
@@ -236,7 +236,7 @@ public class EditorString {//editorString is based on line.
       resetSelection();
     }
     cursorRight(word, true);
-    if (line > selEndLine || (selEndPoint <= point && selEndLine == line)) {
+    if (line > selEndLine || (selEndPoint < point && selEndLine == line)) {
       selEndPoint=point;
       selEndLine=line;
     } else {
@@ -362,12 +362,15 @@ public class EditorString {//editorString is based on line.
     return "";
   }
   public String getSelectionPart(int line_) {
-    if (line_ == selStartLine) return getLine(selStartLine).substring(selStartPoint, getLine(selStartLine).length()) + "\n";
+    if (line_ == selStartLine) {
+      if (selStartLine == selEndLine) {
+        return getLine(line_).substring(selStartPoint, selEndPoint);
+      }
+      return getLine(selStartLine).substring(selStartPoint, getLine(selStartLine).length()) + "\n";
+    }
     if (line_ > selStartLine && line_ < selEndLine) {
       return getLine(line_) + "\n";
     }
-    if (selEndLine >= lines()) selEndLine=lines() - 1;
-    if (selEndPoint > getLine(selEndLine).length()) selEndPoint=getLine(selEndLine).length();
     if (line_ == selEndLine) return getLine(selEndLine).substring(0, selEndPoint);
     return "";
   }
@@ -400,9 +403,9 @@ public class EditorString {//editorString is based on line.
     else if (selStartLine < 0) selStartLine=0;
     if (selEndLine >= lines()) selEndLine=lines() - 1;
     else if (selEndLine < 0) selEndLine=0;
-    if (selStartPoint >= getLine(selStartLine).length()) selStartPoint=getLine(selStartLine).length() - 1;
+    if (selStartPoint > getLine(selStartLine).length()) selStartPoint=getLine(selStartLine).length();
     else if (selStartPoint < 0) selStartPoint=0;
-    if (selEndPoint >= getLine(selEndLine).length()) selEndPoint=getLine(selEndLine).length() - 1;
+    if (selEndPoint > getLine(selEndLine).length()) selEndPoint=getLine(selEndLine).length();
     else if (selEndPoint < 0) selEndPoint=0;
   }
 }

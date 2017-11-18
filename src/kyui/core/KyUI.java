@@ -78,10 +78,12 @@ public class KyUI {
   public static long drawInterval=0;
   public static float scaleGlobal=1.0F;// this parameter stores global window scale.
   public static PFont fontMain;//set manually! (so public)
+  public static PFont fontText;//set manually! (2)
   public static int INF=987654321;
   //thread
   public static Thread updater;
   public static int updater_interval;
+  public static long frameCount;
   //public Thread animation;
   private KyUI() {//WARNING! names must not contains ':' and "->".
   }
@@ -93,6 +95,7 @@ public class KyUI {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
     fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
+    fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").getAbsolutePath(), 20);
     cacheGraphics=KyUI.Ref.createGraphics(10, 10);//small graphics...used for some functions
     dropLayer=new CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
     if (roots.size() == 0) addLayer(getNewLayer());
@@ -107,6 +110,7 @@ public class KyUI {
     ready=true;
     updater=new Thread(new Updater());
     frameRate(rate);
+    frameCount=0;
     updater.start();
   }
   public static void end() {
@@ -176,6 +180,7 @@ public class KyUI {
           //
           roots.getLast().update_();
         }
+        frameCount++;
         try {
           Thread.sleep(updater_interval);
         } catch (InterruptedException e) {
@@ -192,25 +197,26 @@ public class KyUI {
     if (Ref.key == PApplet.ESC) {
       Ref.key=0; // Fools! don't let them escape!
     }
-    if (e.getKeyCode() == PApplet.CODED) {
+    if (e.getKey() == PApplet.CODED) {
       if (e.getAction() == KeyEvent.PRESS) {//handle first.
-        if (e.getKey() == PApplet.CONTROL) ctrlPressed=true;//???
-        else if (e.getKey() == PApplet.SHIFT) shiftPressed=true;
-        else if (e.getKey() == PApplet.ALT) altPressed=true;
+        if (e.getKeyCode() == PApplet.CONTROL) ctrlPressed=true;//???
+        else if (e.getKeyCode() == PApplet.SHIFT) shiftPressed=true;
+        else if (e.getKeyCode() == PApplet.ALT) altPressed=true;
       } else if (e.getAction() == KeyEvent.RELEASE) {
-        if (e.getKey() == PApplet.CONTROL) ctrlPressed=false;
-        else if (e.getKey() == PApplet.SHIFT) shiftPressed=false;
-        else if (e.getKey() == PApplet.ALT) altPressed=false;
+        if (e.getKeyCode() == PApplet.CONTROL) ctrlPressed=false;
+        else if (e.getKeyCode() == PApplet.SHIFT) shiftPressed=false;
+        else if (e.getKeyCode() == PApplet.ALT) altPressed=false;
       }
     }
     roots.getLast().keyEvent_((KeyEvent)e);
     if (e.getAction() == KeyEvent.PRESS) {
       roots.getLast().keyTyped_((KeyEvent)e);
       keyInit=false;
-      keyState=false;
+      keyState=true;
       keyTime=System.currentTimeMillis();
     } else {
       if (!keyState) {
+        roots.getLast().keyTyped_((KeyEvent)e);
         keyState=true;
       }
     }

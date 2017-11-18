@@ -114,7 +114,6 @@ public class RangeSlider extends Button {
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL) {
-        releaseFocus();
         invalidate();
         return false;
       }

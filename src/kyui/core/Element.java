@@ -89,6 +89,9 @@ public class Element {
   protected boolean entered=false;
   protected boolean pressedL=false;//this parameter indicates this element have been pressed left.
   protected boolean pressedR=false;//this parameter indicates this element have been pressed right.
+  //control flow
+  protected boolean skipRelease=false;
+  //
   public Element(String name) {
     Name=name;
   }
@@ -233,14 +236,6 @@ public class Element {
         entered=true;
         mouseEntered(e, index);
       }
-      if (e.getAction() == MouseEvent.PRESS) {
-        if (e.getButton() == KyUI.Ref.LEFT) {
-          pressedL=true;
-        } else if (e.getButton() == KyUI.Ref.RIGHT) {
-          pressedR=true;
-        }
-        invalidate();
-      }
     } else {
       if (entered) {
         entered=false;
@@ -256,27 +251,31 @@ public class Element {
     int end=Math.min(children.size(), endClip);
     for (int a=Math.max(0, startClip); a < end; a++) {
       Element child=children.get(a);
-      if (child.isEnabled()) {
-        if (child.isActive()) {
-          if (!child.mouseEvent_(e, a, trigger)) {
-            childrenIntercept=true;
-          }
+      if (child.isEnabled() && child.isActive()) {
+        if (!child.mouseEvent_(e, a, trigger)) {
+          childrenIntercept=true;
         }
       }
     }
     if (childrenIntercept) {
+      //System.out.println(getName() + " intercepted! " + KyUI.frameCount);
       ret=false;
       trigger=false;
     }
     if (trigger) {
-      if (KyUI.focus == this && e.getAction() == MouseEvent.RELEASE) {//break this with requestFocus() in release.
-        releaseFocus();
-      }
       if ((entered || KyUI.focus == this)) {
         ret=mouseEvent(e, index);
       }
+      if (!skipRelease && KyUI.focus == this && e.getAction() == MouseEvent.RELEASE) {
+        releaseFocus();
+      }
       if (e.getAction() == MouseEvent.PRESS) {
         if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+          if (e.getButton() == KyUI.Ref.LEFT) {
+            pressedL=true;
+          } else if (e.getButton() == KyUI.Ref.RIGHT) {
+            pressedR=true;
+          }
           requestFocus();
           invalidate();
         }
@@ -289,6 +288,7 @@ public class Element {
       }
       pressedL=false;
     }
+    skipRelease=false;
     return ret;
   }
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
@@ -311,9 +311,6 @@ public class Element {
   }
   //
   public final void requestFocus() {//make onRequestListener?
-    //    if (KyUI.focus != null) {
-    //      KyUI.focus.renderlater();
-    //    }
     KyUI.focus=this;
     //System.out.println("[KyUI] " + getName() + " gained focus at " + KyUI.Ref.frameCount);
   }

@@ -59,11 +59,11 @@ public class TextEdit extends Element {//no sliderX for now...
     filters=new ArrayList<Filter>();
     padding=8;
     bgColor=50;
-    textColor=0xFF000000;
-    selectionColor=KyUI.Ref.color(0, 0, 255);
+    textColor=KyUI.Ref.color(200);
+    selectionColor=KyUI.Ref.color(50, 50, 205);
     lineNumBgColor=ColorExt.brighter(bgColor, -10);
     lineNumColor=KyUI.Ref.color(255);
-    textFont=KyUI.fontMain;
+    textFont=KyUI.fontText;
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
@@ -84,7 +84,7 @@ public class TextEdit extends Element {//no sliderX for now...
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL) {
-        requestFocus();//because release action releases focus automatically.
+        skipRelease=true;//because release action releases focus automatically.
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
       offset+=e.getCount() * textSize / 5;//FIX>>temp value.\
@@ -105,6 +105,7 @@ public class TextEdit extends Element {//no sliderX for now...
   @Override
   public void keyTyped(KeyEvent e) {
     if (KyUI.focus == this) {
+      System.out.println(e.getKey()+" ("+(int)e.getKey()+")  - "+e.getKeyCode()+" : "+KyUI.frameCount);
       if (e.getKey() == KyUI.Ref.CODED) {
         if (e.getKeyCode() == KyUI.Ref.LEFT) {
           if (KyUI.shiftPressed) content.selectionLeft(KyUI.ctrlPressed);
@@ -125,13 +126,35 @@ public class TextEdit extends Element {//no sliderX for now...
         }
         return;
       }
-      if (KyUI.ctrlPressed || KyUI.altPressed) return;
-      content.insert(e.getKey() + "");
-      if (e.getKey() == '\n') {
-        content.line++;
-        content.point=0;
-      } else {
-        content.cursorRight(false, false);
+      boolean text=!(KyUI.ctrlPressed || KyUI.altPressed);
+      //no have to text things
+      if (e.getKey() == KyUI.Ref.BACKSPACE) {
+        if (content.hasSelection()) {
+          content.deleteSelection();
+        } else {
+          content.deleteBefore(KyUI.ctrlPressed);
+        }
+      } else if (e.getKey() == KyUI.Ref.DELETE) {
+        if (content.hasSelection()) {
+          content.deleteSelection();
+        } else {
+          content.deleteAfter(KyUI.ctrlPressed);
+        }
+      } else if (text) {//and then text things.
+        if (e.getKey() == '\n') {
+          if (content.hasSelection()) {
+            content.deleteSelection();
+          }
+          content.insert(e.getKey() + "");
+          content.line++;
+          content.point=0;
+        } else {
+          if (content.hasSelection()) {
+            content.deleteSelection();
+          }
+          content.insert(e.getKey() + "");
+          content.cursorRight(false, false);
+        }
       }
       invalidate();
       //process shortcuts and insert!!
@@ -187,6 +210,8 @@ public class TextEdit extends Element {//no sliderX for now...
     g.fill(lineNumBgColor);
     cacheRect.set(pos.left, pos.top, pos.left + lineNumSize, pos.bottom);
     cacheRect.render(g);
+    cacheRect.set(pos.left, pos.top, pos.right, pos.bottom);
+    KyUI.clipRect(g, cacheRect);
     //setup text
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
     g.textSize(textSize);
@@ -204,7 +229,10 @@ public class TextEdit extends Element {//no sliderX for now...
           if (selectionPart.charAt(selectionPart.length() - 1) == '\n') {
             selectionPart=selectionPart.substring(0, selectionPart.length() - 1);
             g.rect(pos.left + g.textWidth(content.getSelectionPartBefore(a)) + lineNumSize + padding, pos.top + a * textSize - offset + padding, pos.right - padding, pos.top + (a + 1) * textSize - offset + padding);
-          } else g.rect(pos.left + g.textWidth(content.getSelectionPartBefore(a)) + lineNumSize + padding, pos.top + a * textSize - offset + padding, pos.left + g.textWidth(selectionPart) + lineNumSize + padding, pos.top + (a + 1) * textSize - offset + padding);
+          } else {
+            float selectionBefore=g.textWidth(content.getSelectionPartBefore(a));
+            g.rect(pos.left + selectionBefore + lineNumSize + padding, pos.top + a * textSize - offset + padding, pos.left + selectionBefore + g.textWidth(selectionPart) + lineNumSize + padding, pos.top + (a + 1) * textSize - offset + padding);
+          }
         }
       }
       String line=content.getLine(a);
@@ -234,5 +262,9 @@ public class TextEdit extends Element {//no sliderX for now...
       g.text(a + "", pos.left + lineNumSize - padding, pos.top + (a + 0.5F) * textSize - offset + padding);
     }
     g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
+  }
+  @Override
+  public void overlay(PGraphics g) {
+    KyUI.removeClip(g);
   }
 }

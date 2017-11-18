@@ -108,7 +108,6 @@ public class Slider extends Element {
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL) {
-        releaseFocus();
         invalidate();
       }
     }
