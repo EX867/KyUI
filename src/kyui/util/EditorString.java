@@ -146,7 +146,15 @@ public class EditorString {//editorString is based on line.
     line=line_;
     point=point_;
     if (line >= lines()) line=lines() - 1;
-    if (point >= getLine(line).length()) point=getLine(line).length() - 1;
+    if (point > getLine(line).length()) point=getLine(line).length();
+  }
+  public void setCursorLine(int line_) {
+    line=line_;
+    if (line >= lines()) line=lines() - 1;
+  }
+  public void setCursorPoint(int point_) {
+    point=point_;
+    if (point > getLine(line).length()) point=getLine(line).length();
   }
   //currently, word is seperated by space.
   public void cursorLeft(boolean word, boolean select) {
@@ -281,8 +289,18 @@ public class EditorString {//editorString is based on line.
   public void select(int line1, int point1, int line2, int point2) {
     selStartLine=Math.min(line1, line2);
     selEndLine=Math.max(line1, line2);
-    selStartPoint=Math.min(point1, point2);
-    selEndPoint=Math.max(point1, point2);
+    if (line1 == line2) {
+      selStartPoint=Math.min(point1, point2);
+      selEndPoint=Math.max(point1, point2);
+    } else {
+      if (line1 < line2) {
+        selStartPoint=point1;
+        selEndPoint=point2;
+      } else {
+        selStartPoint=point2;
+        selEndPoint=point1;
+      }
+    }
   }
   public void selectFromCursor(int len) {
     resetSelection();

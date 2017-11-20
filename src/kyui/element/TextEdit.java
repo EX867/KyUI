@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.event.listeners.EventListener;
 import kyui.util.ColorExt;
 import kyui.util.EditorString;
 import kyui.util.Rect;
@@ -10,7 +11,6 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.EventListener;
 public class TextEdit extends Element {//no sliderX for now...
   RangeSlider slider;//if not null, it will work.
   EditorString content;
@@ -33,18 +33,19 @@ public class TextEdit extends Element {//no sliderX for now...
   public PFont textFont;
   public String hint="";//this is one-line hint if text is empty.
   public int textSize=20;
-  public int lineNumSize=50;
+  public int lineNumSize=0;
   public int lineNumBgColor;
   public int lineNumColor;
   public int blankLines=5;//blank lines to show below the content.
   public int textColor;
   public int selectionColor;
   //temp values
-  boolean cursorOn=true;
   int clickLine=0;
   int clickPoint=0;
   float offset=0;
   Rect cacheRect=new Rect();
+  protected boolean cursorOn=true;
+  int cursorFrame=0;
   public TextEdit(String name) {
     super(name);
     init();
@@ -63,66 +64,118 @@ public class TextEdit extends Element {//no sliderX for now...
     selectionColor=KyUI.Ref.color(50, 50, 205);
     lineNumBgColor=ColorExt.brighter(bgColor, -10);
     lineNumColor=KyUI.Ref.color(255);
+    lineNumSize=textSize * 2 + padding * 2;
     textFont=KyUI.fontText;
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS) {
+      int oldLine=content.line;
+      int oldPoint=content.point;
       adjustCursor();//move cursor
       if (KyUI.shiftPressed) {
-        //ADD>>shift selection action
+        if (content.hasSelection()) {
+          if (oldLine == content.selEndLine && oldPoint == content.selEndPoint) {//click after old click point.
+            clickLine=content.selStartLine;
+            clickPoint=content.selStartPoint;
+          } else {
+            clickLine=content.selEndLine;
+            clickPoint=content.selEndPoint;
+          }
+        } else {
+          clickPoint=oldPoint;
+          clickLine=oldLine;
+        }
+        content.select(clickLine, clickPoint, content.line, content.point);
       } else {
         clickPoint=content.point;
         clickLine=content.line;
         content.resetSelection();
       }
-    } else if (e.getAction() == MouseEvent.DRAG) {
+      invalidate();
+      return false;
+    } else if (e.getAction() == MouseEvent.DRAG) {//logic is moved to update()
       if (pressedL) {
         requestFocus();
-        adjustCursor();
-        content.select(clickLine, clickPoint, content.line, content.point);
+        return false;
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL) {
         skipRelease=true;//because release action releases focus automatically.
+        return false;
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
-      offset+=e.getCount() * textSize / 5;//FIX>>temp value.\
+      offset+=e.getCount() * 25;//FIX>>temp value.
       if (offset < 0) {
         offset=0;
       }
       updateSlider();
+      invalidate();
+      return false;
     }
     return true;
   }
   void adjustCursor() {
-    KyUI.cacheGraphics.textFont(textFont);
-    KyUI.Ref.textSize(Math.max(1, textSize));//just using function...
-    //set line...
-    //set point...
-    KyUI.cacheGraphics.textFont(KyUI.fontMain);
+    content.setCursorLine(Math.max(Math.min(offsetToLine(offset - padding + KyUI.mouseGlobal.y - pos.top), content.lines() - 1), 0));
+    PGraphics cg=KyUI.cacheGraphics;
+    cg.textFont(textFont);
+    cg.textSize(textSize);//just using function...
+    float mouseX=/*offsetX+*/KyUI.mouseGlobal.x - pos.left - padding - lineNumSize;
+    String line=content.getLine(content.line);
+    int point=0;//mid
+    int low=1;
+    int high=line.length() - 1;
+    if (line.length() == 0 || mouseX <= cg.textWidth(line.charAt(0)) / 2) {
+      content.setCursorPoint(0);
+    } else if (mouseX >= cg.textWidth(line) - cg.textWidth(line.charAt(line.length() - 1)) / 2) {
+      content.setCursorPoint(line.length());
+    } else {
+      point=(low + high) / 2;
+      while (low < high) {
+        float width1=cg.textWidth(line.substring(0, point - 1)) + cg.textWidth(line.charAt(point - 1)) / 2;
+        float width2=cg.textWidth(line.substring(0, point)) + cg.textWidth(line.charAt(point)) / 2;
+        if (mouseX < width1) {
+          high=point - 1;
+          point=(low + high) / 2;
+        } else if (mouseX > width2) {
+          low=point + 1;
+          point=(low + high) / 2;
+        } else {
+          break;
+        }
+      }
+      //if (low < high) {FIX this problem... but it works well!
+      //  System.out.print("error : ");
+      //}
+      content.setCursorPoint(point);
+    }
+    cg.textFont(KyUI.fontMain);
   }
   @Override
   public void keyTyped(KeyEvent e) {
     if (KyUI.focus == this) {
-      System.out.println(e.getKey()+" ("+(int)e.getKey()+")  - "+e.getKeyCode()+" : "+KyUI.frameCount);
+      //System.out.println(e.getKey() + " (" + (int)e.getKey() + ")  - " + e.getKeyCode() + " : " + KyUI.frameCount);
       if (e.getKey() == KyUI.Ref.CODED) {
         if (e.getKeyCode() == KyUI.Ref.LEFT) {
           if (KyUI.shiftPressed) content.selectionLeft(KyUI.ctrlPressed);
           else content.cursorLeft(KyUI.ctrlPressed, false);
-          invalidate();
+          moveToCursor();
+          mouseEventPassed();
         } else if (e.getKeyCode() == KyUI.Ref.RIGHT) {
           if (KyUI.shiftPressed) content.selectionRight(KyUI.ctrlPressed);
           else content.cursorRight(KyUI.ctrlPressed, false);
-          invalidate();
+          moveToCursor();
+          mouseEventPassed();
         } else if (e.getKeyCode() == KyUI.Ref.UP) {
           if (KyUI.shiftPressed) content.selectionUp(KyUI.ctrlPressed);
           else content.cursorUp(KyUI.ctrlPressed, false);
-          invalidate();
+          moveToCursor();
+          mouseEventPassed();
         } else if (e.getKeyCode() == KyUI.Ref.DOWN) {
           if (KyUI.shiftPressed) content.selectionDown(KyUI.ctrlPressed);
           else content.cursorDown(KyUI.ctrlPressed, false);
-          invalidate();
+          moveToCursor();
+          mouseEventPassed();
         }
         return;
       }
@@ -134,12 +187,18 @@ public class TextEdit extends Element {//no sliderX for now...
         } else {
           content.deleteBefore(KyUI.ctrlPressed);
         }
+        moveToCursor();
+        mouseEventPassed();
+        textChange();
       } else if (e.getKey() == KyUI.Ref.DELETE) {
         if (content.hasSelection()) {
           content.deleteSelection();
         } else {
           content.deleteAfter(KyUI.ctrlPressed);
         }
+        moveToCursor();
+        mouseEventPassed();
+        textChange();
       } else if (text) {//and then text things.
         if (e.getKey() == '\n') {
           if (content.hasSelection()) {
@@ -148,17 +207,29 @@ public class TextEdit extends Element {//no sliderX for now...
           content.insert(e.getKey() + "");
           content.line++;
           content.point=0;
+          moveToCursor();
         } else {
           if (content.hasSelection()) {
             content.deleteSelection();
           }
           content.insert(e.getKey() + "");
           content.cursorRight(false, false);
+          moveToCursor();
         }
+        mouseEventPassed();
+        textChange();
       }
-      invalidate();
-      //process shortcuts and insert!!
     }
+  }
+  private void textChange() {
+    if (onTextChangeListener != null) {
+      onTextChangeListener.onEvent();
+    }
+  }
+  private void mouseEventPassed() {
+    cursorOn=true;
+    cursorFrame=20;
+    invalidate();
   }
   public void updateSlider() {
     if (slider == null) return;
@@ -178,14 +249,16 @@ public class TextEdit extends Element {//no sliderX for now...
     moveTo(line_);
     updateSlider();
   }
-  public void moveTo(int line) {//ADD>>
-    //float Yoffset=textSize/2-(sliderPos-(position.y-size.y+sliderLength))*(max(1, (content.lines()+10)*textSize-size.y*2)/max(1, size.y*2-sliderLength*2));
-    int start=0;//=floor(max(0, min(content.lines()-1, (-Yoffset)/textSize)));//Yoffset+a*textSize>-textSize
-    int end=0;//=floor((size.y*2-Yoffset)/textSize-3/2);
-    if (line < start) {
-      offset=-(line - 1 / 2) * textSize;
-    } else if (line > end) {
-      offset=-(line + 5 / 2) * textSize + pos.bottom - pos.top * 2;
+  public void moveTo(int line) {
+    int start=offsetToLine(offset - padding);
+    int end=offsetToLine(offset + pos.bottom - pos.top - padding);
+    if (line <= start) {
+      offset=textSize * line;
+    } else if (line >= end) {
+      offset=textSize * (line + 2) - pos.bottom + pos.top;
+    }
+    if (offset < 0) {
+      offset=0;
     }
     updateSlider();
   }
@@ -197,10 +270,33 @@ public class TextEdit extends Element {//no sliderX for now...
   }
   @Override
   public void update() {
-    if (KyUI.focus == this) {
+    if (KyUI.focus == this && KyUI.mouseState == KyUI.STATE_PRESSED) {
+      if (pressedL) {
+        int start=offsetToLine(offset - padding);
+        int end=offsetToLine(offset + pos.bottom - pos.top - padding);
+        adjustCursor();
+        if (content.line >= end) {
+          content.setCursorLine(end);
+        } else if (content.line <= start) {
+          content.setCursorLine(start);
+        }
+        content.select(clickLine, clickPoint, content.line, content.point);
+        moveToCursor();
+        cursorOn=true;
+        cursorFrame=20;
+        invalidate();
+      }
+    } else if (cursorFrame == 0) {
+      if (cursorOn) {
+        cursorOn=false;
+      } else {
+        cursorOn=true;
+      }
       invalidate();
+      cursorFrame=20;
+    } else {
+      cursorFrame--;
     }
-    //ADD>>update cursorOn
   }
   @Override
   public void render(PGraphics g) {//no draw slider...
@@ -214,16 +310,16 @@ public class TextEdit extends Element {//no sliderX for now...
     KyUI.clipRect(g, cacheRect);
     //setup text
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
-    g.textSize(textSize);
     g.textFont(textFont);
+    g.textSize(textSize);
     g.textLeading(textSize / 2);
     //iterate lines
     int start=offsetToLine(offset - padding);
     int end=offsetToLine(offset + pos.bottom - pos.top - padding);
-    for (int a=Math.max(0, start - 1); a < content.lines() && a < end + 1; a++) {
-      //draw selection
-      if (content.hasSelection()) {
-        g.fill(selectionColor);
+    g.fill(selectionColor);
+    if (content.hasSelection()) {
+      for (int a=Math.max(0, start - 1); a < content.lines() && a < end + 1; a++) {
+        //draw selection
         String selectionPart=content.getSelectionPart(a);
         if (!selectionPart.isEmpty()) {
           if (selectionPart.charAt(selectionPart.length() - 1) == '\n') {
@@ -235,8 +331,10 @@ public class TextEdit extends Element {//no sliderX for now...
           }
         }
       }
+    }
+    g.fill(textColor);
+    for (int a=Math.max(0, start - 1); a < content.lines() && a < end + 1; a++) {
       String line=content.getLine(a);
-      g.fill(textColor);
       g.text(line, pos.left + lineNumSize + padding, pos.top + (a + 0.5F) * textSize - offset + padding);
     }
     //draw text (no comment in normal textEditor implementation
