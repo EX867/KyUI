@@ -141,6 +141,10 @@ public class EditorString {//editorString is based on line.
     }
     maxpoint=point;
   }
+  public void setText(String text) {
+    clear();
+    insert(0, 0, text);
+  }
   //===Cursor movements===// - override needed in commandScript
   public void setCursor(int line_, int point_) {
     line=line_;

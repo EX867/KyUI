@@ -9,4 +9,7 @@ public class TextBox  extends TextEdit{
   public TextBox(String name, Rect pos_) {
     super(name, pos_);
   }
+  public int getInteger(){
+    return value;
+  }
 }

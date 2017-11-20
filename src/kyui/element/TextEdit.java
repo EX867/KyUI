@@ -249,6 +249,9 @@ public class TextEdit extends Element {//no sliderX for now...
     moveTo(line_);
     updateSlider();
   }
+  public void setTextChangeListener(EventListener onTextChangeListener) {
+    this.onTextChangeListener=onTextChangeListener;
+  }
   public void moveTo(int line) {
     int start=offsetToLine(offset - padding);
     int end=offsetToLine(offset + pos.bottom - pos.top - padding);
@@ -364,5 +367,8 @@ public class TextEdit extends Element {//no sliderX for now...
   @Override
   public void overlay(PGraphics g) {
     KyUI.removeClip(g);
+  }
+  public void setText(String text) {
+    content.setText(text);
   }
 }

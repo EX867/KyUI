@@ -115,7 +115,7 @@ public class Element {
   public boolean equals(Object other) {
     return (other instanceof Element && ((Element)other).Name.equals(Name));
   }
-  public final void setPosition(Rect rect) {
+  public void setPosition(Rect rect) {
     invalidate(pos);
     pos=rect;
     localLayout();
