@@ -18,15 +18,19 @@ public class TextEdit extends Element {//no sliderX for now...
   ArrayList<Filter> filters;
   class Filter {
     String filter;
+    public boolean condition=true;
     public Filter(String filter_) {//filter is regex.
       filter=filter_;
     }
+    public Filter(String filter_, boolean condition_) {
+      filter=filter_;
+      condition=condition_;
+    }
     String filter(String in) {
-      if (in.contains(filter)) {
-        return in.replaceAll(filter, "");
-      } else {
+      if (condition == false) {
         return in;
       }
+      return in.replaceAll(filter, "");
     }
   }
   //modifiable values
@@ -36,7 +40,7 @@ public class TextEdit extends Element {//no sliderX for now...
   public int lineNumSize=0;
   public int lineNumBgColor;
   public int lineNumColor;
-  public int blankLines=5;//blank lines to show below the content.
+  public int blankLines=6;//blank lines to show below the content.
   public int textColor;
   public int selectionColor;
   //temp values
@@ -105,13 +109,18 @@ public class TextEdit extends Element {//no sliderX for now...
         return false;
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
-      offset+=e.getCount() * 25;//FIX>>temp value.
-      if (offset < 0) {
-        offset=0;
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        offset+=e.getCount() * 25;//FIX>>temp value.
+        if (offset > textSize * (content.lines() + blankLines) + pos.top - pos.bottom) {
+          offset=textSize * (content.lines() + blankLines) + pos.top - pos.bottom;
+        }
+        if (offset < 0) {
+          offset=0;
+        }
+        updateSlider();
+        invalidate();
+        return false;
       }
-      updateSlider();
-      invalidate();
-      return false;
     }
     return true;
   }
@@ -179,6 +188,11 @@ public class TextEdit extends Element {//no sliderX for now...
         }
         return;
       }
+      for (Filter filter : filters) {
+        if (filter.filter(e.getKey() + "").isEmpty()) {//filter filters the key char. no mouseEvent and listener event.
+          return;
+        }
+      }
       boolean text=!(KyUI.ctrlPressed || KyUI.altPressed);
       //no have to text things
       if (e.getKey() == KyUI.Ref.BACKSPACE) {
@@ -221,9 +235,9 @@ public class TextEdit extends Element {//no sliderX for now...
       }
     }
   }
-  private void textChange() {
+  protected void textChange() {
     if (onTextChangeListener != null) {
-      onTextChangeListener.onEvent();
+      onTextChangeListener.onEvent(this);
     }
   }
   private void mouseEventPassed() {
@@ -369,6 +383,10 @@ public class TextEdit extends Element {//no sliderX for now...
     KyUI.removeClip(g);
   }
   public void setText(String text) {
+    for (Filter filter : filters) {
+      text=filter.filter(text);
+    }
     content.setText(text);
+    invalidate();
   }
 }

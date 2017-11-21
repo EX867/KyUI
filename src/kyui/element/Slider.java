@@ -27,7 +27,7 @@ public class Slider extends Element {
   }
   private void init() {
     bgColor=KyUI.Ref.color(127);
-    padding=strokeWeight / 2 + 3;
+    padding=strokeWeight + 2;
     max=10;
     min=0;
     value=10;
@@ -91,21 +91,19 @@ public class Slider extends Element {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if ((e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG)) {//only works with left event...
-      if (pressedL) {
-        requestFocus();
-        float size=getSize();
-        if (direction == Attributes.HORIZONTAL) {
-          set(min + (max - min) * (KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left) / size);
-        } else if (direction == Attributes.VERTICAL) {
-          set(min + (max - min) * (KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top) / size);
-        }
-        if (adjustListener != null) {
-          adjustListener.onEvent();
-        }
-        invalidate();
-        return false;
+    if (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG)) {//only works with left event...
+      requestFocus();
+      float size=getSize();
+      if (direction == Attributes.HORIZONTAL) {
+        set(min + (max - min) * (KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left) / size);
+      } else if (direction == Attributes.VERTICAL) {
+        set(min + (max - min) * (KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top) / size);
       }
+      if (adjustListener != null) {
+        adjustListener.onEvent(this);
+      }
+      invalidate();
+      return false;
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL) {
         invalidate();

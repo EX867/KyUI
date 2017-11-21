@@ -2,7 +2,6 @@ package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.event.listeners.EventListener;
-import kyui.util.ColorExt;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -12,20 +11,26 @@ import java.awt.Color;
 public class ColorPicker extends Element {
   class ColorModifyListenerRGB implements EventListener {
     @Override
-    public void onEvent() {
+    public void onEvent(Element e) {
       updateColorFromRGB();
+      ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      invalidate();
     }
   }
   class ColorModifyListenerHSB implements EventListener {
     @Override
-    public void onEvent() {
+    public void onEvent(Element e) {
       updateColorFromHSB();
+      ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      invalidate();
     }
   }
   class ColorModifyListenerA implements EventListener {
     @Override
-    public void onEvent() {
+    public void onEvent(Element e) {
       updateColorFromA();
+      ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      invalidate();
     }
   }
   ColorModifyListenerRGB rgbListener=new ColorModifyListenerRGB();
@@ -65,7 +70,7 @@ public class ColorPicker extends Element {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG) {
+    if (e.getAction() == MouseEvent.PRESS || (e.getAction() == MouseEvent.DRAG && pressedL)) {
       requestFocus();
       float centerX=(pos.right + pos.left) / 2;
       float centerY=(pos.top + pos.bottom) / 2;
@@ -88,11 +93,13 @@ public class ColorPicker extends Element {
         sbClicked=true;
         invalidate();
       }
+      return false;
     } else if (e.getAction() == MouseEvent.RELEASE) {
       hueClicked=false;
       sbClicked=false;
+      return false;
     }
-    return false;
+    return true;
   }
   @Override
   public void render(PGraphics g) {
@@ -120,21 +127,21 @@ public class ColorPicker extends Element {
     for (int a=2; a < 256; a+=4) {
       for (int b=2; b < 256; b+=4) {
         g.fill(Color.HSBtoRGB((float)KyUI.Ref.red(selectedHSB) / 255, (float)a / 255, (float)b / 255));
-        g.rect(-width / 6 + width * a / 765, width / 6 - width * b / 765, 5, 5);
+        g.rect(-width / 6 + width * a / (256 * 3), width / 6 - width * b / (256 * 3), width * 4 / (256 * 3), width * 4 / (256 * 3));
       }
     }
     //draw edge of sb
     g.noFill();
-    g.strokeWeight(2);
-    g.stroke(ColorExt.brighter(bgColor, -50));
+    g.strokeWeight(1);
+    g.stroke(0);
     g.rect(0, 0, width / 3, width / 3);
     //draw sb marker
     if (KyUI.Ref.blue(selectedHSB) > 128) g.stroke(0);
     else g.stroke(255);
-    g.strokeWeight(1);
     g.rect(-width / 6 + KyUI.Ref.green(selectedHSB) * width / 765, width / 6 - KyUI.Ref.blue(selectedHSB) * width / 765, 8, 8);
     //end
     g.popMatrix();
+    g.noStroke();
     g.rectMode(PApplet.CORNERS);
   }
   public void attachRGB(TextBox r, TextBox g, TextBox b) {
@@ -144,7 +151,7 @@ public class ColorPicker extends Element {
     r.setTextChangeListener(rgbListener);
     g.setTextChangeListener(rgbListener);
     b.setTextChangeListener(rgbListener);
-    updateColorFromRGB();
+    updateColorRGB();
   }
   public void attachHSB(TextBox h, TextBox s, TextBox b) {
     hue=h;
@@ -153,12 +160,12 @@ public class ColorPicker extends Element {
     h.setTextChangeListener(hsbListener);
     s.setTextChangeListener(hsbListener);
     b.setTextChangeListener(hsbListener);
-    updateColorFromHSB();
+    updateColorHSB();
   }
   public void attachA(TextBox a) {
     alpha=a;
     a.setTextChangeListener(aListener);
-    updateColorFromA();
+    a.setText("0");
   }
   public int getColor() {
     return selectedRGB;
@@ -171,20 +178,20 @@ public class ColorPicker extends Element {
   }
   void updateColorFromRGB() {
     if (red == null) return;//only compare once...
-    selectedRGB=KyUI.Ref.color(red.getInteger(), green.getInteger(), blue.getInteger());
+    selectedRGB=KyUI.Ref.color(red.value, green.value, blue.value);
     selectedHSB=KyUI.Ref.color(KyUI.Ref.hue(selectedRGB), KyUI.Ref.saturation(selectedRGB), KyUI.Ref.brightness(selectedRGB));
     updateColorHSB();
   }
   void updateColorFromHSB() {
     if (hue == null) return;//only compare once...
-    selectedHSB=KyUI.Ref.color(hue.getInteger(), saturation.getInteger(), brightness.getInteger());
+    selectedHSB=KyUI.Ref.color(hue.value, saturation.value, brightness.value);
     selectedRGB=Color.HSBtoRGB(KyUI.Ref.red(selectedHSB) / 255, KyUI.Ref.green(selectedHSB) / 255, KyUI.Ref.blue(selectedHSB) / 255);
     updateColorRGB();
   }
   void updateColorFromA() {
     if (alpha == null) return;
-    selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alpha.getInteger());
-    selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alpha.getInteger());
+    selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alpha.value);
+    selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alpha.value);
   }
   void updateColorRGB() {
     if (red == null) return;

@@ -146,6 +146,10 @@ public class KyUI {
     taskManager.executeAll();//because this need latest state.
     return Elements.get(name);
   }
+  public static <Type> Type get2(String name) {
+    taskManager.executeAll();//because this need latest state.
+    return (Type)Elements.get(name);
+  }
   // called by processing animation thread
   public static void render(PGraphics g) {
     drawStart=drawEnd;

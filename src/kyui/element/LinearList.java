@@ -50,13 +50,13 @@ public class LinearList extends Element {
     slider.margin=0;
     listLayout.setAdjustListener(new EventListener() {
       @Override
-      public void onEvent() {
+      public void onEvent(Element e) {
         setSlider();
       }
     });
     slider.setAdjustListener(new EventListener() {
       @Override
-      public void onEvent() {
+      public void onEvent(Element e) {
         setList();
         listLayout.invalidate();
       }
