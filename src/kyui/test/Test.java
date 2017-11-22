@@ -31,11 +31,12 @@ public class Test extends PApplet {
     //f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
     //f.setTabSize(70);
     KyUI.add(f);
-    f.addTab("A", new Element("asdf"));
-    f.addTab("A1", new DivisionLayout("division"));
-    f.addTab("A2", new Element("asdf2"));
-    f.addTab("A3", new TextEdit("asdf3"));
-    f.addTab("A4", new Element("asdf4"));
+    f.addTab(" A ", new Element("asdf"));
+    f.addTab(" A1 ", new DivisionLayout("division"));
+    f.addTab(" A2 ", new Element("asdf2"));
+    f.addTab(" A3 ", new TextEdit("asdf3"));
+    f.addTab(" A4 ", new Element("asdf4"));
+    f.addTab(" A5 ", new TreeGraph("asdf5", "Test"));
     for (int a=0; a < 6; a++) {
       KyUI.get("asdf4").addChild(new ColorPicker("colorpicker" + ((a == 0) ? "" : ("" + a)), new Rect(a * 100, 50, a * 100 + 100, 150)));
     }
@@ -46,6 +47,13 @@ public class Test extends PApplet {
     KyUI.get("asdf4").addChild(new TextBox("t5", new Rect(10, 480, 500, 540), "saturation", "0~255"));
     KyUI.get("asdf4").addChild(new TextBox("t6", new Rect(10, 550, 500, 610), "brightness", "0~255"));
     KyUI.get("asdf4").addChild(new TextBox("t7", new Rect(10, 620, 500, 680), "alpha", "0~255"));
+    //
+    TreeGraph t=KyUI.<TreeGraph>get2("asdf5");
+    t.addNode("1").addNode("2");
+    t.get(0).addNode("3").addNode("4").addNode("5");
+    t.get(0).get(1).addNode("6");
+    t.get(0).get(1).addNode("7");
+    //
     ColorPicker p=KyUI.<ColorPicker>get2("colorpicker");
     p.attachRGB(KyUI.<TextBox>get2("t1"), KyUI.<TextBox>get2("t2"), KyUI.<TextBox>get2("t3"));
     p.attachHSB(KyUI.<TextBox>get2("t4"), KyUI.<TextBox>get2("t5"), KyUI.<TextBox>get2("t6"));

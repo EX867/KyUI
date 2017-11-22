@@ -24,6 +24,9 @@ public class Rect implements Cloneable {//it is like android's rect...
   public void render(PGraphics g) {
     g.rect(left, top, right, bottom);
   }
+  public void render(PGraphics g, int extend) {
+    g.rect(left - extend, top - extend, right + extend, bottom + extend);
+  }
   public boolean contains(float x, float y) {
     return x >= left && x <= right && y >= top && y <= bottom;
   }

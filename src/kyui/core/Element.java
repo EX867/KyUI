@@ -9,7 +9,7 @@ import processing.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 public class Element {
-  protected List<Element> parents=new ArrayList<Element>();
+  public List<Element> parents=new ArrayList<Element>();
   public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   protected int children_max=987654321;
   //tasks
@@ -106,7 +106,9 @@ public class Element {
     KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(index));
   }
   public final void removeChild(String name) {
-    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(children.indexOf(KyUI.get(name))));
+    int index=children.indexOf(KyUI.get(name));
+    if (index == -1) return;
+    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(index));
   }
   public final void reorderChild(int a, int b) {
     KyUI.taskManager.addTask(modifyChildrenTask, new ReorderChildData(a, b));
