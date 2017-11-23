@@ -15,6 +15,7 @@ import processing.core.PGraphics;
 import processing.event.Event;
 import processing.event.MouseEvent;
 import processing.event.KeyEvent;
+import sojamo.drop.*;
 //===To ADD list===//
 //ADD>>optimize mouseEvent and rendering chain!!
 //ADD>>resizing functions**
@@ -60,6 +61,7 @@ public class KyUI {
   public static HashMap<String, DropEventListener> dropEvents=new HashMap<String, DropEventListener>();//dnd
   public static DropMessenger dropMessenger;//
   public static CachingFrame dropLayer;
+  static SDrop drop;
   //
   public static int KEY_INIT_DELAY=1000;// you can change this value.
   public static int KEY_INTERVAL=300;
@@ -94,21 +96,48 @@ public class KyUI {
   public static void start(PApplet ref, int rate) {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
-    fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
-    fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").getAbsolutePath(), 20);
+    //SDrop set
+    drop=new SDrop((java.awt.Canvas)Ref.getSurface());
+    drop.addDropListener(new DropListener() {
+      @Override
+      public void dragExit() {
+        //Overlay=null;
+      }
+      @Override
+      public void update(float x, float y) {
+        //setOverlay();
+      }
+      @Override
+      public void dropEvent(DropEvent de) {
+        //Overlay=null;
+        float x=de.x() / scaleGlobal;
+        float y=de.y() / scaleGlobal;
+        String filename=de.file().getAbsolutePath().replace("\\", "/");
+        //ADD>>
+      }
+    });
+    //other things
+    fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").
+        getAbsolutePath(), 20);
+    fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").
+        getAbsolutePath(), 20);
     cacheGraphics=KyUI.Ref.createGraphics(10, 10);//small graphics...used for some functions
-    dropLayer=new CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
-    if (roots.size() == 0) addLayer(getNewLayer());
+    dropLayer=new
+        CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
+    if (roots.size() == 0)
+      addLayer(getNewLayer());
     try {
       Field pressedKeys;
       pressedKeys=PApplet.class.getDeclaredField("pressedKeys");
       pressedKeys.setAccessible(true);
       reflectedPressedKeys=(List<Long>)pressedKeys.get(Ref);
-    } catch (Exception e) {
+    } catch (
+        Exception e) {
       e.printStackTrace();
     }
     ready=true;
-    updater=new Thread(new Updater());
+    updater=new
+        Thread(new Updater());
     frameRate(rate);
     frameCount=0;
     updater.start();

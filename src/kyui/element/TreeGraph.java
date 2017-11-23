@@ -13,13 +13,16 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
   Node selection;
   //modifiable values
   public int selectionColor;
-  public int strokeWidth=2;
+  public int strokeWidth=6;
   public int linkWidth=6;
   public float intervalX=20;
   public float intervalY=20;
+  public float scaleMin=0.3F;
+  public float scaleMax=2.0F;
   //
   protected float offsetX;
   protected float offsetY;
+  protected float scale=1.0F;
   //temp vars
   int count=0;
   int maxDepth=0;
@@ -45,11 +48,12 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
     nodes=new ArrayList<Node>();
     selection=null;
     root=new Node(getName() + ":root", 0, this);
-    root.pos=(defaultRootPos);
+    root.pos=(defaultRootPos.clone());
     root.text=rootText;
     nodes.add(root);
     addChild(root);
     bgColor=KyUI.Ref.color(127);
+    selectionColor=0;//KyUI.Ref.color(0, 0, 127);
   }
   public Node addNode(String text) {
     return root.addNode(text);
@@ -69,21 +73,21 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
     }
     float centerX=(pos.left + pos.right) / 2 - offsetX;
     float centerY=(pos.top + pos.bottom) / 2 - offsetY;
-    float width=(root.pos.right - root.pos.left);
-    float height=(root.pos.bottom - root.pos.top);
+    float width=(defaultRootPos.right - defaultRootPos.left);
+    float height=(defaultRootPos.bottom - defaultRootPos.top);
     Stack<Node> stack=new Stack<Node>();
     stack.push(root);
-    root.pos.set(centerX - width / 2, -height / 2 + centerY, width / 2 + centerX, height / 2 + centerY);
+    root.pos.set((-width / 2) * scale + centerX, (-height / 2) * scale + centerY, (width / 2) * scale + centerX, (height / 2) * scale + centerY);
     float top=0;
     while (!stack.isEmpty()) {
       while (stack.peek().index < stack.peek().localNodes.size()) {
         Node n=stack.peek().localNodes.get(stack.peek().index);
         stack.peek().index++;
         stack.push(n);
+        float cx=(width + intervalX) * n.depth;
+        n.pos.set((cx - width / 2) * scale + centerX, (top - height / 2) * scale + centerY, (cx + width / 2) * scale + centerX, (top + height / 2) * scale + centerY);//not setPosition because will layout other elements later.
         if (n.related) {
-          n.pos.set((width + intervalX) * n.depth - width / 2 + centerX + selectionOffsetX, top - height / 2 + centerY + selectionOffsetY, (width + intervalX) * n.depth + width / 2 + centerX + selectionOffsetX, top + height / 2 + centerY + selectionOffsetY);//not setPosition because will layout other elements later.
-        } else {
-          n.pos.set((width + intervalX) * n.depth - width / 2 + centerX, top - height / 2 + centerY, (width + intervalX) * n.depth + width / 2 + centerX, top + height / 2 + centerY);
+          n.pos.set(n.pos.left + selectionOffsetX, n.pos.top + selectionOffsetY, n.pos.right + selectionOffsetX, n.pos.bottom + selectionOffsetY);
         }
       }
       top+=(height + intervalY);
@@ -91,8 +95,8 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
         stack.pop();
       }
     }
-    childrenSizeX=maxDepth * (width + intervalX);
-    childrenSizeY=top - (height + intervalY);
+    childrenSizeX=maxDepth * (width + intervalX) * scale;
+    childrenSizeY=(top - (height + intervalY)) * scale;
     root.onLayout();//this will layout elements except nodes.
     setOffset(offsetX, offsetY);//range check
     invalidate();
@@ -105,7 +109,6 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
   public void render(PGraphics g) {
     super.render(g);
     KyUI.clipRect(g, pos);
-    //ADD>> draw grid
   }
   @Override
   public void overlay(PGraphics g) {
@@ -175,14 +178,15 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
       if (selection != null) {
         selectionOffsetX=0;
         selectionOffsetY=0;
-        for (Node n : nodes) {
+        for (Node n : nodes) {//ADD>>check is node can move to new node.
           selectionControl=(selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl);
           if (n != selection && n.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) && selectionControl) {//move node
             Node s=selection;
             selection.unselect();
             s.parent.removeNode(s);
-            n.addNode(s);
-            s.setDepth(n.depth + 1);
+            if (n.addNode(s) != n) {
+              s.setDepth(n.depth + 1);
+            }
             onLayout();
             invalidate();
             selectionControl=false;
@@ -195,6 +199,25 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
       } else if (pressedL && clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
         return false;
       }
+    } else if (e.getAction() == MouseEvent.WHEEL) {
+      float centerX=(pos.left + pos.right) / 2;
+      float centerY=(pos.top + pos.bottom) / 2;
+      float valueX=(centerX - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;
+      float valueY=(centerY - KyUI.mouseGlobal.y) * KyUI.scaleGlobal;
+      offsetX+=valueX * scale;
+      offsetY+=valueY * scale;
+      scale-=(float)e.getCount() * 5 / 100;//only real scale on pointercount 2.
+      if (scale < scaleMin) {
+        scale=scaleMin;
+      }
+      if (scale > scaleMax) {
+        scale=scaleMax;
+      }
+      offsetX-=valueX * scale;
+      offsetY-=valueY * scale;
+      setOffset(offsetX, offsetY);
+      onLayout();
+      invalidate();
     }
     return true;
   }
@@ -242,13 +265,13 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
       super.render(g);
       g.noFill();
       if (selected) {
-        g.stroke(0);//FIX>>to selectionColor
-        g.strokeWeight(6);//FIX>>to strokeWidth
+        g.stroke(Ref.selectionColor);
+        g.strokeWeight(Ref.strokeWidth);
         pos.render(g, -Ref.strokeWidth / 2);
       }
       if (this != Ref.root) {
         g.strokeWeight(Ref.linkWidth);
-        g.stroke(bgColor);//FIX>>to selectionColor
+        g.stroke(bgColor);
         float xdist=Math.abs(pos.left - parent.pos.right); //* 3 / 4;//from kpm...
         g.bezier(pos.left, (pos.top + pos.bottom) / 2, pos.left - xdist, (pos.top + pos.bottom) / 2, parent.pos.right + xdist, (parent.pos.top + parent.pos.bottom) / 2, parent.pos.right, (parent.pos.top + parent.pos.bottom) / 2);
       }

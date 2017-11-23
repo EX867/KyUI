@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SDrop">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/library/SDrop.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/library/SDrop.jar!/" />
+    </SOURCES>
+  </library>
+</component>
