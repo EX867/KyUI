@@ -79,6 +79,7 @@ public class Element {
   public int margin=0;
   public int padding=0;
   //
+  public Element renderingOver;
   protected int startClip=0;//used in rendering or
   protected int endClip=KyUI.INF;
   //dnd
@@ -94,6 +95,7 @@ public class Element {
   //
   public Element(String name) {
     Name=name;
+    renderingOver=this;
   }
   //children modify
   public final void addChild(Element object) {
@@ -165,7 +167,11 @@ public class Element {
   public void update() {//override this!
   }
   public final void invalidate() {
-    KyUI.invalidateElement(this);
+    if (renderingOver == this) {
+      KyUI.invalidateElement(this);
+    } else {
+      renderingOver.invalidate();
+    }
   }
   public final void invalidate(Rect rect) {
     KyUI.invalidate(rect);
@@ -213,6 +219,21 @@ public class Element {
       return false;
     }
     return true;
+  }
+  Element checkOverlay(float x, float y) {
+    Element ret=null;
+    for (Element child : children) {
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        Element ret_=child.checkOverlay(x, y);
+        if (ret_ != null) {
+          return ret_;
+        }
+      }
+    }
+    if (ret == null && (KyUI.dropEventsExternal.containsKey(getName()))) {
+      ret=this;
+    }
+    return ret;
   }
   final void keyEvent_(KeyEvent e) {
     for (Element child : children) {

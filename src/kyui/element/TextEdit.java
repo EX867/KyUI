@@ -47,6 +47,7 @@ public class TextEdit extends Element {//no sliderX for now...
   int clickLine=0;
   int clickPoint=0;
   float offset=0;
+  Rect clipRect=new Rect();
   Rect cacheRect=new Rect();
   protected boolean cursorOn=true;
   int cursorFrame=0;
@@ -323,8 +324,8 @@ public class TextEdit extends Element {//no sliderX for now...
     g.fill(lineNumBgColor);
     cacheRect.set(pos.left, pos.top, pos.left + lineNumSize, pos.bottom);
     cacheRect.render(g);
-    cacheRect.set(pos.left, pos.top, pos.right, pos.bottom);
-    KyUI.clipRect(g, cacheRect);
+    clipRect.set(pos.left, pos.top, pos.right, pos.bottom);
+    KyUI.clipRect(g, clipRect);
     //setup text
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
     g.textFont(textFont);
@@ -377,9 +378,6 @@ public class TextEdit extends Element {//no sliderX for now...
       g.text(a + "", pos.left + lineNumSize - padding, pos.top + (a + 0.5F) * textSize - offset + padding);
     }
     g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
-  }
-  @Override
-  public void overlay(PGraphics g) {
     KyUI.removeClip(g);
   }
   public void setText(String text) {

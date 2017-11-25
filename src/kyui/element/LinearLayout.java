@@ -28,7 +28,7 @@ public class LinearLayout extends Element {
     init();
   }
   private void init() {
-    fixedSize=40;
+    fixedSize=60;
   }
   public void setMode(int mode_) {
     offset=0;
@@ -85,54 +85,53 @@ public class LinearLayout extends Element {
     setClip();
     if (mode == Attributes.FIXED) {
       int end=Math.min(children.size(), endClip);
-      boolean first=true;
-      if (startClip > 0) first=false;
+      float first=padding;
+      if (startClip > 0) first=0;
       childrenSize=Math.max(0, startClip - 1) * fixedSize;
       if (direction == Attributes.HORIZONTAL) {
         for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
-            e.setPosition(new Rect(pos.left - offset + childrenSize + (first ? padding : 0), pos.top + padding, pos.left - offset + childrenSize + fixedSize - padding, pos.bottom - padding));
+            e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding, pos.left - offset + childrenSize + fixedSize - padding + first, pos.bottom - padding));
           }
-          first=false;
-          childrenSize+=fixedSize;
+          childrenSize+=fixedSize + first;
+          first=0;
         }
       } else if (direction == Attributes.VERTICAL) {
         for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
-            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + (first ? padding : 0), pos.right - padding, pos.top - offset + childrenSize + fixedSize - padding));
+            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + first, pos.right - padding, pos.top - offset + childrenSize + fixedSize - padding + first));
           }
-          first=false;
-          childrenSize+=fixedSize;
+          childrenSize+=fixedSize + first;
+          first=0;
         }
       }
       childrenSize=(size()) * fixedSize;
     } else {
+      float first=padding;
       if (direction == Attributes.HORIZONTAL) {
         float width=(float)(pos.right - pos.left) / count;
-        boolean first=true;
         for (Element e : children) {
           if (e.isEnabled()) {
             if (mode == Attributes.DYNAMIC) {
               width=e.getPreferredSize().x;
             }
-            e.setPosition(new Rect(pos.left - offset + childrenSize + (first ? padding : 0), pos.top + padding, pos.left - offset + childrenSize + width - padding, pos.bottom - padding));
+            e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding, pos.left - offset + childrenSize + width - padding + first, pos.bottom - padding));
             childrenSize+=width;
-            first=false;
+            first=0;
           }
         }
       } else if (direction == Attributes.VERTICAL) {
         float height=(float)(pos.bottom - pos.top) / count;
-        boolean first=true;
         for (Element e : children) {
           if (e.isEnabled()) {
             if (mode == Attributes.DYNAMIC) {
               height=e.getPreferredSize().y;
             }
-            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + (first ? padding : 0), pos.right - padding, pos.top - offset + childrenSize + height - padding));
+            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + first, pos.right - padding, pos.top - offset + childrenSize + height - padding + first));
             childrenSize+=height;
-            first=false;
+            first=0;
           }
         }
       }
@@ -149,6 +148,7 @@ public class LinearLayout extends Element {
     if (mode == Attributes.FIXED) {
       setClip();
     }
+    g.noStroke();
   }
   @Override
   public void overlay(PGraphics g) {

@@ -24,6 +24,8 @@ public class CachingFrame extends Element {
   public void render(PGraphics g) {
     //System.out.println(getName() + " rendered in " + KyUI.Ref.frameCount);
     display.beginDraw();
+    display.pushMatrix();
+    display.scale(KyUI.scaleGlobal);
     if (bgColor != 0) {
       display.fill(bgColor);
       pos.render(display);
@@ -40,6 +42,7 @@ public class CachingFrame extends Element {
   }
   @Override
   public void overlay(PGraphics g) {
+    display.popMatrix();
     display.endDraw();
   }
   public synchronized void renderReal(PGraphics g) {

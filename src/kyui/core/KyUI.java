@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import kyui.event.listeners.DropEventListener;
+import kyui.event.listeners.FileDropEventListener;
 import kyui.task.Task;
 import kyui.task.TaskManager;
 import kyui.util.Rect;
@@ -20,6 +21,7 @@ import sojamo.drop.*;
 //ADD>>optimize mouseEvent and rendering chain!!
 //ADD>>resizing functions**
 //ADD>>name duplication error
+//ADD>>drag and drop overlay !!!**
 public class KyUI {
   //
   public static PApplet Ref;
@@ -58,10 +60,27 @@ public class KyUI {
   public static Vector2 mouseClick=new Vector2();// this parameter stores mouse click position.
   public static Vector2 mouseGlobal=new Vector2();// this parameter stores global mouse position.(scaled)
   public static final int GESTURE_THRESHOLD=13;
-  public static HashMap<String, DropEventListener> dropEvents=new HashMap<String, DropEventListener>();//dnd
+  public static HashMap<String, DropEventListener> dropEvents=new HashMap<String, DropEventListener>();//dnd - internal
   public static DropMessenger dropMessenger;//
   public static CachingFrame dropLayer;
-  static SDrop drop;
+  public static HashMap<String, FileDropEventListener> dropEventsExternal=new HashMap<String, FileDropEventListener>();//dnd - external
+  static CachingFrame dropLayerExternal;
+  static SDrop drop;//drop from outside is handled not like drop between elements...this is my limit of abstraction...
+  public static boolean draggingExternal=false;//used when checking this moueEvent is external drag and drop.
+  static class CheckOverlayTask implements Task {
+    @Override
+    public void execute(Object data_) {
+      if (data_ instanceof DropEvent) {
+        DropEvent de=(DropEvent)data_;
+        mouseGlobal.set(de.x() / scaleGlobal, de.y() / scaleGlobal);
+        Element target=roots.getLast().checkOverlay(mouseGlobal.x, mouseGlobal.y);//if overlay, setup overlay.
+        if (target != null) {
+          dropEventsExternal.get(target.getName()).onEvent(de);
+        }
+      }
+    }
+  }
+  static CheckOverlayTask checkOverlayTask=new CheckOverlayTask();
   //
   public static int KEY_INIT_DELAY=1000;// you can change this value.
   public static int KEY_INTERVAL=300;
@@ -97,25 +116,32 @@ public class KyUI {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
     //SDrop set
-    drop=new SDrop((java.awt.Canvas)Ref.getSurface());
-    drop.addDropListener(new DropListener() {
-      @Override
-      public void dragExit() {
-        //Overlay=null;
-      }
-      @Override
-      public void update(float x, float y) {
-        //setOverlay();
-      }
-      @Override
-      public void dropEvent(DropEvent de) {
-        //Overlay=null;
-        float x=de.x() / scaleGlobal;
-        float y=de.y() / scaleGlobal;
-        String filename=de.file().getAbsolutePath().replace("\\", "/");
-        //ADD>>
-      }
-    });
+    try {
+      Field f=Ref.getSurface().getClass().getDeclaredField("canvas");
+      f.setAccessible(true);//Very important, this allows the setting to work.
+      java.awt.Component cp=(java.awt.Canvas)f.get(Ref.getSurface());
+      drop=new SDrop(cp);
+      drop.addDropListener(new DropListener() {
+        @Override
+        public void dragExit() {
+          draggingExternal=false;
+          handleEvent(new MouseEvent(null, 0, MouseEvent.MOVE, 0, -1, -1, PApplet.LEFT, 1));
+        }
+        @Override
+        public void update(float x, float y) {
+          draggingExternal=true;
+          handleEvent(new MouseEvent(null, 0, MouseEvent.MOVE, 0, (int)(x / scaleGlobal), (int)(y / scaleGlobal), PApplet.LEFT, 1));
+        }
+        @Override
+        public void dropEvent(DropEvent de) {
+          draggingExternal=false;//not synchronized with updater so release don't works, but it is real time!
+          handleEvent(new MouseEvent(null, 0, MouseEvent.RELEASE, 0, (int)(de.x() / scaleGlobal), (int)(de.y() / scaleGlobal), PApplet.LEFT, 1));
+          taskManager.addTask(checkOverlayTask, de);
+        }
+      });
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     //other things
     fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").
         getAbsolutePath(), 20);
@@ -131,13 +157,11 @@ public class KyUI {
       pressedKeys=PApplet.class.getDeclaredField("pressedKeys");
       pressedKeys.setAccessible(true);
       reflectedPressedKeys=(List<Long>)pressedKeys.get(Ref);
-    } catch (
-        Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     ready=true;
-    updater=new
-        Thread(new Updater());
+    updater=new Thread(new Updater());
     frameRate(rate);
     frameCount=0;
     updater.start();
@@ -159,7 +183,7 @@ public class KyUI {
     taskManager.addTask(modifyLayerTask, null);
   }
   public static CachingFrame getNewLayer() {
-    return new CachingFrame("KyUI:" + roots.size(), new Rect(0, 0, Ref.width, Ref.height));
+    return new CachingFrame("KyUI:" + roots.size()/*FIX>> this is not correct. fix it to count.*/, new Rect(0, 0, Ref.width, Ref.height));
   }
   protected static void addElement(Element object) {
     Elements.put(object.getName(), object);
@@ -275,27 +299,27 @@ public class KyUI {
     //updater.interrupt();
   }
   static void mouseEvent(MouseEvent e) {
-    mouseGlobal.assign(Ref.mouseX / scaleGlobal, Ref.mouseY / scaleGlobal);
+    mouseGlobal.set(Ref.mouseX / scaleGlobal, Ref.mouseY / scaleGlobal);
     if (Ref.mousePressed) {
       if (mouseState == STATE_PRESS) mouseState=STATE_PRESSED;
       if (mouseState == STATE_RELEASE || mouseState == STATE_RELEASED) {
         mouseState=STATE_PRESS;
-        mouseClick.assign(mouseGlobal.x, mouseGlobal.y);
+        mouseClick.set(mouseGlobal.x, mouseGlobal.y);
       }
     } else {
       if (mouseState == STATE_RELEASE) mouseState=STATE_RELEASED;
       if (mouseState == STATE_PRESS || mouseState == STATE_PRESSED) mouseState=STATE_RELEASE;
     }
     if (e.getAction() == MouseEvent.EXIT) {
-      mouseGlobal.assign(-1, -1);//make no element contains this.
+      mouseGlobal.set(-1, -1);//make no element contains this.
     }
     roots.getLast().mouseEvent_(e, roots.size() - 1, true);
-    if (dropMessenger != null && e.getAction() == MouseEvent.RELEASE) {
-    }
-    //    int a=roots.size() - 1;
-    //    while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
-    //      a--;
-    //    }
+    //if (dropMessenger != null && e.getAction() == MouseEvent.RELEASE) {
+    //}
+    //int a=roots.size() - 1;
+    //while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
+    //  a--;
+    //}
     //updater.interrupt();
   }
   //
@@ -314,17 +338,16 @@ public class KyUI {
   public static void clipRect(PGraphics g, Rect rect) {
     g.imageMode(PApplet.CORNERS);
     g.clip(rect.left, rect.top, rect.right, rect.bottom);
-    g.imageMode(PApplet.CENTER);
     clipArea.add(rect);
   }
   public static void removeClip(PGraphics g) {
     if (clipArea.size() > 0) {
       clipArea.removeLast();
-    }
-    if (clipArea.size() == 0) {
-      g.noClip();
-    } else {
-      g.clip(clipArea.getLast().left, clipArea.getLast().top, clipArea.getLast().right, clipArea.getLast().bottom);
+      if (clipArea.size() == 0) {
+        g.noClip();
+      } else {
+        g.clip(clipArea.getLast().left, clipArea.getLast().top, clipArea.getLast().right, clipArea.getLast().bottom);
+      }
     }
   }
   public static void dropStart(Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
@@ -348,6 +371,9 @@ public class KyUI {
     dropEvents.put(start.getName() + "->" + end.getName(), listener);
     start.droppableStart=true;
     end.droppableEnd=true;
+  }
+  public static void addDragAndDrop(Element end, FileDropEventListener listener) {
+    dropEventsExternal.put(end.getName(), listener);
   }
   public static DropEventListener getDropEvent(Element end) {
     if (dropMessenger == null) return null;

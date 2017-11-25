@@ -87,10 +87,13 @@ public class TextBox extends TextEdit {
     return true;
   }
   @Override
+  public void moveTo(int line) {//do nothing!
+  }
+  @Override
   public void render(PGraphics g) {
     //draw basic form
     g.strokeWeight(strokeWeight);
-    cacheRect.set(pos.left + strokeWeight / 2, pos.top + strokeWeight / 2, pos.right - strokeWeight / 2, pos.bottom - strokeWeight / 2);
+    clipRect.set(pos.left + strokeWeight / 2, pos.top + strokeWeight / 2, pos.right - strokeWeight / 2, pos.bottom - strokeWeight / 2);
     if (entered) {
       if (pressedL) {
         g.fill(ColorExt.brighter(bgColor, 20));
@@ -108,30 +111,31 @@ public class TextBox extends TextEdit {
         g.stroke(fgColor);
       }
     }
-    cacheRect.render(g);
+    clipRect.render(g);
     if (error) {
       g.stroke(errorColor);
       g.noFill();
       g.strokeWeight(1);
-      cacheRect.render(g);
+      clipRect.render(g);
     }
-    KyUI.clipRect(g, cacheRect);
-    //
+    KyUI.clipRect(g, clipRect);
     float centerY=(pos.top + pos.bottom) / 2;
     g.noStroke();
     g.textAlign(PApplet.LEFT, PApplet.CENTER);
-    if (title.equals("") == false) {
+    if (!title.isEmpty()) {
       g.textSize(Math.max(1, textSize * 3 / 4));
       g.fill(fgColor);
       offset=textSize / 3;
       g.text(title + "/ ", pos.left + textSize - 5, (pos.top + pos.bottom) / 2 - textSize * 2 / 3);
+    } else {
+      offset=0;
     }
     g.textSize(textSize);
     if (content.hasSelection()) {
       g.fill(selectionColor);
       String selectionPart=content.getSelectionPart(0);
       float selectionBefore=g.textWidth(content.getSelectionPartBefore(0));
-      g.rect(pos.left + selectionBefore + lineNumSize + padding, offset + padding, pos.left + selectionBefore + g.textWidth(selectionPart) + lineNumSize + padding, offset + textSize + padding);
+      g.rect(pos.left + selectionBefore + lineNumSize + padding, centerY - textSize / 2 + offset, pos.left + selectionBefore + g.textWidth(selectionPart) + lineNumSize + padding, centerY + textSize / 2 + offset);
     }
     //g.textFont(textFont);
     if (content.empty()) {
@@ -150,10 +154,11 @@ public class TextBox extends TextEdit {
     }
     if (!rightText.isEmpty()) {
       g.textAlign(PApplet.RIGHT, PApplet.CENTER);
-      g.text(rightText, pos.right - textSize, centerY);
+      g.text(rightText, pos.right - textSize, centerY + offset);
     }
     //g.textFont(KyUI.fontMain);
     g.noStroke();
     g.textAlign(PApplet.CENTER, PApplet.CENTER);
+    KyUI.removeClip(g);
   }
 }

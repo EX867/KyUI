@@ -13,11 +13,11 @@ public class Vector2 {
     x=x_;
     y=y_;
   }
-  public void assign(float x_, float y_) {
+  public void set(float x_, float y_) {
     x=x_;
     y=y_;
   }
-  public void assign(Vector2 vector2) {
+  public void set(Vector2 vector2) {
     x=vector2.x;
     y=vector2.y;
   }

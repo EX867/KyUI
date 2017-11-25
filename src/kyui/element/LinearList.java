@@ -80,7 +80,7 @@ public class LinearList extends Element {
     afterModify();
   }
   public void addItem(SelectableButton e) {
-    listLayout.addChild(listLayout.children.size(), e);
+    listLayout.addChild(e);
     e.Ref=this;
     afterModify();
   }
@@ -182,6 +182,7 @@ public class LinearList extends Element {
       init();
     }
     private void init() {
+      renderingOver=Ref;
       setPressListener(new ListItemPressListener(this));
     }
     @Override
@@ -210,7 +211,7 @@ public class LinearList extends Element {
       } else {
         textOffsetY=0;
       }
-      if (overlap > textSize) {//optimization needed!
+      if (overlap > textSize && overlap > 0) {//this can not be correct.
         g.fill(ColorExt.scale(textColor, overlap / height));
         g.textSize(textSize);
         g.pushMatrix();
@@ -223,7 +224,6 @@ public class LinearList extends Element {
         }
         g.text(text, 0, 0);
         g.popMatrix();
-        //        drawContent(g, ColorExt.scale(textColor, overlap / height));
       }
     }
     @Override
@@ -252,6 +252,75 @@ public class LinearList extends Element {
         invalidate();
         return false;
       }
+    }
+  }
+  //these inspector classes exists here because I will use it!
+  static class InspectorButton extends SelectableButton {
+    //modifiable values
+    public float ratio=3.0F;//this is inspection button width by height.
+    public InspectorButton(String name, LinearList Ref_) {
+      super(name, Ref_);
+    }
+    @Override
+    public void render(PGraphics g) {
+      g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
+      g.textSize(textSize);
+      textOffsetX=-(int)g.textWidth(text) / 2;
+      super.render(g);
+      g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
+    }
+    @Override
+    public void onLayout() {
+      float padding2=(pos.bottom - pos.top) / 6;
+      float left=padding2;
+      float width=(pos.bottom - pos.top) * ratio;
+      for (Element child : children) {//just works like horizontal LinearList...
+        child.renderingOver=Ref;
+        child.setPosition(child.pos.set(pos.right - left - width + padding2, pos.top + padding2, pos.right - left, pos.bottom - padding2));
+        left+=width + padding2;
+      }
+      if (Ref.direction == Attributes.HORIZONTAL) {//FIX>> not horizontal
+        for (Element child : children) {
+          child.setActive(false);
+          child.setVisible(false);
+        }
+      }
+    }
+  }
+  public static class InspectorColorButton extends InspectorButton {
+    public ColorButton colorButton;
+    public InspectorColorButton(String name, LinearList Ref_) {
+      super(name, Ref_);
+      init();
+    }
+    private void init() {
+      colorButton=new ColorButton(getName() + ":colorButton");
+      addChild(colorButton);
+      colorButton.setPressListener(new ColorButton.OpenColorPickerEvent(colorButton));//auto for picking and storing color
+      colorButton.c=(int)((Math.random() * 2 - 1) * Integer.MAX_VALUE);
+    }
+  }
+  public static class InspectorTextButton extends InspectorButton {
+    public TextBox textBox;//get this TextBox directly and you can modify this.
+    public InspectorTextButton(String name, LinearList Ref_) {
+      super(name, Ref_);
+      init();
+    }
+    private void init() {
+      textBox=new TextBox(getName() + ":texBox");
+      textBox.setNumberOnly(false);
+      addChild(textBox);
+    }
+  }
+  public static class InspectorImageButton extends InspectorButton {
+    public ImageDrop imageDrop;//get this TextBox directly and you can modify this.
+    public InspectorImageButton(String name, LinearList Ref_) {
+      super(name, Ref_);
+      init();
+    }
+    private void init() {
+      imageDrop=new ImageDrop(getName() + ":imageDrop");
+      addChild(imageDrop);
     }
   }
   @Override

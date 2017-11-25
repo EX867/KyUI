@@ -37,6 +37,7 @@ public class Test extends PApplet {
     f.addTab(" A3 ", new TextEdit("asdf3"));
     f.addTab(" A4 ", new Element("asdf4"));
     f.addTab(" A5 ", new TreeGraph("asdf5", "Test"));
+    f.addTab(" A6 ", new ImageDrop("asdf6"));
     for (int a=0; a < 6; a++) {
       KyUI.get("asdf4").addChild(new ColorPicker("colorpicker" + ((a == 0) ? "" : ("" + a)), new Rect(a * 100, 50, a * 100 + 100, 150)));
     }
@@ -84,7 +85,9 @@ public class Test extends PApplet {
     }
     LinearList f=(LinearList)KyUI.get("list2");
     for (int a=0; a < 10; a++) {
-      f.addItem("f" + a);
+      LinearList.InspectorImageButton b=new LinearList.InspectorImageButton("f" + a, f);
+      b.text="f" + a;
+      f.addItem(b);
     }
     KyUI.addDragAndDrop(e, f, new DropEventListener() {
       @Override

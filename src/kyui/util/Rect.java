@@ -21,6 +21,13 @@ public class Rect implements Cloneable {//it is like android's rect...
     bottom=bottom_;
     return this;
   }
+  public Rect set(Rect other) {
+    left=other.left;
+    right=other.right;
+    top=other.top;
+    bottom=other.bottom;
+    return this;
+  }
   public void render(PGraphics g) {
     g.rect(left, top, right, bottom);
   }
