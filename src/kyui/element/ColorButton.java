@@ -1,7 +1,7 @@
 package kyui.element;
 import kyui.core.CachingFrame;
 import kyui.core.KyUI;
-import kyui.event.listeners.MouseEventListener;
+import kyui.event.MouseEventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
@@ -32,25 +32,14 @@ public class ColorButton extends Button {
   }
   public static class OpenColorPickerEvent implements MouseEventListener {
     //really, you can use this event listener in other ColorButtons too...
-    static CachingFrame colorPickerLayer;//one colorPicker shares many OpenColorPickerEvent.
-    static ColorPicker colorPicker;
-    static TextBox[] values=new TextBox[7];
-    private void initStatic() {
-      colorPickerLayer=KyUI.getNewLayer();
-      colorPicker=new ColorPicker("KyUI:OpenColorPickerEvent.colorPicker");
-      values[0]=new TextBox("KyUI:OpenColorPickerEvent.red");
-      values[0]=new TextBox("KyUI:OpenColorPickerEvent.green");
-      values[0]=new TextBox("KyUI:OpenColorPickerEvent.blue");
-      values[0]=new TextBox("KyUI:OpenColorPickerEvent.hue");
-      values[0]=new TextBox("KyUI:OpenColorPickerEvent.saturation");
-      values[0]=new TextBox("KyUI:OpenColorPickerEvent.brightness");
-      values[0]=new TextBox("KyUI:OpenColorPickerEvent.alpha");
-    }
+    static CachingFrame colorPickerLayer;//one colorPicker shares many OpenColorPickerE
+    static ColorPickerFull colorPicker;
     ColorButton c;
     public OpenColorPickerEvent(ColorButton c_) {
       c=c_;
-      if (colorPickerLayer == null) {//check if it not initialized...
-        initStatic();
+      if(colorPickerLayer==null){
+        colorPickerLayer=KyUI.getNewLayer();
+        colorPicker=new ColorPickerFull("KyUI:OpenColorPickerEvent.colorPicker");
       }
     }
     @Override

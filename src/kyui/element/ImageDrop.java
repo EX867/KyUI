@@ -1,12 +1,10 @@
 package kyui.element;
-import kyui.core.DropMessenger;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.FileDropEventListener;
+import kyui.event.FileDropEventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.core.PImage;
-import processing.event.MouseEvent;
 import sojamo.drop.DropEvent;
 public class ImageDrop extends Element {
   //modifiable values

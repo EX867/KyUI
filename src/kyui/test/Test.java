@@ -1,8 +1,10 @@
 package kyui.test;
 import kyui.core.*;
 import kyui.element.*;
-import kyui.event.listeners.DropEventListener;
-import kyui.event.listeners.ItemSelectListener;
+import kyui.event.DropEventListener;
+import kyui.event.EventListener;
+import kyui.event.ItemSelectListener;
+import kyui.loader.ShortcutLoader;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PApplet;
@@ -95,12 +97,16 @@ public class Test extends PApplet {
         System.out.println("dropped " + e.getName() + " to " + f.getName() + " with " + messenger.message);
       }
     });
-    //    KyUI.addDragAndDrop(f, e, new DropEventListener() {
-    //      @Override
-    //      public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
-    //        System.out.println("dropped " + f.getName() + " to " + e.getName() + " with " + messenger.message);
-    //      }
-    //    });
+    ShortcutLoader.loadXml(new java.io.File("data/test_shortcut.xml").getAbsolutePath(), false);
+    for (int a=0; a <= 8; a++) {
+      int b=a;
+      ShortcutLoader.attachTo(a + "", new EventListener() {
+        @Override
+        public void onEvent(Element e) {
+          KyUI.<TabLayout>get2("tabs").selectTab(new Integer(b));
+        }
+      });
+    }
     // write your other code
     KyUI.changeLayout();
   }
@@ -121,10 +127,7 @@ public class Test extends PApplet {
   int lcount=0;
   @Override
   public void keyTyped() {
-    if (key == ' ') {
-      //f.addTab("Tab" + count, new ToggleButton("Asdf" + count));
-      //count++;
-    } else if (key == '>') {
+    if (key == '>') {
       LinearList e=(LinearList)KyUI.get("list");
       e.addItem("" + lcount++);
     } else if (key == '<') {

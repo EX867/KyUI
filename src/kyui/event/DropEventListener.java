@@ -1,4 +1,4 @@
-package kyui.event.listeners;
+package kyui.event;
 import kyui.core.DropMessenger;
 import processing.event.MouseEvent;
 public interface DropEventListener{

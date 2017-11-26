@@ -1,7 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.EventListener;
+import kyui.event.EventListener;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.core.PGraphics;

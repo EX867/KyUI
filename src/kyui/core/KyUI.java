@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import kyui.event.listeners.DropEventListener;
-import kyui.event.listeners.FileDropEventListener;
+import kyui.event.DropEventListener;
+import kyui.event.EventListener;
+import kyui.event.FileDropEventListener;
 import kyui.task.Task;
 import kyui.task.TaskManager;
 import kyui.util.Rect;
@@ -91,6 +92,9 @@ public class KyUI {
   public static long keyTime=0;
   public static boolean keyInit=false;// this used on textEdit and etc...
   protected static List<Long> reflectedPressedKeys;
+  // shortcuts
+  public static HashMap<String, Shortcut> shortcutsByName=new HashMap<String, Shortcut>(199);
+  public static LinkedList<Shortcut> shortcuts=new LinkedList<Shortcut>();
   // graphics
   public static PGraphics cacheGraphics;
   public static LinkedList<Rect> clipArea=new LinkedList<Rect>();
@@ -143,13 +147,10 @@ public class KyUI {
       e.printStackTrace();
     }
     //other things
-    fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").
-        getAbsolutePath(), 20);
-    fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").
-        getAbsolutePath(), 20);
+    fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
+    fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").getAbsolutePath(), 20);
     cacheGraphics=KyUI.Ref.createGraphics(10, 10);//small graphics...used for some functions
-    dropLayer=new
-        CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
+    dropLayer=new CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
     if (roots.size() == 0)
       addLayer(getNewLayer());
     try {
@@ -265,6 +266,15 @@ public class KyUI {
         else if (e.getKeyCode() == PApplet.ALT) altPressed=false;
       }
     }
+    if (e.getAction() == KeyEvent.PRESS) {
+      for (Shortcut shortcut : shortcuts) {
+        if (shortcut.isPressed(e)) {
+          if (shortcut.event != null) {
+            shortcut.event.onEvent(focus);//??? nothing to send...
+          }
+        }
+      }
+    }
     roots.getLast().keyEvent_((KeyEvent)e);
     if (e.getAction() == KeyEvent.PRESS) {
       roots.getLast().keyTyped_((KeyEvent)e);
@@ -378,5 +388,64 @@ public class KyUI {
   public static DropEventListener getDropEvent(Element end) {
     if (dropMessenger == null) return null;
     return dropEvents.get(dropMessenger.start.getName() + "->" + end.getName());
+  }
+  public static class Shortcut {
+    public boolean ctrl=false;
+    public boolean alt=false;
+    public boolean shift=false;
+    public int key=-1;
+    //
+    public EventListener event;
+    public String name="nothing";
+    public boolean custom=false;
+    public Shortcut(String name_, boolean ctrl_, boolean alt_, boolean shift_, int key_, EventListener event_, boolean custom_) {
+      name=name_;
+      set(ctrl_, alt_, shift_, key_, event_, custom_);
+    }
+    public void set(boolean ctrl_, boolean alt_, boolean shift_, int key_, EventListener event_, boolean custom_) {
+      ctrl=ctrl_;
+      alt=alt_;
+      shift=shift_;
+      key=key_;
+      event=event_;
+      custom=custom_;
+    }
+    boolean isPressed(KeyEvent e) {
+      return (ctrl == ctrlPressed && alt == altPressed && shift == shiftPressed && e.getKey() == key);
+    }
+    @Override
+    public String toString() {
+      String ret=name + "   [";
+      if (ctrl) ret+="Ctrl+";
+      if (alt) ret+="Alt+";
+      if (shift) ret+="Shift+";
+      //set key.
+      int realKey=key;
+      if (ctrl && (1 <= key && key <= 26)) {
+        realKey=key - 97 + 1;
+      } else if ((!ctrl) && shift && 65 <= key && key <= 90) {
+        realKey=key - 97 + 65;
+      }
+      if (key == '\t') ret+="Tab";
+      else if (key == ' ') ret+="Space";
+      else if (key == PApplet.ENTER) ret+="Enter";
+      else if (key == PApplet.UP) ret+="Up";
+      else if (key == PApplet.DOWN) ret+="Down";
+      else if (key == PApplet.RIGHT) ret+="Right";
+      else if (key == PApplet.LEFT) ret+="Left";
+      else if (key == PApplet.BACKSPACE) ret+="Backspace";
+      else if (key == PApplet.DELETE) ret+="Delete";
+      else if (key == PApplet.ESC) ret+="ESC (None)";
+      else if (key == PApplet.CODED) ret+="Coded";
+      else ret+="" + (char)realKey;
+      return ret;
+    }
+    String toXmlString() {
+      return "<shortcut \"ctrl\"=\"" + ctrl + "\" \"alt\"=\"" + alt + "\" \"shift\"=\"" + shift + "\" \"key\"=\"" + key + "\">" + name + "</shortcut>";
+    }
+  }
+  public static void addShortcut(Shortcut shortcut) {
+    shortcutsByName.put(shortcut.name, shortcut);
+    shortcuts.add(shortcut);
   }
 }

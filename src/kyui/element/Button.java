@@ -2,7 +2,7 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.event.listeners.MouseEventListener;
+import kyui.event.MouseEventListener;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
