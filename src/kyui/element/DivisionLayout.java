@@ -17,7 +17,13 @@ public class DivisionLayout extends Element {
   }
   @Override
   public void onLayout() {
-    if (children.size() == 2) {
+    int size=0;
+    for (Element child : children) {
+      if (child.isEnabled()) {
+        size++;
+      }
+    }
+    if (size == 2) {
       Element e1=children.get(0);
       Element e2=children.get(1);
       float ratio_=ratio;
@@ -36,7 +42,7 @@ public class DivisionLayout extends Element {
         e1.setPosition(new Rect(pos.left + e1.margin, pos.top + e1.margin, pos.right - e1.margin, pos.top + first - e1.margin));
         e2.setPosition(new Rect(pos.left + e2.margin, pos.top + first + e2.margin, pos.right - e2.margin, pos.bottom - e2.margin));
       }
-    } else if (children.size() == 1) {
+    } else if (size == 1) {
       Element e=children.get(0);
       e.setPosition(new Rect(pos.left + e.margin, pos.top + e.margin, pos.right - e.margin, pos.bottom - e.margin));
     }

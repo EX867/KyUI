@@ -28,6 +28,7 @@ public class LinearLayout extends Element {
     init();
   }
   private void init() {
+    clipping=true;
     fixedSize=60;
   }
   public void setMode(int mode_) {
@@ -143,16 +144,18 @@ public class LinearLayout extends Element {
       g.fill(bgColor);
       pos.render(g);
     }
-    cacheRect.set(pos.left + padding, pos.top + padding, pos.right - padding, pos.bottom - padding);
-    KyUI.clipRect(g, cacheRect);
     if (mode == Attributes.FIXED) {
       setClip();
     }
     g.noStroke();
   }
   @Override
-  public void overlay(PGraphics g) {
-    KyUI.removeClip(g);
+  public void clipRect(PGraphics g) {
+    if (clipRect == null) {
+      clipRect=new Rect();
+    }
+    clipRect.set(pos.left + padding, pos.top + padding, pos.right - padding, pos.bottom - padding);
+    KyUI.clipRect(g, clipRect);
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
@@ -188,6 +191,12 @@ public class LinearLayout extends Element {
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
+    } else if (e.getAction() == MouseEvent.WHEEL) {
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        setOffset(offset + e.getCount() * KyUI.WHEEL_COUNT);
+        invalidate();
+        return false;
+      }
     }
     return true;
   }

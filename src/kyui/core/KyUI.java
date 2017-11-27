@@ -61,6 +61,7 @@ public class KyUI {
   public static Vector2 mouseClick=new Vector2();// this parameter stores mouse click position.
   public static Vector2 mouseGlobal=new Vector2();// this parameter stores global mouse position.(scaled)
   public static final int GESTURE_THRESHOLD=13;
+  public static final int WHEEL_COUNT=25;
   public static HashMap<String, DropEventListener> dropEvents=new HashMap<String, DropEventListener>();//dnd - internal
   public static DropMessenger dropMessenger;//
   public static CachingFrame dropLayer;

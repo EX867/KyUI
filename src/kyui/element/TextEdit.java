@@ -111,7 +111,7 @@ public class TextEdit extends Element {//no sliderX for now...
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-        offset+=e.getCount() * 25;//FIX>>temp value.
+        offset+=e.getCount() * KyUI.WHEEL_COUNT;
         if (offset > textSize * (content.lines() + blankLines) + pos.top - pos.bottom) {
           offset=textSize * (content.lines() + blankLines) + pos.top - pos.bottom;
         }
@@ -325,7 +325,7 @@ public class TextEdit extends Element {//no sliderX for now...
     cacheRect.set(pos.left, pos.top, pos.left + lineNumSize, pos.bottom);
     cacheRect.render(g);
     clipRect.set(pos.left, pos.top, pos.right, pos.bottom);
-    KyUI.clipRect(g, clipRect);
+    KyUI.clipRect(g,clipRect);
     //setup text
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
     g.textFont(textFont);

@@ -40,6 +40,11 @@ public class Test extends PApplet {
     f.addTab(" A4 ", new Element("asdf4"));
     f.addTab(" A5 ", new TreeGraph("asdf5", "Test"));
     f.addTab(" A6 ", new ImageDrop("asdf6"));
+    f.addTab(" A7 ", new RelativeFrame("asdf7"));
+    f.addTab(" A8 ", new ColorPickerFull("asdf8"));
+    Button bb=new Button("asdfasdfb", new Rect(100, 100, 200, 300));
+    KyUI.get("asdf7").addChild(bb);
+    //
     for (int a=0; a < 6; a++) {
       KyUI.get("asdf4").addChild(new ColorPicker("colorpicker" + ((a == 0) ? "" : ("" + a)), new Rect(a * 100, 50, a * 100 + 100, 150)));
     }
@@ -128,11 +133,11 @@ public class Test extends PApplet {
   @Override
   public void keyTyped() {
     if (key == '>') {
-      LinearList e=(LinearList)KyUI.get("list");
-      e.addItem("" + lcount++);
+      RelativeFrame r=KyUI.<RelativeFrame>get2("asdf7");
+      r.setOffset(r.offsetX + 1, r.offsetY + 1);
     } else if (key == '<') {
-      LinearList e=(LinearList)KyUI.get("list");
-      e.removeItem(e.size() - 1);
+      RelativeFrame r=KyUI.<RelativeFrame>get2("asdf7");
+      r.setOffset(r.offsetX - 1, r.offsetY - 1);
     }
   }
   @Override

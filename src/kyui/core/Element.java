@@ -79,9 +79,10 @@ public class Element {
   public int margin=0;
   public int padding=0;
   //
-  public Element renderingOver;
   protected int startClip=0;//used in rendering or
   protected int endClip=KyUI.INF;
+  //clip
+  protected boolean clipping=false;
   //dnd
   public DropMessenger.Visual dropVisual;//used when creating drop messenger
   public boolean droppableStart=false;//this element can be start of drag.
@@ -90,12 +91,12 @@ public class Element {
   protected boolean entered=false;
   protected boolean pressedL=false;//this parameter indicates this element have been pressed left.
   protected boolean pressedR=false;//this parameter indicates this element have been pressed right.
+  protected Rect clipRect;
   //control flow
   protected boolean skipRelease=false;
   //
   public Element(String name) {
     Name=name;
-    renderingOver=this;
   }
   //children modify
   public final void addChild(Element object) {
@@ -123,6 +124,12 @@ public class Element {
     invalidate(pos);
     pos=rect;
     localLayout();
+  }
+  public void movePosition(float x, float y) {//this is not good ...
+    pos.set(pos.left + x, pos.top + y, pos.right + x, pos.bottom + y);
+    for (Element child : children) {
+      child.movePosition(x, y);
+    }
   }
   public void onLayout() {
     //update children.pos here.
@@ -166,23 +173,27 @@ public class Element {
   }
   public void update() {//override this!
   }
-  public final void invalidate() {
-    if (renderingOver == this) {
-      KyUI.invalidateElement(this);
-    } else {
-      renderingOver.invalidate();
-    }
+  public final void invalidate() {//far different from invalidate(Rect rect)...
+    KyUI.invalidateElement(this);
   }
   public final void invalidate(Rect rect) {
     KyUI.invalidate(rect);
   }
   void render_(PGraphics g) {
-    //g.clip(pos.left, pos.top, pos.right, pos.bottom);
-    if (renderFlag) render(g);
+    if (clipping) {
+      clipRect(g);
+    }
+    if (renderFlag) {
+      render(g);
+    }
     renderChildren(g);
-    if (renderFlag) overlay(g);
+    if (renderFlag) {
+      overlay(g);
+    }
+    if (clipping) {
+      removeClip(g);
+    }
     renderFlag=false;
-    //g.noClip();
   }
   final void renderChildren(PGraphics g) {
     int end=Math.min(children.size(), endClip);
@@ -201,6 +212,16 @@ public class Element {
     }
   }
   public void overlay(PGraphics g) {//override this!
+  }
+  public void clipRect(PGraphics g) {//override this!
+    if (clipRect == null) {
+      clipRect=new Rect();
+    }
+    clipRect.set(pos);
+    KyUI.clipRect(g, clipRect);
+  }
+  public void removeClip(PGraphics g) {
+    KyUI.removeClip(g);
   }
   synchronized boolean checkInvalid(Rect rect) {
     if (pos.contains(rect)) {

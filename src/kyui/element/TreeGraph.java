@@ -45,6 +45,7 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
     init(rootText);
   }
   private void init(String rootText) {
+    clipping=true;
     nodes=new ArrayList<Node>();
     selection=null;
     root=new Node(getName() + ":root", 0, this);
@@ -106,13 +107,8 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
     onLayout();
   }
   @Override
-  public void render(PGraphics g) {
-    super.render(g);
+  public void clipRect(PGraphics g) {
     KyUI.clipRect(g, pos);
-  }
-  @Override
-  public void overlay(PGraphics g) {
-    KyUI.removeClip(g);
   }
   //offset 0 is root in center.
   public void setOffset(float valueX, float valueY) {
@@ -255,7 +251,18 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
       return n;
     }
     public void removeNode(Node node) {
-      localNodes.remove(localNodes.indexOf(node));
+      localNodes.remove(node);
+    }
+    public void delete() {
+      parent.removeNode(this);
+      delete_();
+    }
+    public void delete_() {
+      Ref.removeChild(getName());
+      Ref.nodes.remove(this);
+      for (Node n : localNodes) {
+        delete_();
+      }
     }
     public Node get(int index) {
       return localNodes.get(index);

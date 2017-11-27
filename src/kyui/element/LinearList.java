@@ -182,7 +182,6 @@ public class LinearList extends Element {
       init();
     }
     private void init() {
-      renderingOver=Ref;
       setPressListener(new ListItemPressListener(this));
     }
     @Override
@@ -264,8 +263,7 @@ public class LinearList extends Element {
     @Override
     public void render(PGraphics g) {
       g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
-      g.textSize(textSize);
-      textOffsetX=-(int)g.textWidth(text) / 2;
+      textOffsetX=(int)(-(pos.right - pos.left) / 2 + padding);
       super.render(g);
       g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
     }
@@ -275,7 +273,6 @@ public class LinearList extends Element {
       float left=padding2;
       float width=(pos.bottom - pos.top) * ratio;
       for (Element child : children) {//just works like horizontal LinearList...
-        child.renderingOver=Ref;
         child.setPosition(child.pos.set(pos.right - left - width + padding2, pos.top + padding2, pos.right - left, pos.bottom - padding2));
         left+=width + padding2;
       }

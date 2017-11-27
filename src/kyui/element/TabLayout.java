@@ -11,6 +11,7 @@ import processing.event.MouseEvent;
 
 import java.util.HashMap;
 import java.util.List;
+//ADD>>capability to set tabLayout's length smaller than its size.
 public class TabLayout extends Element {
   protected List<Element> tabs;//only contains TabButton...
   protected List<Element> contents;//content filled in empty space.
