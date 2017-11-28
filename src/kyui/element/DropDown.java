@@ -85,7 +85,7 @@ public class DropDown extends Button {
       size=(pos.right - pos.left);
     }
     float x=0, y=0;
-    if (rotation == Attributes.ROTATE_NONE) {
+    if (rotation == Attributes.ROTATE_UP) {
       x=pos.right - size / 2;
       y=(pos.top + pos.bottom) / 2;
     } else if (rotation == Attributes.ROTATE_RIGHT) {
@@ -113,7 +113,7 @@ public class DropDown extends Button {
   }
   @Override
   public Vector2 getPreferredSize() {
-    if (rotation == Attributes.ROTATE_NONE || rotation == Attributes.ROTATE_DOWN) {
+    if (rotation == Attributes.ROTATE_UP || rotation == Attributes.ROTATE_DOWN) {
       return new Vector2(KyUI.Ref.textWidth(text) + padding * 4 + textSize, textSize + padding * 2);
     } else {
       return new Vector2(textSize + padding * 2, KyUI.Ref.textWidth(text) + padding * 4 + textSize);

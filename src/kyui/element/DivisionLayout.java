@@ -3,9 +3,10 @@ import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.util.Rect;
 public class DivisionLayout extends Element {
-  public float ratio=0.5F;//first's size
-  public boolean inverse=false;
-  public int direction=Attributes.HORIZONTAL;
+  //add child in up->down or left->right order...
+  public int mode=Attributes.FIXED;//proportional or fixed
+  public float value=0.5F;//first's size
+  public int rotation=Attributes.ROTATE_LEFT;
   public DivisionLayout(String name) {
     super(name);
     children_max=2;
@@ -14,6 +15,14 @@ public class DivisionLayout extends Element {
     super(name);
     pos=pos_;
     children_max=2;
+  }
+  private float getSize() {
+    if (rotation % 2 == 1) {
+      return pos.bottom - pos.top;
+    } else if (rotation % 2 == 0) {
+      return pos.right - pos.left;
+    }
+    return 1;
   }
   @Override
   public void onLayout() {
@@ -26,19 +35,24 @@ public class DivisionLayout extends Element {
     if (size == 2) {
       Element e1=children.get(0);
       Element e2=children.get(1);
-      float ratio_=ratio;
-      if (inverse) {
-        Element t=e1;
-        e1=e2;
-        e2=t;
-        ratio_=1 - ratio;
+      float first=value;
+      if (rotation == Attributes.ROTATE_RIGHT || rotation == Attributes.ROTATE_DOWN) {
+        //        Element t=e1;
+        //        e1=e2;
+        //        e2=t;
+        if (mode == Attributes.PROPORTIONAL) {
+          first=(1 - value);
+        } else if (mode == Attributes.FIXED) {
+          first=getSize() - value;
+        }
       }
-      if (direction == Attributes.HORIZONTAL) {
-        int first=(int)((pos.right - pos.left) * ratio_);
+      if (mode == Attributes.PROPORTIONAL) {
+        first=getSize() * first;
+      }
+      if (rotation % 2 == 0) {//horizontal
         e1.setPosition(new Rect(pos.left + e1.margin, pos.top + e1.margin, pos.left + first - e1.margin, pos.bottom - e1.margin));
         e2.setPosition(new Rect(pos.left + first + e2.margin, pos.top + e2.margin, pos.right - e2.margin, pos.bottom - e2.margin));
-      } else if (direction == Attributes.VERTICAL) {
-        int first=(int)((pos.bottom - pos.top) * ratio_);
+      } else {//vertical
         e1.setPosition(new Rect(pos.left + e1.margin, pos.top + e1.margin, pos.right - e1.margin, pos.top + first - e1.margin));
         e2.setPosition(new Rect(pos.left + e2.margin, pos.top + first + e2.margin, pos.right - e2.margin, pos.bottom - e2.margin));
       }

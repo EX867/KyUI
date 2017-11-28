@@ -1,5 +1,6 @@
 package kyui.util;
 import kyui.core.KyUI;
+import processing.core.PGraphics;
 
 import java.awt.*;
 public class ColorExt {
@@ -12,5 +13,8 @@ public class ColorExt {
     if (KyUI.Ref.red(a) == 0 && KyUI.Ref.green(a) == 0 && KyUI.Ref.blue(a) == 0) return (KyUI.Ref.floor(KyUI.Ref.max(0, KyUI.Ref.min(255, black_ratio))));
     int b=Color.HSBtoRGB((float)KyUI.Ref.hue(a) / 255, (float)KyUI.Ref.saturation(a) / 255, (float)KyUI.Ref.max(0, KyUI.Ref.min(255, KyUI.Ref.brightness(a) * black_ratio)) / 255);
     return KyUI.Ref.color(KyUI.Ref.red(b), KyUI.Ref.green(b), KyUI.Ref.blue(b), KyUI.Ref.alpha(a));
+  }
+  public static void fill(PGraphics g, int c) {
+    g.fill(KyUI.Ref.red(c), KyUI.Ref.green(c), KyUI.Ref.blue(c), KyUI.Ref.alpha(c));
   }
 }

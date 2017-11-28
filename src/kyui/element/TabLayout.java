@@ -26,9 +26,9 @@ public class TabLayout extends Element {
   public int edgeSize=8;
   //protected modifiable values
   protected int tabSize;
-  protected int rotation=Attributes.ROTATE_NONE;
-  protected int buttonRotation=Attributes.ROTATE_NONE;
-  protected int buttonEdgeRotation=Attributes.ROTATE_NONE;
+  protected int rotation=Attributes.ROTATE_UP;
+  protected int buttonRotation=Attributes.ROTATE_UP;
+  protected int buttonEdgeRotation=Attributes.ROTATE_UP;
   protected boolean enableX=true;
   //in-class values
   public int selection=0;
@@ -46,7 +46,7 @@ public class TabLayout extends Element {
     linkLayout=new DivisionLayout(getName() + ":linkLayout", pos);
     tabLayout=new LinearLayout(getName() + ":tabLayout");
     contentLayout=new FrameLayout(getName() + ":contentLayout");
-    linkLayout.direction=Attributes.VERTICAL;
+    linkLayout.rotation=Attributes.ROTATE_UP;
     linkLayout.addChild(tabLayout);
     linkLayout.addChild(contentLayout);
     addChild(linkLayout);
@@ -132,18 +132,12 @@ public class TabLayout extends Element {
   }
   public void setRotation(int rotation_) {
     rotation=rotation_;
-    if (rotation == Attributes.ROTATE_DOWN || rotation == Attributes.ROTATE_NONE) {
+    if (rotation == Attributes.ROTATE_DOWN || rotation == Attributes.ROTATE_UP) {
       tabLayout.setDirection(Attributes.HORIZONTAL);
-      linkLayout.direction=Attributes.VERTICAL;
     } else {
       tabLayout.setDirection(Attributes.VERTICAL);
-      linkLayout.direction=Attributes.HORIZONTAL;
     }
-    if (rotation == Attributes.ROTATE_RIGHT || rotation == Attributes.ROTATE_DOWN) {
-      linkLayout.inverse=true;
-    } else {
-      linkLayout.inverse=false;
-    }
+    linkLayout.rotation=rotation;
     setButtonRotation(rotation);
   }
   public void setButtonRotation(int rotation_) {
@@ -166,13 +160,12 @@ public class TabLayout extends Element {
   @Override
   public void onLayout() {
     linkLayout.setPosition(pos);
-    if (linkLayout.direction == Attributes.VERTICAL) linkLayout.ratio=(float)tabSize / (pos.bottom - pos.top);
-    else linkLayout.ratio=(float)tabSize / (pos.right - pos.left);
+    linkLayout.value=tabSize;
     super.onLayout();
   }
   public class TabButton extends Button {
     int edgeColor;
-    int edgeRotation=Attributes.ROTATE_NONE;
+    int edgeRotation=Attributes.ROTATE_UP;
     Button xButton;
     public TabButton(String name) {
       super(name);
@@ -193,7 +186,7 @@ public class TabLayout extends Element {
     public void render(PGraphics g) {
       textOffsetX=0;
       textOffsetY=0;
-      if (edgeRotation == Attributes.ROTATE_NONE) {
+      if (edgeRotation == Attributes.ROTATE_UP) {
         cacheRect.set(pos.left, pos.top, pos.right, pos.top + edgeSize);
         textOffsetY=edgeSize / 2;
       } else if (edgeRotation == Attributes.ROTATE_RIGHT) {
@@ -230,7 +223,7 @@ public class TabLayout extends Element {
         size-=edgeSize;
       }
       size/=2;
-      if (rotation == Attributes.ROTATE_NONE) {
+      if (rotation == Attributes.ROTATE_UP) {
         xButton.setPosition(new Rect(pos.right - size * 3 / 2, pos.top + size / 2, pos.right - size / 2, pos.bottom - size / 2));
       } else if (rotation == Attributes.ROTATE_RIGHT) {
         xButton.setPosition(new Rect(pos.left + size / 2, pos.bottom - size * 3 / 2, pos.right - size / 2, pos.bottom - size / 2));
@@ -239,7 +232,7 @@ public class TabLayout extends Element {
       } else if (rotation == Attributes.ROTATE_LEFT) {
         xButton.setPosition(new Rect(pos.left + size / 2, pos.top + size / 2, pos.right - size / 2, pos.top + size * 3 / 2));
       }
-      if (edgeRotation == Attributes.ROTATE_NONE) {
+      if (edgeRotation == Attributes.ROTATE_UP) {
         xButton.setPosition(new Rect(xButton.pos.left + edgeSize / 2, xButton.pos.top + edgeSize / 2, xButton.pos.right + edgeSize / 2, xButton.pos.bottom + edgeSize / 2));
       } else if (edgeRotation == Attributes.ROTATE_RIGHT) {
         xButton.setPosition(new Rect(xButton.pos.left - edgeSize, xButton.pos.top, xButton.pos.right - edgeSize, xButton.pos.bottom));
@@ -254,7 +247,7 @@ public class TabLayout extends Element {
     @Override
     public Vector2 getPreferredSize() {
       if (!enableX) return super.getPreferredSize();
-      if (rotation == Attributes.ROTATE_NONE || rotation == Attributes.ROTATE_DOWN) {
+      if (rotation == Attributes.ROTATE_UP || rotation == Attributes.ROTATE_DOWN) {
         return new Vector2(KyUI.Ref.textWidth(text) + padding * 2 + textSize, textSize + padding * 2);
       } else {
         return new Vector2(textSize + padding * 2, KyUI.Ref.textWidth(text) + padding * 2 + textSize);

@@ -25,6 +25,12 @@ public class TextBox extends TextEdit {
     super(name);
     init();
   }
+  public TextBox(String name, String title_, String hint_) {
+    super(name);
+    init();
+    title=title_;
+    hint=hint_;
+  }
   public TextBox(String name, Rect pos_) {
     super(name, pos_);
     init();
@@ -59,10 +65,8 @@ public class TextBox extends TextEdit {
   public void keyEvent(KeyEvent e) {
     super.keyEvent(e);
     String str=content.toString();
-    if (isInt(str)) {
+    if (numberFilter.condition) {
       value=Integer.parseInt(str);
-    } else {
-      value=0;
     }
     if (changed && onTextChangeListener != null) {
       onTextChangeListener.onEvent(this);
@@ -125,8 +129,8 @@ public class TextBox extends TextEdit {
     if (!title.isEmpty()) {
       g.textSize(Math.max(1, textSize * 3 / 4));
       g.fill(fgColor);
-      offset=textSize / 3;
-      g.text(title + "/ ", pos.left + textSize - 5, (pos.top + pos.bottom) / 2 - textSize * 2 / 3);
+      offset=(textSize / 3);
+      g.text(title + "/ ", pos.left + textSize / 2, pos.top + textSize * 3 / 4);
     } else {
       offset=0;
     }
@@ -160,5 +164,12 @@ public class TextBox extends TextEdit {
     g.noStroke();
     g.textAlign(PApplet.CENTER, PApplet.CENTER);
     KyUI.removeClip(g);
+  }
+  @Override
+  public void setText(String text) {
+    super.setText(text);
+    if (numberFilter.condition) {
+      value=Integer.parseInt(text);
+    }
   }
 }

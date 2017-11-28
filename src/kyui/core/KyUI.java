@@ -395,24 +395,26 @@ public class KyUI {
     public boolean alt=false;
     public boolean shift=false;
     public int key=-1;
+    public int keyCode=0;
     //
     public EventListener event;
     public String name="nothing";
     public boolean custom=false;
-    public Shortcut(String name_, boolean ctrl_, boolean alt_, boolean shift_, int key_, EventListener event_, boolean custom_) {
+    public Shortcut(String name_, boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_, EventListener event_, boolean custom_) {
       name=name_;
-      set(ctrl_, alt_, shift_, key_, event_, custom_);
+      set(ctrl_, alt_, shift_, key_, keyCode_, event_, custom_);
     }
-    public void set(boolean ctrl_, boolean alt_, boolean shift_, int key_, EventListener event_, boolean custom_) {
+    public void set(boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_, EventListener event_, boolean custom_) {
       ctrl=ctrl_;
       alt=alt_;
       shift=shift_;
       key=key_;
+      keyCode=keyCode_;
       event=event_;
       custom=custom_;
     }
     boolean isPressed(KeyEvent e) {
-      return (ctrl == ctrlPressed && alt == altPressed && shift == shiftPressed && e.getKey() == key);
+      return (ctrl == ctrlPressed && alt == altPressed && shift == shiftPressed && e.getKey() == key && e.getKeyCode() == keyCode);
     }
     @Override
     public String toString() {
@@ -430,19 +432,22 @@ public class KyUI {
       if (key == '\t') ret+="Tab";
       else if (key == ' ') ret+="Space";
       else if (key == PApplet.ENTER) ret+="Enter";
-      else if (key == PApplet.UP) ret+="Up";
-      else if (key == PApplet.DOWN) ret+="Down";
-      else if (key == PApplet.RIGHT) ret+="Right";
-      else if (key == PApplet.LEFT) ret+="Left";
       else if (key == PApplet.BACKSPACE) ret+="Backspace";
       else if (key == PApplet.DELETE) ret+="Delete";
       else if (key == PApplet.ESC) ret+="ESC (None)";
-      else if (key == PApplet.CODED) ret+="Coded";
-      else ret+="" + (char)realKey;
+      else if (key == PApplet.CODED) {
+        if (keyCode == PApplet.UP) ret+="Up";
+        else if (keyCode == PApplet.DOWN) ret+="Down";
+        else if (keyCode == PApplet.RIGHT) ret+="Right";
+        else if (keyCode == PApplet.LEFT) ret+="Left";
+        else if (java.awt.event.KeyEvent.VK_F1 <= keyCode && keyCode <= java.awt.event.KeyEvent.VK_F12) {
+          ret+="F" + (int)(keyCode - java.awt.event.KeyEvent.VK_F1 + 1);
+        } else ret+=(char)keyCode;
+      } else ret+="" + (char)realKey;
       return ret;
     }
     String toXmlString() {
-      return "<shortcut \"ctrl\"=\"" + ctrl + "\" \"alt\"=\"" + alt + "\" \"shift\"=\"" + shift + "\" \"key\"=\"" + key + "\">" + name + "</shortcut>";
+      return "<shortcut ctrl=\"" + ctrl + "\" alt=\"" + alt + "\" shift=\"" + shift + "\" key=\"" + key + "\" keycode=\"" + keyCode + "\">" + name + "</shortcut>";
     }
   }
   public static void addShortcut(Shortcut shortcut) {

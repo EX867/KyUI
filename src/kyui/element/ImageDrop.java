@@ -23,8 +23,8 @@ public class ImageDrop extends Element {
   private void init() {
     margin=strokeWidth / 2;
     padding=strokeWidth / 2 + 1;
-    bgColor=127;
-    fgColor=50;
+    bgColor=KyUI.Ref.color(127);
+    fgColor=KyUI.Ref.color(50);
     KyUI.addDragAndDrop(this, new FileDropEventListener() {
       @Override
       public void onEvent(DropEvent de) {

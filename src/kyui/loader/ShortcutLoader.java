@@ -10,7 +10,7 @@ public class ShortcutLoader {
     }
     XML[] data=KyUI.Ref.loadXML(path).getChildren("shortcut");
     for (XML d : data) {
-      KyUI.addShortcut(new KyUI.Shortcut(d.getContent(), b(d.getString("ctrl")), b(d.getString("alt")), b(d.getString("shift")), d.getInt("key"), null, custom));
+      KyUI.addShortcut(new KyUI.Shortcut(d.getContent(), b(d.getString("ctrl")), b(d.getString("alt")), b(d.getString("shift")), d.getInt("key"), d.getInt("keycode"), null, custom));
     }
     return true;
   }

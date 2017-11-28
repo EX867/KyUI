@@ -10,7 +10,7 @@ public class RangeSlider extends Button {
   int direction=Attributes.VERTICAL;
   EventListener adjustListener;
   //
-  float sliderRatio;//ratio of startPoint
+  float sliderRatio;//value of startPoint
   float sliderLength;
   //modifiable values
   int fgColor;

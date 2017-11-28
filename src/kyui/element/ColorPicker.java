@@ -36,6 +36,7 @@ public class ColorPicker extends Element {
   ColorModifyListenerRGB rgbListener=new ColorModifyListenerRGB();
   ColorModifyListenerHSB hsbListener=new ColorModifyListenerHSB();
   ColorModifyListenerA aListener=new ColorModifyListenerA();
+  EventListener onAdjust;
   PGraphics colorImage;
   //attachments
   protected TextBox red;
@@ -50,6 +51,7 @@ public class ColorPicker extends Element {
   //temp vars
   boolean hueClicked=false;
   boolean sbClicked=false;
+  int alphav=255;
   Rect cacheRect=new Rect();
   public ColorPicker(String name) {
     super(name);
@@ -63,6 +65,9 @@ public class ColorPicker extends Element {
     bgColor=KyUI.Ref.color(127);
     createColorImage();
   }
+  public void setAdjustListener(EventListener e) {
+    onAdjust=e;
+  }
   @Override
   public void setPosition(Rect rect) {
     super.setPosition(rect);
@@ -70,7 +75,7 @@ public class ColorPicker extends Element {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.PRESS || (e.getAction() == MouseEvent.DRAG && pressedL)) {
+    if (e.getAction() == MouseEvent.PRESS || ((e.getAction() == MouseEvent.DRAG || e.getAction() == MouseEvent.RELEASE) && pressedL)) {
       requestFocus();
       float centerX=(pos.right + pos.left) / 2;
       float centerY=(pos.top + pos.bottom) / 2;
@@ -79,30 +84,41 @@ public class ColorPicker extends Element {
       if (((width / 4 < radius && radius < width / 2 - padding) || hueClicked) && sbClicked == false) {
         float atan2pos=(float)Math.atan2(KyUI.mouseGlobal.y - centerY, KyUI.mouseGlobal.x - centerX);
         if (atan2pos < 0) atan2pos+=PApplet.TWO_PI;
-        selectedHSB=KyUI.Ref.color((atan2pos) * 256 / PApplet.TWO_PI, KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB));
+        selectedHSB=KyUI.Ref.color((atan2pos) * 256 / PApplet.TWO_PI, KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alphav);
         selectedRGB=Color.HSBtoRGB(KyUI.Ref.red(selectedHSB) / 255, KyUI.Ref.green(selectedHSB) / 255, KyUI.Ref.blue(selectedHSB) / 255);
+        selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alphav);
         updateColorRGB();
         updateColorHSB();
         hueClicked=true;
         invalidate();
       } else if ((cacheRect.set(centerX - width / 6, centerY - width / 6, centerX + width / 6, centerY + width / 6).contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || sbClicked) && hueClicked == false) {
-        selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), (KyUI.mouseGlobal.x - centerX + width / 6) * 255 / (width / 3), (centerY + width / 6 - KyUI.mouseGlobal.y) * 255 / (width / 3));
+        selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), (KyUI.mouseGlobal.x - centerX + width / 6) * 255 / (width / 3), (centerY + width / 6 - KyUI.mouseGlobal.y) * 255 / (width / 3), alphav);
         selectedRGB=Color.HSBtoRGB(KyUI.Ref.red(selectedHSB) / 255, KyUI.Ref.green(selectedHSB) / 255, KyUI.Ref.blue(selectedHSB) / 255);
+        selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alphav);
         updateColorRGB();
         updateColorHSB();
         sbClicked=true;
         invalidate();
       }
-      return false;
-    } else if (e.getAction() == MouseEvent.RELEASE) {
-      hueClicked=false;
-      sbClicked=false;
+      if (onAdjust != null) {
+        onAdjust.onEvent(this);
+      }
+      if (e.getAction() == MouseEvent.RELEASE) {
+        hueClicked=false;
+        sbClicked=false;
+      }
       return false;
     }
     return true;
   }
   @Override
   public void render(PGraphics g) {
+    if (colorImage == null) {
+      createColorImage();
+      if (colorImage == null) {
+        return;
+      }
+    }
     float centerX=(pos.right + pos.left) / 2;
     float centerY=(pos.top + pos.bottom) / 2;
     float width=Math.min((pos.right - pos.left), (pos.bottom - pos.top));
@@ -165,7 +181,7 @@ public class ColorPicker extends Element {
   public void attachA(TextBox a) {
     alpha=a;
     a.setTextChangeListener(aListener);
-    a.setText("0");
+    a.setText("255");
   }
   public int getColor() {
     return selectedRGB;
@@ -190,8 +206,9 @@ public class ColorPicker extends Element {
   }
   void updateColorFromA() {
     if (alpha == null) return;
-    selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alpha.value);
-    selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alpha.value);
+    alphav=alpha.value;
+    selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alphav);
+    selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alphav);
   }
   void updateColorRGB() {
     if (red == null) return;
@@ -208,12 +225,16 @@ public class ColorPicker extends Element {
   //void updateColorA(){ } - no need.
   private void createColorImage() {
     float width=Math.min((pos.right - pos.left), (pos.bottom - pos.top));
+    if (width <= 0) return;
     colorImage=KyUI.Ref.createGraphics((int)width, (int)width);
     colorImage.beginDraw();
-    colorImage.background(bgColor);
+    //colorImage.background(bgColor, KyUI.Ref.alpha(bgColor));
     colorImage.ellipseMode(PApplet.RADIUS);
     colorImage.rectMode(PApplet.RADIUS);
     colorImage.translate(width / 2, width / 2);
+    colorImage.noStroke();
+    colorImage.fill(bgColor, KyUI.Ref.alpha(bgColor));
+    colorImage.ellipse(0, 0, width * 5 / 12 + 7, width * 5 / 12 + 7);
     int a=0;
     while (a < 255) {
       colorImage.fill(Color.HSBtoRGB((float)a / 255, 1.0F, 1.0F));
@@ -225,7 +246,7 @@ public class ColorPicker extends Element {
     colorImage.strokeWeight(1);
     colorImage.noFill();
     colorImage.ellipse(0, 0, width * 5 / 12, width * 5 / 12);
-    colorImage.fill(bgColor);
+    colorImage.fill(KyUI.Ref.red(bgColor), KyUI.Ref.green(bgColor), KyUI.Ref.blue(bgColor), 255);
     colorImage.ellipse(0, 0, width / 4, width / 4);
     colorImage.endDraw();
   }

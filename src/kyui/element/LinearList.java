@@ -39,7 +39,7 @@ public class LinearList extends Element {
     margin=strokeWeight / 2;
     sliderSize=14;
     linkLayout=new DivisionLayout(getName() + ":linkLayout", pos);
-    linkLayout.direction=Attributes.HORIZONTAL;
+    linkLayout.rotation=Attributes.ROTATE_RIGHT;
     listLayout=new LinearLayout(getName() + ":listLayout");
     slider=new RangeSlider(getName() + ":slider");
     linkLayout.addChild(listLayout);
@@ -108,11 +108,12 @@ public class LinearList extends Element {
   @Override
   public synchronized void onLayout() {
     if (direction == Attributes.VERTICAL) {
-      linkLayout.ratio=1 - (float)sliderSize / (pos.right - pos.left);
+      linkLayout.value=sliderSize;
+      linkLayout.rotation=Attributes.ROTATE_RIGHT;
     } else {
-      linkLayout.ratio=1 - (float)sliderSize / (pos.bottom - pos.top);
+      linkLayout.value=sliderSize;
+      linkLayout.rotation=Attributes.ROTATE_DOWN;
     }
-    linkLayout.direction=direction % 2 + 1;
     listLayout.setDirection(direction);
     slider.direction=direction;
     linkLayout.setPosition(pos);
@@ -292,9 +293,10 @@ public class LinearList extends Element {
     }
     private void init() {
       colorButton=new ColorButton(getName() + ":colorButton");
-      addChild(colorButton);
+      colorButton.bgColor=KyUI.Ref.color(127);
       colorButton.setPressListener(new ColorButton.OpenColorPickerEvent(colorButton));//auto for picking and storing color
-      colorButton.c=(int)((Math.random() * 2 - 1) * Integer.MAX_VALUE);
+      colorButton.c=KyUI.Ref.color((int)(Math.random() * 0xFF), (int)(Math.random() * 0xFF), (int)(Math.random() * 0xFF), 255);//FIX>>temporary
+      addChild(colorButton);
     }
   }
   public static class InspectorTextButton extends InspectorButton {

@@ -29,7 +29,7 @@ public class Test extends PApplet {
     KyUI.start(this);
     f=new TabLayout("tabs", new Rect(0, 0, width, height));
     //f.setRotation(Attributes.ROTATE_LEFT);
-    //f.setButtonRotation(Attributes.ROTATE_NONE);
+    //f.setButtonRotation(Attributes.ROTATE_UP);
     //f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
     //f.setTabSize(70);
     KyUI.add(f);
@@ -37,7 +37,6 @@ public class Test extends PApplet {
     f.addTab(" A1 ", new DivisionLayout("division"));
     f.addTab(" A2 ", new Element("asdf2"));
     f.addTab(" A3 ", new TextEdit("asdf3"));
-    f.addTab(" A4 ", new Element("asdf4"));
     f.addTab(" A5 ", new TreeGraph("asdf5", "Test"));
     f.addTab(" A6 ", new ImageDrop("asdf6"));
     f.addTab(" A7 ", new RelativeFrame("asdf7"));
@@ -45,16 +44,6 @@ public class Test extends PApplet {
     Button bb=new Button("asdfasdfb", new Rect(100, 100, 200, 300));
     KyUI.get("asdf7").addChild(bb);
     //
-    for (int a=0; a < 6; a++) {
-      KyUI.get("asdf4").addChild(new ColorPicker("colorpicker" + ((a == 0) ? "" : ("" + a)), new Rect(a * 100, 50, a * 100 + 100, 150)));
-    }
-    KyUI.get("asdf4").addChild(new TextBox("t1", new Rect(10, 200, 500, 260), "red", "0~255"));
-    KyUI.get("asdf4").addChild(new TextBox("t2", new Rect(10, 270, 500, 330), "green", "0~255"));
-    KyUI.get("asdf4").addChild(new TextBox("t3", new Rect(10, 340, 500, 400), "blue", "0~255"));
-    KyUI.get("asdf4").addChild(new TextBox("t4", new Rect(10, 410, 500, 470), "hue", "0~255"));
-    KyUI.get("asdf4").addChild(new TextBox("t5", new Rect(10, 480, 500, 540), "saturation", "0~255"));
-    KyUI.get("asdf4").addChild(new TextBox("t6", new Rect(10, 550, 500, 610), "brightness", "0~255"));
-    KyUI.get("asdf4").addChild(new TextBox("t7", new Rect(10, 620, 500, 680), "alpha", "0~255"));
     //
     TreeGraph t=KyUI.<TreeGraph>get2("asdf5");
     t.addNode("1").addNode("2");
@@ -62,10 +51,6 @@ public class Test extends PApplet {
     t.get(0).get(1).addNode("6");
     t.get(0).get(1).addNode("7");
     //
-    ColorPicker p=KyUI.<ColorPicker>get2("colorpicker");
-    p.attachRGB(KyUI.<TextBox>get2("t1"), KyUI.<TextBox>get2("t2"), KyUI.<TextBox>get2("t3"));
-    p.attachHSB(KyUI.<TextBox>get2("t4"), KyUI.<TextBox>get2("t5"), KyUI.<TextBox>get2("t6"));
-    p.attachA(KyUI.<TextBox>get2("t7"));
     KyUI.get("asdf2").addChild(new IntSlider("slider"));
     KyUI.get("slider").setPosition(new Rect(10, 40, 290, 80));
     DropDown d=new DropDown("droptest");
@@ -82,9 +67,11 @@ public class Test extends PApplet {
       d.addItem("item");
     }
     KyUI.get("asdf").addChild(d);
-    ((DivisionLayout)KyUI.get("division")).direction=Attributes.VERTICAL;
     KyUI.get("division").addChild(new LinearList("list"));
     KyUI.get("division").addChild(new LinearList("list2"));
+    KyUI.<DivisionLayout>get2("division").value=0.5F;
+    KyUI.<DivisionLayout>get2("division").rotation=Attributes.ROTATE_UP;
+    KyUI.<DivisionLayout>get2("division").mode=Attributes.PROPORTIONAL;
     LinearList e=(LinearList)KyUI.get("list");
     e.direction=Attributes.HORIZONTAL;
     for (int a=0; a < 10; a++) {
@@ -92,7 +79,7 @@ public class Test extends PApplet {
     }
     LinearList f=(LinearList)KyUI.get("list2");
     for (int a=0; a < 10; a++) {
-      LinearList.InspectorImageButton b=new LinearList.InspectorImageButton("f" + a, f);
+      LinearList.InspectorColorButton b=new LinearList.InspectorColorButton("f" + a, f);
       b.text="f" + a;
       f.addItem(b);
     }
@@ -108,7 +95,7 @@ public class Test extends PApplet {
       ShortcutLoader.attachTo(a + "", new EventListener() {
         @Override
         public void onEvent(Element e) {
-          KyUI.<TabLayout>get2("tabs").selectTab(new Integer(b));
+          KyUI.<TabLayout>get2("tabs").selectTab(new Integer(b + 1));
         }
       });
     }

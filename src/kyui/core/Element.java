@@ -1,5 +1,6 @@
 package kyui.core;
 import kyui.task.Task;
+import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
@@ -207,9 +208,12 @@ public class Element {
   }
   public void render(PGraphics g) {//override this!
     if (bgColor != 0) {
-      g.fill(bgColor);
+      fill(g,bgColor);
       pos.render(g);
     }
+  }
+  public void fill(PGraphics g, int c) {//overloading has many problem...
+    ColorExt.fill(g, c);
   }
   public void overlay(PGraphics g) {//override this!
   }

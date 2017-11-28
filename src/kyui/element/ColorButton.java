@@ -7,7 +7,7 @@ import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class ColorButton extends Button {
   //modifiable values
-  public int c=0xFFFFFFFF;
+  public int c=0xFF000000;
   public ColorButton(String name) {
     super(name);
     init();
@@ -17,8 +17,7 @@ public class ColorButton extends Button {
     init();
   }
   private void init() {
-    bgColor=127;
-    padding=4;
+    padding=6;
   }
   @Override
   protected void drawContent(PGraphics g, int textC) {
@@ -26,7 +25,7 @@ public class ColorButton extends Button {
     g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
     float sizeX=(pos.right - pos.left) / 2 - padding;
     float sizeY=(pos.bottom - pos.top) / 2 - padding;
-    g.fill(c);
+    fill(g, c);
     g.rect(-sizeX, -sizeY, sizeX, sizeY);
     g.popMatrix();
   }
@@ -37,7 +36,7 @@ public class ColorButton extends Button {
     ColorButton c;
     public OpenColorPickerEvent(ColorButton c_) {
       c=c_;
-      if(colorPickerLayer==null){
+      if (colorPickerLayer == null) {
         colorPickerLayer=KyUI.getNewLayer();
         colorPicker=new ColorPickerFull("KyUI:OpenColorPickerEvent.colorPicker");
       }
