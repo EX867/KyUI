@@ -16,7 +16,6 @@ public class ColorPickerFull extends Element {
   }
   private void init() {
     colorPicker=new ColorPicker(getName() + ":colorPicker");
-    addChild(colorPicker);
     values[0]=new TextBox(getName() + ":red", "red", "0~255");
     values[1]=new TextBox(getName() + ":green", "green", "0~255");
     values[2]=new TextBox(getName() + ":blue", "blue", "0~255");
@@ -24,25 +23,22 @@ public class ColorPickerFull extends Element {
     values[4]=new TextBox(getName() + ":saturation", "saturation", "0~255");
     values[5]=new TextBox(getName() + ":brightness", "brightness", "0~255");
     values[6]=new TextBox(getName() + ":alpha", "alpha", "0~255");
+    addChild(colorPicker);
     for (int a=0; a < 10; a++) {
       int b=a;
       recentButtons[a]=new ColorButton(getName() + ":recentButtons" + a);
       recentButtons[a].setPressListener(new MouseEventListener() {
         @Override
         public boolean onEvent(MouseEvent e, int index) {
-          System.out.println(b + " is pressed " + recentButtons[b].c);
           colorPicker.setColorRGB(recentButtons[b].c);
           if (b == 0) {
             recentButtons[b].c=colorPicker.selectedRGB;
-          }
-          if (b != recentButtons.length - 1) {
-            if (recentButtons[b + 1].c != recentButtons[b].c) {
-              for (int a=b; a < recentButtons.length - 1; a++) {
-                recentButtons[a + 1].c=recentButtons[a].c;
+            if (recentButtons[0].c != recentButtons[1].c) {
+              for (int c=recentButtons.length - 2; c >= 0; c--) {
+                recentButtons[c + 1].c=recentButtons[c].c;
+                recentButtons[c + 1].invalidate();
               }
             }
-            recentButtons[b].invalidate();
-            recentButtons[b + 1].invalidate();
           }
           return false;
         }

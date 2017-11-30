@@ -23,7 +23,7 @@ public class LinearList extends Element {
   //modifiable values
   public int sliderSize;
   public int fgColor;
-  public int direction=Attributes.VERTICAL;
+  public Attributes.Direction direction=Attributes.Direction.VERTICAL;
   //temp values
   Rect cacheRect=new Rect();
   public LinearList(String name) {
@@ -39,13 +39,13 @@ public class LinearList extends Element {
     margin=strokeWeight / 2;
     sliderSize=14;
     linkLayout=new DivisionLayout(getName() + ":linkLayout", pos);
-    linkLayout.rotation=Attributes.ROTATE_RIGHT;
+    linkLayout.rotation=Attributes.Rotation.RIGHT;
     listLayout=new LinearLayout(getName() + ":listLayout");
     slider=new RangeSlider(getName() + ":slider");
     linkLayout.addChild(listLayout);
     linkLayout.addChild(slider);
-    listLayout.setDirection(Attributes.VERTICAL);
-    listLayout.setMode(Attributes.FIXED);
+    listLayout.setDirection(Attributes.Direction.VERTICAL);
+    listLayout.setMode(LinearLayout.Behavior.FIXED);
     listLayout.padding=strokeWeight;
     slider.margin=0;
     listLayout.setAdjustListener(new EventListener() {
@@ -107,12 +107,12 @@ public class LinearList extends Element {
   }
   @Override
   public synchronized void onLayout() {
-    if (direction == Attributes.VERTICAL) {
+    if (direction == Attributes.Direction.VERTICAL) {
       linkLayout.value=sliderSize;
-      linkLayout.rotation=Attributes.ROTATE_RIGHT;
+      linkLayout.rotation=Attributes.Rotation.RIGHT;
     } else {
       linkLayout.value=sliderSize;
-      linkLayout.rotation=Attributes.ROTATE_DOWN;
+      linkLayout.rotation=Attributes.Rotation.DOWN;
     }
     listLayout.setDirection(direction);
     slider.direction=direction;
@@ -160,9 +160,10 @@ public class LinearList extends Element {
     //list.totalSize is from onLayout.
     setSliderLength();
     listLayout.setOffset(slider.getOffset(listLayout.getTotalSize()));
+    listLayout.localLayout();
   }
   void setSliderLength() {
-    if (direction == Attributes.VERTICAL) {
+    if (direction == Attributes.Direction.VERTICAL) {
       slider.setLength(listLayout.getTotalSize(), pos.bottom - pos.top);
     } else {
       slider.setLength(listLayout.getTotalSize(), pos.right - pos.left);
@@ -216,7 +217,7 @@ public class LinearList extends Element {
         g.textSize(textSize);
         g.pushMatrix();
         g.translate((pos.left + pos.right) / 2 + textOffsetX, (pos.top + pos.bottom) / 2 + textOffsetY);
-        for (int a=1; a < rotation; a++) {
+        for (int a=1; a <= rotation.ordinal(); a++) {
           g.rotate(KyUI.Ref.radians(90));
         }
         if (overlap < height && overlap > 0) {
@@ -277,7 +278,7 @@ public class LinearList extends Element {
         child.setPosition(child.pos.set(pos.right - left - width + padding2, pos.top + padding2, pos.right - left, pos.bottom - padding2));
         left+=width + padding2;
       }
-      if (Ref.direction == Attributes.HORIZONTAL) {//FIX>> not horizontal
+      if (Ref.direction == Attributes.Direction.HORIZONTAL) {//FIX>> not horizontal
         for (Element child : children) {
           child.setActive(false);
           child.setVisible(false);

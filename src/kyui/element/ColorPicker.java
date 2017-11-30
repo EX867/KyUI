@@ -9,11 +9,15 @@ import processing.event.MouseEvent;
 
 import java.awt.Color;
 public class ColorPicker extends Element {
+  ColorPicker this_=this;
   class ColorModifyListenerRGB implements EventListener {
     @Override
     public void onEvent(Element e) {
       updateColorFromRGB();
       ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      if (onAdjust != null) {
+        onAdjust.onEvent(this_);
+      }
       invalidate();
     }
   }
@@ -22,6 +26,9 @@ public class ColorPicker extends Element {
     public void onEvent(Element e) {
       updateColorFromHSB();
       ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      if (onAdjust != null) {
+        onAdjust.onEvent(this_);
+      }
       invalidate();
     }
   }
@@ -30,6 +37,9 @@ public class ColorPicker extends Element {
     public void onEvent(Element e) {
       updateColorFromA();
       ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      if (onAdjust != null) {
+        onAdjust.onEvent(this_);
+      }
       invalidate();
     }
   }
@@ -75,13 +85,21 @@ public class ColorPicker extends Element {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
+    float centerX=(pos.right + pos.left) / 2;
+    float centerY=(pos.top + pos.bottom) / 2;
+    float width=Math.min((pos.right - pos.left), (pos.bottom - pos.top));
+    if (e.getAction() == MouseEvent.PRESS && ((KyUI.mouseGlobal.x - centerX) * (KyUI.mouseGlobal.x - centerX) + (KyUI.mouseGlobal.y - centerY) * (KyUI.mouseGlobal.y - centerY) > width * width / 4)) {
+      skipPress=true;
+      pressedL=false;
+      return true;
+    } else if (pressedL && e.getAction() == MouseEvent.RELEASE && ((KyUI.mouseGlobal.x - centerX) * (KyUI.mouseGlobal.x - centerX) + (KyUI.mouseGlobal.y - centerY) * (KyUI.mouseGlobal.y - centerY) > width * width / 4)) {
+      skipRelease=true;
+      return true;
+    }
     if (e.getAction() == MouseEvent.PRESS || ((e.getAction() == MouseEvent.DRAG || e.getAction() == MouseEvent.RELEASE) && pressedL)) {
       requestFocus();
-      float centerX=(pos.right + pos.left) / 2;
-      float centerY=(pos.top + pos.bottom) / 2;
-      float width=Math.min((pos.right - pos.left), (pos.bottom - pos.top));
       float radius=(float)Math.sqrt((KyUI.mouseGlobal.x - centerX) * (KyUI.mouseGlobal.x - centerX) + (KyUI.mouseGlobal.y - centerY) * (KyUI.mouseGlobal.y - centerY));
-      if (((width / 4 < radius && radius < width / 2 - padding) || hueClicked) && sbClicked == false) {
+      if (((width / 4 < radius && radius < width / 2) || hueClicked) && sbClicked == false) {
         float atan2pos=(float)Math.atan2(KyUI.mouseGlobal.y - centerY, KyUI.mouseGlobal.x - centerX);
         if (atan2pos < 0) atan2pos+=PApplet.TWO_PI;
         selectedHSB=KyUI.Ref.color((atan2pos) * 256 / PApplet.TWO_PI, KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alphav);

@@ -1,15 +1,16 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.event.TreeNodeAction;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.Stack;
-public class TreeGraph extends Element {//includes scroll. for now, I only need horizontal one.
+public class TreeGraph<Content extends TreeNodeAction> extends Element {//includes scroll. for now, I only need horizontal one.
   Node root;
-  ArrayList<Node> nodes;
+  ArrayList<Node<Content>> nodes;
   Node selection;
   //modifiable values
   public int selectionColor;
@@ -46,7 +47,7 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
   }
   private void init(String rootText) {
     clipping=true;
-    nodes=new ArrayList<Node>();
+    nodes=new ArrayList<Node<Content>>();
     selection=null;
     root=new Node(getName() + ":root", 0, this);
     root.pos=(defaultRootPos.clone());
@@ -76,7 +77,7 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
     float centerY=(pos.top + pos.bottom) / 2 - offsetY;
     float width=(defaultRootPos.right - defaultRootPos.left);
     float height=(defaultRootPos.bottom - defaultRootPos.top);
-    Stack<Node> stack=new Stack<Node>();
+    Stack<Node<Content>> stack=new Stack<Node<Content>>();
     stack.push(root);
     root.pos.set((-width / 2) * scale + centerX, (-height / 2) * scale + centerY, (width / 2) * scale + centerX, (height / 2) * scale + centerY);
     float top=0;
@@ -177,16 +178,18 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
         for (Node n : nodes) {//ADD>>check is node can move to new node.
           selectionControl=(selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl);
           if (n != selection && n.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) && selectionControl) {//move node
-            Node s=selection;
-            selection.unselect();
-            s.parent.removeNode(s);
-            if (n.addNode(s) != n) {
-              s.setDepth(n.depth + 1);
+            if (selection.content == null || selection.content.check(n)) {
+              Node s=selection;
+              selection.unselect();
+              s.parent.removeNode(s);
+              if (n.addNode(s) != n) {
+                s.setDepth(n.depth + 1);
+              }
+              onLayout();
+              invalidate();
+              selectionControl=false;
+              return false;
             }
-            onLayout();
-            invalidate();
-            selectionControl=false;
-            return false;
           }
         }
         onLayout();
@@ -217,13 +220,15 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
     }
     return true;
   }
-  public static class Node extends Button {
+  public static class Node<Content extends TreeNodeAction> extends Button {
     TreeGraph Ref;
     Node parent;
     ArrayList<Node> localNodes;//because children not only includes nodes. added node using addNode() puts new node into this.
     int depth;
     boolean related=false;//if related, selection's position will be added when layout.
     int index;//temp var when used in layout.
+    //modifiable values
+    public Content content;//!!!
     public Node(String name, int depth_, TreeGraph Ref_) {
       super(name);
       depth=depth_;
@@ -241,17 +246,26 @@ public class TreeGraph extends Element {//includes scroll. for now, I only need 
       Ref.addChild(n);
       return n;
     }
-    protected Node addNode(Node n) {//no child adding and create listener
+    protected Node addNode(Node n) {
+      return addNode(localNodes.size(), n);
+    }
+    protected Node addNode(int index, Node n) {//no child adding and create listener
       if (n == this) {
         return n;
       }
       n.parent=this;
-      localNodes.add(n);
+      localNodes.add(index, n);
       Ref.nodes.add(n);
+      if (content != null) {
+        content.add(n);//!!!
+      }
       return n;
     }
     public void removeNode(Node node) {
       localNodes.remove(node);
+      if (content != null) {
+        content.remove(node);
+      }
     }
     public void delete() {
       parent.removeNode(this);

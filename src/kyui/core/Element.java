@@ -1,15 +1,16 @@
 package kyui.core;
+import kyui.element.TreeGraph;
+import kyui.event.TreeNodeAction;
 import kyui.task.Task;
-import kyui.util.ColorExt;
-import kyui.util.Rect;
-import kyui.util.Vector2;
+import kyui.util.*;
 import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-public class Element {
+public class Element implements TreeNodeAction {
   public List<Element> parents=new ArrayList<Element>();
   public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   protected int children_max=987654321;
@@ -70,10 +71,11 @@ public class Element {
   }
   //
   private String Name;//identifier.
+  //attributes
+  public AttributeSet attributeSet=new AttributeSet();
   private boolean enabled=true;// this parameter controls object's existence.
   private boolean visible=true;// this parameter controls object rendering
   private boolean active=true;// this parameter controls object control (use inputs)
-  boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
   public Rect pos=new Rect(0, 0, 0, 0);
   public Description description;
   public int bgColor=0;
@@ -89,15 +91,29 @@ public class Element {
   public boolean droppableStart=false;//this element can be start of drag.
   public boolean droppableEnd=false;//this element can be end of drag.
   //temp vars
+  boolean renderFlag=true;// this parameter makes calling renderlater() renders on parent's render().
   protected boolean entered=false;
   protected boolean pressedL=false;//this parameter indicates this element have been pressed left.
   protected boolean pressedR=false;//this parameter indicates this element have been pressed right.
   protected Rect clipRect;
   //control flow
+  protected boolean skipPress=false;
   protected boolean skipRelease=false;
   //
   public Element(String name) {
     Name=name;
+  }
+  protected void setAttributeSet() {
+    attributeSet.add(new Attribute<Integer>("bgColor", 0xFF323232) {
+      @Override
+      public Integer get() {
+        return bgColor;
+      }
+      @Override
+      public void set(Integer value) {
+        bgColor=value;
+      }
+    });
   }
   //children modify
   public final void addChild(Element object) {
@@ -208,7 +224,7 @@ public class Element {
   }
   public void render(PGraphics g) {//override this!
     if (bgColor != 0) {
-      fill(g,bgColor);
+      fill(g, bgColor);
       pos.render(g);
     }
   }
@@ -311,20 +327,26 @@ public class Element {
       trigger=false;
     }
     if (trigger) {
-      if ((entered || KyUI.focus == this)) {
-        ret=mouseEvent(e, index);
-      }
-      if (!skipRelease && KyUI.focus == this && e.getAction() == MouseEvent.RELEASE) {
-        releaseFocus();
-      }
-      if (e.getAction() == MouseEvent.PRESS) {
+      if (e.getAction() == MouseEvent.PRESS) {//(1)
         if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
           if (e.getButton() == KyUI.Ref.LEFT) {
             pressedL=true;
           } else if (e.getButton() == KyUI.Ref.RIGHT) {
             pressedR=true;
           }
-          requestFocus();
+        }
+      }
+      if ((entered || KyUI.focus == this)) {
+        ret=mouseEvent(e, index);
+      }
+      if (!skipRelease && KyUI.focus == this && e.getAction() == MouseEvent.RELEASE) {
+        releaseFocus();
+      }
+      if (e.getAction() == MouseEvent.PRESS) {//(2)
+        if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+          if (!skipPress) {
+            requestFocus();
+          }
           invalidate();
         }
       }
@@ -337,6 +359,7 @@ public class Element {
       pressedL=false;
     }
     skipRelease=false;
+    skipPress=false;
     return ret;
   }
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
@@ -364,6 +387,7 @@ public class Element {
   }
   public final void releaseFocus() {
     KyUI.focus=null;
+    //System.out.println("[KyUI] " + getName() + " released focus at " + KyUI.Ref.frameCount);
     invalidate();
   }
   public Vector2 getPreferredSize() {
@@ -371,5 +395,35 @@ public class Element {
   }
   public int size() {
     return children.size();
+  }//???
+  //=== Editor Action ===//
+  //override these!!
+  public boolean editorCheck(Element e) {
+    return true;
+  }
+  public void editorAdd(Element e) {//add e to this.
+    if (editorCheck(e)) {
+      addChild(e);
+    }
+  }
+  public void editorRemove(String name) {
+    int index=children.indexOf(KyUI.get(name));
+    if (index == -1) return;
+    removeChild(index);
+  }
+  public PImage editorGetImage() {
+    return null;
+  }
+  @Override
+  public final boolean check(TreeGraph.Node n) {
+    return editorCheck(n);
+  }
+  @Override
+  public final void add(TreeGraph.Node n) {
+    editorAdd((Element)(n.content));
+  }
+  @Override
+  public final void remove(TreeGraph.Node n) {
+    editorRemove(((Element)(n.content)).getName());
   }
 }

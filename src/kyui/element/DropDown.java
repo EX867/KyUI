@@ -79,22 +79,22 @@ public class DropDown extends Button {
   public void onLayout() {
     float size;
     downButton.rotation=rotation;
-    if (rotation % 2 == 1) {
+    if (rotation.ordinal() % 2 == 0) {
       size=(pos.bottom - pos.top);
     } else {
       size=(pos.right - pos.left);
     }
     float x=0, y=0;
-    if (rotation == Attributes.ROTATE_UP) {
+    if (rotation == Attributes.Rotation.UP) {
       x=pos.right - size / 2;
       y=(pos.top + pos.bottom) / 2;
-    } else if (rotation == Attributes.ROTATE_RIGHT) {
+    } else if (rotation == Attributes.Rotation.RIGHT) {
       x=(pos.left + pos.right) / 2;
       y=pos.bottom - size / 2;
-    } else if (rotation == Attributes.ROTATE_DOWN) {
+    } else if (rotation == Attributes.Rotation.DOWN) {
       x=pos.left + size / 2;
       y=(pos.top + pos.bottom) / 2;
-    } else if (rotation == Attributes.ROTATE_LEFT) {
+    } else if (rotation == Attributes.Rotation.LEFT) {
       x=(pos.left + pos.right) / 2;
       y=pos.top + size / 2;
     }
@@ -104,7 +104,7 @@ public class DropDown extends Button {
   public void render(PGraphics g) {
     textOffsetX=0;
     downButton.textOffsetY=-downButton.textSize / 4;
-    if (rotation % 2 == 1) {
+    if (rotation.ordinal() % 2 == 0) {
       textOffsetX-=(pos.bottom - pos.top) / 3;
     } else {
       textOffsetX-=(pos.right - pos.left) / 3;
@@ -113,7 +113,7 @@ public class DropDown extends Button {
   }
   @Override
   public Vector2 getPreferredSize() {
-    if (rotation == Attributes.ROTATE_UP || rotation == Attributes.ROTATE_DOWN) {
+    if (rotation == Attributes.Rotation.UP || rotation == Attributes.Rotation.DOWN) {
       return new Vector2(KyUI.Ref.textWidth(text) + padding * 4 + textSize, textSize + padding * 2);
     } else {
       return new Vector2(textSize + padding * 2, KyUI.Ref.textWidth(text) + padding * 4 + textSize);

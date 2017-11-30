@@ -7,11 +7,14 @@ import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class LinearLayout extends Element {
+  public static enum Behavior {
+    STATIC, DYNAMIC, FIXED
+  }
   protected float offset=0;
   EventListener adjustListener;
   //protected modifiable values
-  protected int mode=Attributes.DYNAMIC;
-  protected int direction=Attributes.HORIZONTAL;
+  protected Behavior mode=Behavior.DYNAMIC;
+  protected Attributes.Direction direction=Attributes.Direction.HORIZONTAL;
   protected int fixedSize;
   //temp vars
   private float clickOffset=0;
@@ -31,11 +34,11 @@ public class LinearLayout extends Element {
     clipping=true;
     fixedSize=60;
   }
-  public void setMode(int mode_) {
+  public void setMode(Behavior mode_) {
     offset=0;
     mode=mode_;
   }
-  public void setDirection(int dir) {
+  public void setDirection(Attributes.Direction dir) {
     offset=0;
     direction=dir;
   }
@@ -48,17 +51,17 @@ public class LinearLayout extends Element {
   }
   void setClip() {
     startClip=(int)offset / fixedSize;
-    if (direction == Attributes.HORIZONTAL) {
+    if (direction == Attributes.Direction.HORIZONTAL) {
       endClip=(int)(offset + pos.right - pos.left) / fixedSize + 2;
-    } else if (direction == Attributes.VERTICAL) {
+    } else if (direction == Attributes.Direction.VERTICAL) {
       endClip=(int)(offset + pos.bottom - pos.top) / fixedSize + 2;
     }
   }
   public void setOffset(float value) {
     float size=0;
-    if (direction == Attributes.HORIZONTAL) {
+    if (direction == Attributes.Direction.HORIZONTAL) {
       size=pos.right - pos.left;
-    } else if (direction == Attributes.VERTICAL) {
+    } else if (direction == Attributes.Direction.VERTICAL) {
       size=pos.bottom - pos.top;
     }
     offset=value;
@@ -68,7 +71,6 @@ public class LinearLayout extends Element {
     if (offset < 0) {
       offset=0;
     }
-    localLayout();
   }
   public void setAdjustListener(EventListener l) {
     adjustListener=l;
@@ -84,12 +86,12 @@ public class LinearLayout extends Element {
     }
     if (count == 0) return;//no need to layout.
     setClip();
-    if (mode == Attributes.FIXED) {
+    if (mode == Behavior.FIXED) {
       int end=Math.min(children.size(), endClip);
       float first=padding;
       if (startClip > 0) first=0;
       childrenSize=Math.max(0, startClip - 1) * fixedSize;
-      if (direction == Attributes.HORIZONTAL) {
+      if (direction == Attributes.Direction.HORIZONTAL) {
         for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
@@ -98,7 +100,7 @@ public class LinearLayout extends Element {
           childrenSize+=fixedSize + first;
           first=0;
         }
-      } else if (direction == Attributes.VERTICAL) {
+      } else if (direction == Attributes.Direction.VERTICAL) {
         for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
@@ -111,11 +113,11 @@ public class LinearLayout extends Element {
       childrenSize=(size()) * fixedSize;
     } else {
       float first=padding;
-      if (direction == Attributes.HORIZONTAL) {
+      if (direction == Attributes.Direction.HORIZONTAL) {
         float width=(float)(pos.right - pos.left) / count;
         for (Element e : children) {
           if (e.isEnabled()) {
-            if (mode == Attributes.DYNAMIC) {
+            if (mode == Behavior.DYNAMIC) {
               width=e.getPreferredSize().x;
             }
             e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding, pos.left - offset + childrenSize + width - padding + first, pos.bottom - padding));
@@ -123,11 +125,11 @@ public class LinearLayout extends Element {
             first=0;
           }
         }
-      } else if (direction == Attributes.VERTICAL) {
+      } else if (direction == Attributes.Direction.VERTICAL) {
         float height=(float)(pos.bottom - pos.top) / count;
         for (Element e : children) {
           if (e.isEnabled()) {
-            if (mode == Attributes.DYNAMIC) {
+            if (mode == Behavior.DYNAMIC) {
               height=e.getPreferredSize().y;
             }
             e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + first, pos.right - padding, pos.top - offset + childrenSize + height - padding + first));
@@ -144,7 +146,7 @@ public class LinearLayout extends Element {
       g.fill(bgColor);
       pos.render(g);
     }
-    if (mode == Attributes.FIXED) {
+    if (mode == Behavior.FIXED) {
       setClip();
     }
     g.noStroke();
@@ -159,8 +161,8 @@ public class LinearLayout extends Element {
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
-    if (mode == Attributes.STATIC) return true;
-    if (mode == Attributes.FIXED) {
+    if (mode == Behavior.STATIC) return true;
+    if (mode == Behavior.FIXED) {
       setClip();
     }
     if (e.getAction() == MouseEvent.PRESS) {
@@ -173,13 +175,14 @@ public class LinearLayout extends Element {
       if (pressedL) {
         requestFocus();
         float value=0;
-        if (direction == Attributes.HORIZONTAL) {
+        if (direction == Attributes.Direction.HORIZONTAL) {
           value=(KyUI.mouseClick.x - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;
-        } else if (direction == Attributes.VERTICAL) {
+        } else if (direction == Attributes.Direction.VERTICAL) {
           value=(KyUI.mouseClick.y - KyUI.mouseGlobal.y) * KyUI.scaleGlobal;
         }
         clickScrollMax=Math.max(Math.abs(value), clickScrollMax);
         setOffset(clickOffset + value);
+        localLayout();
         if (clickScrollMax > KyUI.GESTURE_THRESHOLD) {
           if (adjustListener != null) {
             adjustListener.onEvent(this);
@@ -194,7 +197,7 @@ public class LinearLayout extends Element {
     } else if (e.getAction() == MouseEvent.WHEEL) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
         setOffset(offset + e.getCount() * KyUI.WHEEL_COUNT);
-        invalidate();
+        localLayout();
         return false;
       }
     }

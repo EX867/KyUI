@@ -7,7 +7,7 @@ import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class RangeSlider extends Button {
   int strokeWeight=4;
-  int direction=Attributes.VERTICAL;
+  Attributes.Direction direction=Attributes.Direction.VERTICAL;
   EventListener adjustListener;
   //
   float sliderRatio;//value of startPoint
@@ -54,9 +54,9 @@ public class RangeSlider extends Button {
     adjustListener=l;
   }
   private float getSize() {
-    if (direction == Attributes.VERTICAL) {
+    if (direction == Attributes.Direction.VERTICAL) {
       return pos.bottom - pos.top;
-    } else if (direction == Attributes.HORIZONTAL) {
+    } else if (direction == Attributes.Direction.HORIZONTAL) {
       return pos.right - pos.left;
     }
     return 1;
@@ -69,12 +69,12 @@ public class RangeSlider extends Button {
     }
     g.fill(sliderBgColor);
     pos.render(g);
-    if (direction == Attributes.VERTICAL) {
+    if (direction == Attributes.Direction.VERTICAL) {
       float sliderPoint=pos.top + (pos.bottom - pos.top) * sliderRatio;
       float sliderPointXm=(float)(pos.right + pos.left) / 2;
       float sliderSizeX=(float)(pos.right - pos.left) / 2 - strokeWeight;
       cacheRect.set(sliderPointXm - sliderSizeX, sliderPoint + strokeWeight, sliderPointXm + sliderSizeX, sliderPoint + sliderLength - strokeWeight);
-    } else if (direction == Attributes.HORIZONTAL) {
+    } else if (direction == Attributes.Direction.HORIZONTAL) {
       float sliderPoint=pos.left + (pos.right - pos.left) * sliderRatio;
       float sliderPointXm=(float)(pos.bottom + pos.top) / 2;
       float sliderSizeX=(float)(pos.bottom - pos.top) / 2 - strokeWeight;
@@ -95,9 +95,9 @@ public class RangeSlider extends Button {
         requestFocus();
         float value=0;
         float size=getSize();
-        if (direction == Attributes.HORIZONTAL) {
+        if (direction == Attributes.Direction.HORIZONTAL) {
           value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
-        } else if (direction == Attributes.VERTICAL) {
+        } else if (direction == Attributes.Direction.VERTICAL) {
           value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
         }
         if (size == 0) {

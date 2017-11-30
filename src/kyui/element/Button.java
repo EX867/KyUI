@@ -14,7 +14,7 @@ public class Button extends Element {
   public int textColor;
   public int textSize;
   public String text="Button";
-  public int rotation=Attributes.ROTATE_UP;
+  public Attributes.Rotation rotation=Attributes.Rotation.UP;
   //in-class values
   protected int textOffsetX=0;
   protected int textOffsetY=0;
@@ -61,7 +61,7 @@ public class Button extends Element {
     g.textSize(textSize);
     g.pushMatrix();
     g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
-    for (int a=1; a < rotation; a++) {
+    for (int a=1; a <= rotation.ordinal(); a++) {
       g.rotate(KyUI.Ref.radians(90));
     }
     g.text(text, textOffsetX, textOffsetY);
@@ -86,7 +86,7 @@ public class Button extends Element {
   }
   @Override
   public Vector2 getPreferredSize() {
-    if (rotation == Attributes.ROTATE_UP || rotation == Attributes.ROTATE_DOWN) {
+    if (rotation == Attributes.Rotation.UP || rotation == Attributes.Rotation.DOWN) {
       return new Vector2(KyUI.Ref.textWidth(text) + padding * 2, textSize + padding * 2);
     } else {
       return new Vector2(textSize + padding * 2, KyUI.Ref.textWidth(text) + padding * 2);

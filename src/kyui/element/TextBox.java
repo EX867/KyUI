@@ -65,7 +65,7 @@ public class TextBox extends TextEdit {
   public void keyEvent(KeyEvent e) {
     super.keyEvent(e);
     String str=content.toString();
-    if (numberFilter.condition) {
+    if (numberFilter.condition && isInt(str)) {
       value=Integer.parseInt(str);
     }
     if (changed && onTextChangeListener != null) {

@@ -28,9 +28,9 @@ public class Test extends PApplet {
     //KyUI.setRoot(new Background("root", color(255, 255, 255)));
     KyUI.start(this);
     f=new TabLayout("tabs", new Rect(0, 0, width, height));
-    //f.setRotation(Attributes.ROTATE_LEFT);
-    //f.setButtonRotation(Attributes.ROTATE_UP);
-    //f.setButtonEdgeRotation(Attributes.ROTATE_LEFT);
+    //f.setRotation(Attributes.Rotation.LEFT);
+    //f.setButtonRotation(Attributes.Rotation.UP);
+    //f.setButtonEdgeRotation(Attributes.Rotation.LEFT);
     //f.setTabSize(70);
     KyUI.add(f);
     f.addTab(" A ", new Element("asdf"));
@@ -70,10 +70,10 @@ public class Test extends PApplet {
     KyUI.get("division").addChild(new LinearList("list"));
     KyUI.get("division").addChild(new LinearList("list2"));
     KyUI.<DivisionLayout>get2("division").value=0.5F;
-    KyUI.<DivisionLayout>get2("division").rotation=Attributes.ROTATE_UP;
-    KyUI.<DivisionLayout>get2("division").mode=Attributes.PROPORTIONAL;
+    KyUI.<DivisionLayout>get2("division").rotation=Attributes.Rotation.UP;
+    KyUI.<DivisionLayout>get2("division").mode=DivisionLayout.Behavior.PROPORTIONAL;
     LinearList e=(LinearList)KyUI.get("list");
-    e.direction=Attributes.HORIZONTAL;
+    e.direction=Attributes.Direction.HORIZONTAL;
     for (int a=0; a < 10; a++) {
       e.addItem("e" + a);
     }
