@@ -5,7 +5,7 @@ import kyui.core.KyUI;
 import kyui.event.ItemSelectListener;
 import kyui.event.MouseEventListener;
 import kyui.event.EventListener;
-import kyui.task.Task;
+import kyui.util.Task;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
@@ -19,6 +19,7 @@ public class LinearList extends Element {
   protected ItemSelectListener selectListener;
   protected SelectableButton selection=null;
   protected SelectableButton pressItem;
+  SelectableButton pressItemOld;
   int count=0;
   //modifiable values
   public int sliderSize;
@@ -133,7 +134,19 @@ public class LinearList extends Element {
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
     if (e.getAction() == MouseEvent.PRESS) {
+      if (pressItem != null) {
+        pressItemOld=pressItem;//FIX>> unstable
+      }
       pressItem=null;
+    }
+    return true;
+  }
+  @Override
+  public boolean mouseEvent(MouseEvent e, int index) {
+    if (e.getAction() == MouseEvent.RELEASE) {
+      if (pressItemOld != null) {
+        pressItemOld.selected=false;
+      }
     }
     return true;
   }

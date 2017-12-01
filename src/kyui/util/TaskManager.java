@@ -1,4 +1,6 @@
-package kyui.task;
+package kyui.util;
+import kyui.util.Task;
+
 import java.util.LinkedList;
 public class TaskManager {
   LinkedList<TaskSet> tasks=new LinkedList<TaskSet>();

@@ -178,7 +178,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         for (Node n : nodes) {//ADD>>check is node can move to new node.
           selectionControl=(selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl);
           if (n != selection && n.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) && selectionControl) {//move node
-            if (selection.content == null || selection.content.check(n)) {
+            if (selection.content == null || selection.content.checkNodeAction(n)) {
               Node s=selection;
               selection.unselect();
               s.parent.removeNode(s);
@@ -257,14 +257,14 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       localNodes.add(index, n);
       Ref.nodes.add(n);
       if (content != null) {
-        content.add(n);//!!!
+        content.addNodeAction(n);//!!!
       }
       return n;
     }
     public void removeNode(Node node) {
       localNodes.remove(node);
       if (content != null) {
-        content.remove(node);
+        content.removeNodeAction(node);
       }
     }
     public void delete() {

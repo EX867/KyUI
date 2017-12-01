@@ -7,8 +7,8 @@ import java.util.List;
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
 import kyui.event.FileDropEventListener;
-import kyui.task.Task;
-import kyui.task.TaskManager;
+import kyui.util.Task;
+import kyui.util.TaskManager;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PApplet;
@@ -47,6 +47,7 @@ public class KyUI {
         roots.peekLast().renderFlag=true;
       } else {
         roots.addLast((CachingFrame)data_raw);
+        addElement((Element)data_raw);
       }
     }
   }
@@ -111,6 +112,8 @@ public class KyUI {
   public static int updater_interval;
   public static long frameCount;
   //public Thread animation;
+  //temp
+  private static int count=0;
   private KyUI() {//WARNING! names must not contains ':' and "->".
   }
   public static void start(PApplet ref) {
@@ -185,7 +188,7 @@ public class KyUI {
     taskManager.addTask(modifyLayerTask, null);
   }
   public static CachingFrame getNewLayer() {
-    return new CachingFrame("KyUI:" + roots.size()/*FIX>> this is not correct. fix it to count.*/, new Rect(0, 0, Ref.width, Ref.height));
+    return new CachingFrame("KyUI:" + count++, new Rect(0, 0, Ref.width, Ref.height));
   }
   protected static void addElement(Element object) {
     Elements.put(object.getName(), object);
@@ -335,6 +338,7 @@ public class KyUI {
   }
   //
   public static void changeLayout() {
+    taskManager.executeAll();
     roots.getLast().onLayout();
   }
   public static void invalidate(Rect rect) {//adjust renderFlag.

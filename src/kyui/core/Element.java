@@ -1,7 +1,7 @@
 package kyui.core;
 import kyui.element.TreeGraph;
 import kyui.event.TreeNodeAction;
-import kyui.task.Task;
+import kyui.util.Task;
 import kyui.util.*;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -138,6 +138,7 @@ public class Element implements TreeNodeAction {
     return (other instanceof Element && ((Element)other).Name.equals(Name));
   }
   public void setPosition(Rect rect) {
+    //System.out.println(getName() + " moved to " + rect.toString());
     invalidate(pos);
     pos=rect;
     localLayout();
@@ -411,19 +412,19 @@ public class Element implements TreeNodeAction {
     if (index == -1) return;
     removeChild(index);
   }
-  public PImage editorGetImage() {
+  public static PImage editorGetImage() {
     return null;
   }
   @Override
-  public final boolean check(TreeGraph.Node n) {
+  public final boolean checkNodeAction(TreeGraph.Node n) {
     return editorCheck(n);
   }
   @Override
-  public final void add(TreeGraph.Node n) {
+  public final void addNodeAction(TreeGraph.Node n) {
     editorAdd((Element)(n.content));
   }
   @Override
-  public final void remove(TreeGraph.Node n) {
+  public final void removeNodeAction(TreeGraph.Node n) {
     editorRemove(((Element)(n.content)).getName());
   }
 }

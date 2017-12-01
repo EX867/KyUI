@@ -20,14 +20,15 @@ public class StatusBar extends Button {
     init();
   }
   void init() {
-    tabColor1=KyUI.Ref.color(0, 0, 255);
+    tabColor1=KyUI.Ref.color(30, 30, 95);
     tabColor2=KyUI.Ref.color(127, 0, 0);
+    text="";
   }
   public void render(PGraphics g) {
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
     cacheRect.set(pos.left, pos.top, pos.right, pos.top + edgeSize);
     textOffsetX=(int)(-(pos.right - pos.left) / 2 + padding);
-    textOffsetY=edgeSize / 2;
+    textOffsetY=edgeSize / 4;
     super.render(g);//FIX
     if (error) {
       g.fill(tabColor2);

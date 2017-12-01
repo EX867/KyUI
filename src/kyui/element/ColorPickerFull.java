@@ -9,7 +9,7 @@ public class ColorPickerFull extends Element {
   ColorPicker colorPicker;
   TextBox[] values=new TextBox[7];
   ColorButton[] recentButtons=new ColorButton[10];
-  Button acceptButton;
+  ImageButton acceptButton;
   public ColorPickerFull(String name) {
     super(name);
     init();
@@ -58,7 +58,7 @@ public class ColorPickerFull extends Element {
     colorPicker.attachRGB(values[0], values[1], values[2]);
     colorPicker.attachHSB(values[3], values[4], values[5]);
     colorPicker.attachA(values[6]);
-    acceptButton=new Button(getName() + ":acceptButton");
+    acceptButton=new ImageButton(getName() + ":acceptButton", KyUI.Ref.loadImage("data/exit.png"));
     addChild(acceptButton);
     colorPicker.bgColor=0xFF7F7F7F;
   }
@@ -81,8 +81,12 @@ public class ColorPickerFull extends Element {
     }
     values[6].setPosition(new Rect(startX + 10 * scale, startY + 400 * scale, startX + 110 * scale, startY + 460 * scale));
     for (int a=0; a < 10; a++) {
-      recentButtons[a].setPosition(new Rect(startX + (51 + 77 * (a % 5)) * scale, startY + (625 + 67 * (a / 5)) * scale, startX + (101 + 77 * (a % 5)) * scale, startY + (675 + 67 * (a / 5)) * scale));
+      if (recentButtons[a] != null) {//FIX>>strange...
+        recentButtons[a].setPosition(new Rect(startX + (51 + 77 * (a % 5)) * scale, startY + (625 + 67 * (a / 5)) * scale, startX + (101 + 77 * (a % 5)) * scale, startY + (675 + 67 * (a / 5)) * scale));
+      }
     }
-    acceptButton.setPosition(new Rect(startX + 390 * scale, startY + 10 * scale, startX + 450 * scale, startY + 70 * scale));
+    if (acceptButton != null) {//FIX>>strange...
+      acceptButton.setPosition(new Rect(startX + 390 * scale, startY + 10 * scale, startX + 450 * scale, startY + 70 * scale));
+    }
   }
 }

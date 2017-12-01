@@ -35,6 +35,10 @@ public class TabLayout extends Element {
   //temp vars
   private int count=0;
   private Rect cacheRect=new Rect(0, 0, 0, 0);
+  public TabLayout(String name) {
+    super(name);
+    init();
+  }
   public TabLayout(String name, Rect pos_) {
     super(name);
     pos=pos_;
@@ -43,7 +47,7 @@ public class TabLayout extends Element {
   private void init() {
     tabSize=38;
     idToIndex=new HashMap<Integer, Integer>(100);
-    linkLayout=new DivisionLayout(getName() + ":linkLayout", pos);
+    linkLayout=new DivisionLayout(getName() + ":linkLayout");//, pos);
     tabLayout=new LinearLayout(getName() + ":tabLayout");
     contentLayout=new FrameLayout(getName() + ":contentLayout");
     linkLayout.rotation=Attributes.Rotation.UP;
@@ -57,8 +61,8 @@ public class TabLayout extends Element {
     localLayout();
     tabLayout.bgColor=KyUI.Ref.color(127);
     contentLayout.bgColor=KyUI.Ref.color(127);
-    tabColor1=KyUI.Ref.color(0, 0, 255);
-    tabColor2=KyUI.Ref.color(0, 0, 127);
+    tabColor1=KyUI.Ref.color(10, 40, 200);
+    tabColor2=KyUI.Ref.color(30, 30, 95);
   }
   public void addTab(String text, Element content) {
     addTab(KyUI.INF, text, content);
@@ -137,6 +141,11 @@ public class TabLayout extends Element {
     } else {
       tabLayout.setDirection(Attributes.Direction.VERTICAL);
     }
+    if (rotation == Attributes.Rotation.RIGHT || rotation == Attributes.Rotation.DOWN) {
+      linkLayout.inverse=true;
+    } else {
+      linkLayout.inverse=false;
+    }
     linkLayout.rotation=rotation;
     setButtonRotation(rotation);
   }
@@ -188,16 +197,16 @@ public class TabLayout extends Element {
       textOffsetY=0;
       if (edgeRotation == Attributes.Rotation.UP) {
         cacheRect.set(pos.left, pos.top, pos.right, pos.top + edgeSize);
-        textOffsetY=edgeSize / 2;
+        textOffsetY=edgeSize / 4;
       } else if (edgeRotation == Attributes.Rotation.RIGHT) {
         cacheRect.set(pos.right - edgeSize, pos.top, pos.right, pos.bottom);
-        textOffsetX=-edgeSize / 2;
+        textOffsetX=-edgeSize / 4;
       } else if (edgeRotation == Attributes.Rotation.DOWN) {
         cacheRect.set(pos.left, pos.bottom - edgeSize, pos.right, pos.bottom);
-        textOffsetY=-edgeSize / 2;
+        textOffsetY=-edgeSize / 4;
       } else if (edgeRotation == Attributes.Rotation.LEFT) {
         cacheRect.set(pos.left, pos.top, pos.left + edgeSize, pos.bottom);
-        textOffsetX=edgeSize / 2;
+        textOffsetY=edgeSize / 4;
       }
       if (enableX) {
         if (rotation.ordinal() % 2 == 0) {

@@ -1,7 +1,5 @@
 package kyui.core;
-import kyui.core.Element;
-import kyui.core.KyUI;
-import kyui.task.Task;
+import kyui.util.Task;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;

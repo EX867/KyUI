@@ -28,8 +28,8 @@ public class Button extends Element {
     init();
   }
   private void init() {
-    bgColor=50;
-    textColor=255;
+    bgColor=KyUI.Ref.color(50);
+    textColor=KyUI.Ref.color(255);
     textSize=15;
     padding=10;
   }

@@ -89,7 +89,7 @@ public class Test extends PApplet {
         System.out.println("dropped " + e.getName() + " to " + f.getName() + " with " + messenger.message);
       }
     });
-    ShortcutLoader.loadXml(new java.io.File("data/test_shortcut.xml").getAbsolutePath(), false);
+    ShortcutLoader.loadXml(new java.io.File("test_shortcut.xml").getAbsolutePath(), false);
     for (int a=0; a <= 8; a++) {
       int b=a;
       ShortcutLoader.attachTo(a + "", new EventListener() {

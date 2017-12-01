@@ -14,9 +14,10 @@ public class CachingFrame extends Element {
   }
   @Override
   synchronized void render_(PGraphics g) {
-    if (renderFlag || invalidated) render(null);//???
+    boolean a=renderFlag || invalidated;
+    if (a) render(null);//???
     renderChildren(display);
-    if (renderFlag || invalidated) overlay(null);
+    if (a) overlay(null);
     renderFlag=false;
     invalidated=false;
   }

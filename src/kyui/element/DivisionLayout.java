@@ -9,6 +9,7 @@ public class DivisionLayout extends Element {
   //add child in up->down or left->right order...
   public Behavior mode=Behavior.FIXED;//proportional or fixed
   public float value=0.5F;//first's size
+  public boolean inverse=false;
   public Attributes.Rotation rotation=Attributes.Rotation.LEFT;
   public DivisionLayout(String name) {
     super(name);
@@ -38,10 +39,12 @@ public class DivisionLayout extends Element {
       Element e1=children.get(0);
       Element e2=children.get(1);
       float first=value;
+      if (inverse) {
+        Element t=e1;
+        e1=e2;
+        e2=t;
+      }
       if (rotation == Attributes.Rotation.RIGHT || rotation == Attributes.Rotation.DOWN) {
-        //        Element t=e1;
-        //        e1=e2;
-        //        e2=t;
         if (mode == Behavior.PROPORTIONAL) {
           first=(1 - value);
         } else if (mode == Behavior.FIXED) {

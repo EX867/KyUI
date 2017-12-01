@@ -15,7 +15,7 @@ public class RelativeFrame extends Element {
   public RelativeFrame(String name) {
     super(name);
     clipping=true;
-    bgColor=127;
+    bgColor=KyUI.Ref.color(127);
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {//from LinearLayout.

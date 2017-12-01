@@ -8,7 +8,7 @@ import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class LinearLayout extends Element {
   public static enum Behavior {
-    STATIC, DYNAMIC, FIXED
+    STATIC, DYNAMIC, FIXED, LEAVE
   }
   protected float offset=0;
   EventListener adjustListener;
@@ -95,18 +95,18 @@ public class LinearLayout extends Element {
         for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
-            e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding, pos.left - offset + childrenSize + fixedSize - padding + first, pos.bottom - padding));
+            e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding, pos.left - offset + childrenSize + fixedSize + first, pos.bottom - padding));
           }
-          childrenSize+=fixedSize + first;
+          childrenSize+=fixedSize + first + padding;
           first=0;
         }
       } else if (direction == Attributes.Direction.VERTICAL) {
         for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
-            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + first, pos.right - padding, pos.top - offset + childrenSize + fixedSize - padding + first));
+            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + first, pos.right - padding, pos.top - offset + childrenSize + fixedSize + first));
           }
-          childrenSize+=fixedSize + first;
+          childrenSize+=fixedSize + first + padding;
           first=0;
         }
       }
@@ -119,9 +119,11 @@ public class LinearLayout extends Element {
           if (e.isEnabled()) {
             if (mode == Behavior.DYNAMIC) {
               width=e.getPreferredSize().x;
+            } else if (mode == Behavior.LEAVE) {
+              width=e.pos.right - e.pos.left;//unstable, but don't fix
             }
-            e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding, pos.left - offset + childrenSize + width - padding + first, pos.bottom - padding));
-            childrenSize+=width;
+            e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding, pos.left - offset + childrenSize + width + first, pos.bottom - padding));
+            childrenSize+=width + first + padding;
             first=0;
           }
         }
@@ -131,9 +133,11 @@ public class LinearLayout extends Element {
           if (e.isEnabled()) {
             if (mode == Behavior.DYNAMIC) {
               height=e.getPreferredSize().y;
+            } else if (mode == Behavior.LEAVE) {
+              height=e.pos.bottom - e.pos.top;
             }
-            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + first, pos.right - padding, pos.top - offset + childrenSize + height - padding + first));
-            childrenSize+=height;
+            e.setPosition(new Rect(pos.left + padding, pos.top - offset + childrenSize + first, pos.right - padding, pos.top - offset + childrenSize + height + first));
+            childrenSize+=height + first + padding;
             first=0;
           }
         }
@@ -156,7 +160,7 @@ public class LinearLayout extends Element {
     if (clipRect == null) {
       clipRect=new Rect();
     }
-    clipRect.set(pos.left + padding, pos.top + padding, pos.right - padding, pos.bottom - padding);
+    clipRect.set(pos);
     KyUI.clipRect(g, clipRect);
   }
   @Override
