@@ -3,6 +3,8 @@ import kyui.core.Attributes;
 import kyui.core.KyUI;
 import kyui.core.Element;
 import kyui.element.*;
+import kyui.event.EventListener;
+import kyui.event.MouseEventListener;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
@@ -18,6 +20,7 @@ public class Main extends PApplet {
   final String startText="KyUI Layout Editor 0.1";
   @Override
   public void setup() {
+    surface.setResizable(true);
     surface.setLocation(0, 0);
     surface.setIcon(loadImage("data/editor.png"));
     surface.setTitle(startText);
@@ -58,6 +61,14 @@ public class Main extends PApplet {
     layout_right.addChild(layout_inspector);
     layout_right.setDirection(Attributes.Direction.VERTICAL);
     ImageToggleButton layout_frame_move=new ImageToggleButton("layout_frame_move", loadImage("data/move.png"));
+    layout_frame_move.setPressListener(new MouseEventListener() {
+      @Override
+      public boolean onEvent(MouseEvent e, int index) {
+        System.out.println("???");
+        layout_frame.scroll=!layout_frame_move.value;
+        return false;
+      }
+    });
     layout_top.addChild(layout_frame_move);
     //add all to main_layout
     main_layout.addChild(layout_frame);
@@ -65,6 +76,19 @@ public class Main extends PApplet {
     main_layout.addChild(layout_right);
     //set main_colors
     main_colors.rotation=Attributes.Rotation.DOWN;
+    main_colors.value=40;
+    DivisionLayout colors_down=new DivisionLayout("colors_down");
+    colors_down.rotation=Attributes.Rotation.RIGHT;
+    colors_down.value=60;
+    Button colors_add=new Button("colors_add");
+    colors_add.text="ADD";
+    colors_add.margin=3;
+    TextBox colors_addVar=new TextBox("colors_addVar");
+    colors_addVar.setNumberOnly(false);
+    colors_down.addChild(colors_addVar);
+    colors_down.addChild(colors_add);
+    main_colors.addChild(new LinearList("colors_list"));
+    main_colors.addChild(colors_down);
     //set main_shortcuts
     main_shortcut.rotation=Attributes.Rotation.DOWN;
     //add tabs to main_tabs
@@ -74,15 +98,14 @@ public class Main extends PApplet {
     //add tabs and status to main
     main_statusDivision.addChild(main_tabs);
     main_statusDivision.addChild(new StatusBar("main_status"));
-    //    KyUI.get("division").addChild(new LinearList("list"));
-    //    KyUI.get("division").addChild(new LinearList("list2"));
-    //    KyUI.<DivisionLayout>get2("division").value=0.5F;
-    //    KyUI.<DivisionLayout>get2("division").rotation=Attributes.Rotation.UP;
-    //    KyUI.<DivisionLayout>get2("division").mode=DivisionLayout.Behavior.PROPORTIONAL;
-    //    LinearList e=(LinearList)KyUI.get("list");
-    //    e.direction=Attributes.Direction.HORIZONTAL;
     KyUI.add(main_statusDivision);
     KyUI.changeLayout();
+    KyUI.resizeListener=new EventListener() {
+      @Override
+      public void onEvent(Element e) {
+        main_statusDivision.setPosition(main_statusDivision.pos.set(0, 0, width, height));
+      }
+    };
     KyUI.<StatusBar>get2("main_status").text=startText;
     main_tabs.selectTab(1);
   }

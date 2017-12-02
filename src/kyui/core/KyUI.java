@@ -20,7 +20,6 @@ import processing.event.KeyEvent;
 import sojamo.drop.*;
 //===To ADD list===//
 //ADD>>optimize mouseEvent and rendering chain!!
-//ADD>>resizing functions**
 //ADD>>name duplication error
 //ADD>>drag and drop overlay !!!**
 public class KyUI {
@@ -52,6 +51,7 @@ public class KyUI {
     }
   }
   static ModifyLayerTask modifyLayerTask=new ModifyLayerTask();//task for this object.
+  public static EventListener resizeListener;
   //
   public static final int STATE_PRESS=1;
   public static final int STATE_PRESSED=2;
@@ -113,6 +113,8 @@ public class KyUI {
   public static long frameCount;
   //public Thread animation;
   //temp
+  private static int pwidth;
+  private static int pheight;
   private static int count=0;
   private KyUI() {//WARNING! names must not contains ':' and "->".
   }
@@ -150,6 +152,8 @@ public class KyUI {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    pwidth=Ref.width;
+    pheight=Ref.height;
     //other things
     fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
     fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").getAbsolutePath(), 20);
@@ -174,9 +178,15 @@ public class KyUI {
   public static void end() {
     end=true;
   }
-  //  public static void resize() {
-  //    roots.getLast().setPosition(new Rect(0, 0, Ref.width, Ref.height));
-  //  }
+  public static void resize() {
+    for (int a=0; a < roots.size(); a++) {
+      roots.get(a).pos.set(0, 0, Ref.width, Ref.height);
+      roots.get(a).resize(Ref.width, Ref.height);
+      if (resizeListener != null) {
+        resizeListener.onEvent(roots.get(a));
+      }
+    }
+  }
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
   }
@@ -230,6 +240,15 @@ public class KyUI {
             roots.get(a).render_(null);//FIX>> after making Modifiable Element!!
           }
           //empty EventQueue.
+          if (pwidth != Ref.width || pheight != Ref.height) {//...?
+            resize();
+            pwidth=Ref.width;
+            pheight=Ref.height;
+            try {//resizing is heavy action.
+              Thread.sleep(300);//wait 0.3s to not make cpu hot!
+            } catch (InterruptedException e) {
+            }
+          }
           while (EventQueue.size() > 0) {
             Event e=EventQueue.pollFirst();
             if (e instanceof KeyEvent) {

@@ -72,10 +72,10 @@ public class Button extends Element {
     if (e.getAction() == MouseEvent.RELEASE) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
         if (pressedL) {
+          onPress();
           if (pressListener != null) {
             if (!pressListener.onEvent(e, index)) return false;
           }
-          onPress();
         }
       }
       return false;

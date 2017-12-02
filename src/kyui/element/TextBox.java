@@ -126,7 +126,7 @@ public class TextBox extends TextEdit {
     float centerY=(pos.top + pos.bottom) / 2;
     g.noStroke();
     g.textAlign(PApplet.LEFT, PApplet.CENTER);
-    if (!title.isEmpty()) {
+    if (!title.equals("")) {
       g.textSize(Math.max(1, textSize * 3 / 4));
       g.fill(fgColor);
       offset=(textSize / 3);
@@ -153,7 +153,7 @@ public class TextBox extends TextEdit {
       if (cursorOn) {
         float cursorOffsetX=g.textWidth("|") / 2;
         String line=content.getLine(content.line);
-        g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + padding - cursorOffsetX, centerY + offset);
+        g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + padding - cursorOffsetX, centerY + offset - 3);
       }
     }
     if (!rightText.isEmpty()) {

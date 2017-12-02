@@ -46,6 +46,10 @@ public class CachingFrame extends Element {
     display.popMatrix();
     display.endDraw();
   }
+  public void resize(int width, int height) {
+    display.dispose();
+    display=KyUI.Ref.createGraphics((int)(pos.right - pos.left), (int)(pos.bottom - pos.top));
+  }
   public synchronized void renderReal(PGraphics g) {
     g.image(display, (pos.left + pos.right) / 2, (pos.bottom + pos.top) / 2);
   }
