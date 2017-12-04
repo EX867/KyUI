@@ -92,18 +92,20 @@ public class Slider extends Element {
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG)) {//only works with left event...
-      requestFocus();
-      float size=getSize();
-      if (direction == Attributes.Direction.HORIZONTAL) {
-        set(min + (max - min) * (KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left) / size);
-      } else if (direction == Attributes.Direction.VERTICAL) {
-        set(min + (max - min) * (KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top) / size);
+      if (pressedL || e.getAction() == MouseEvent.PRESS) {
+        requestFocus();
+        float size=getSize();
+        if (direction == Attributes.Direction.HORIZONTAL) {
+          set(min + (max - min) * (KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left) / size);
+        } else if (direction == Attributes.Direction.VERTICAL) {
+          set(min + (max - min) * (KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top) / size);
+        }
+        if (adjustListener != null) {
+          adjustListener.onEvent(this);
+        }
+        invalidate();
+        return false;
       }
-      if (adjustListener != null) {
-        adjustListener.onEvent(this);
-      }
-      invalidate();
-      return false;
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL) {
         invalidate();

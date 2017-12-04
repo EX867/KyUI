@@ -67,7 +67,7 @@ public class RangeSlider extends Button {
       g.strokeWeight(strokeWeight);
       g.stroke(fgColor);
     }
-    g.fill(sliderBgColor);
+    fill(g,sliderBgColor);
     pos.render(g);
     if (direction == Attributes.Direction.VERTICAL) {
       float sliderPoint=pos.top + (pos.bottom - pos.top) * sliderRatio;
@@ -82,7 +82,6 @@ public class RangeSlider extends Button {
     }
     g.noStroke();
     g.fill(getDrawBgColor(g));
-    //System.out.println(cacheRect);
     cacheRect.render(g);
   }
   @Override
@@ -90,6 +89,7 @@ public class RangeSlider extends Button {
     if (e.getAction() == MouseEvent.PRESS) {
       clickRatio=sliderRatio;
       invalidate();
+      return false;
     } else if (e.getAction() == MouseEvent.DRAG) {
       if (pressedL) {
         requestFocus();

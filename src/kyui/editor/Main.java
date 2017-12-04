@@ -5,6 +5,7 @@ import kyui.core.Element;
 import kyui.element.*;
 import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
+import kyui.loader.ElementLoader;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
@@ -43,7 +44,7 @@ public class Main extends PApplet {
     RelativeFrame layout_frame=new RelativeFrame("layout_frame");
     LinearLayout layout_right=new LinearLayout("layout_right");
     layout_right.setMode(LinearLayout.Behavior.LEAVE);
-    layout_right.bgColor=color(50);
+    layout_right.bgColor=color(0, 255, 0);//color(50);TEST(alter)
     layout_right.padding=3;
     //set layout_right
     LinearLayout layout_top=new LinearLayout("layout_top", new Rect(0, 0, 400, 40));
@@ -55,12 +56,15 @@ public class Main extends PApplet {
     layout_top.setFixedSize(34);
     layout_top.padding=3;
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
+    layout_elements.setFixedSize(150);
+    layout_elements.bgColor=color(255, 0, 0);//TEST(delete)
+    layout_elements.fgColor=color(0, 0, 255);//TEST(delete)
     layout_right.addChild(layout_top);
     layout_right.addChild(layout_tree);
     layout_right.addChild(layout_elements);
     layout_right.addChild(layout_inspector);
     layout_right.setDirection(Attributes.Direction.VERTICAL);
-    ImageToggleButton layout_frame_move=new ImageToggleButton("layout_frame_move", loadImage("data/move.png"));
+    ImageToggleButton layout_frame_move=new ImageToggleButton("layout_frame_move", ElementLoader.loadImageResource("move.png"));
     layout_frame_move.setPressListener(new MouseEventListener() {
       @Override
       public boolean onEvent(MouseEvent e, int index) {
@@ -107,6 +111,7 @@ public class Main extends PApplet {
       }
     };
     KyUI.<StatusBar>get2("main_status").text=startText;
+    ElementLoader.loadOnStart(layout_elements);
     main_tabs.selectTab(1);
   }
   @Override

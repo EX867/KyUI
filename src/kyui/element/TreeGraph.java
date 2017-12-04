@@ -107,10 +107,6 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     root.pos.set(rect.left, rect.top, rect.right, rect.bottom);
     onLayout();
   }
-  @Override
-  public void clipRect(PGraphics g) {
-    KyUI.clipRect(g, pos);
-  }
   //offset 0 is root in center.
   public void setOffset(float valueX, float valueY) {
     float size=pos.right - pos.left;

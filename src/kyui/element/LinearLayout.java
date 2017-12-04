@@ -156,12 +156,15 @@ public class LinearLayout extends Element {
     g.noStroke();
   }
   @Override
-  public void clipRect(PGraphics g) {
-    if (clipRect == null) {
-      clipRect=new Rect();
+  public boolean mouseEvent(MouseEvent e, int index) {
+    if (e.getAction() == MouseEvent.WHEEL) {
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        setOffset(offset + e.getCount() * KyUI.WHEEL_COUNT);
+        localLayout();
+        return false;
+      }
     }
-    clipRect.set(pos);
-    KyUI.clipRect(g, clipRect);
+    return true;
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
@@ -198,12 +201,6 @@ public class LinearLayout extends Element {
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
-    } else if (e.getAction() == MouseEvent.WHEEL) {
-      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-        setOffset(offset + e.getCount() * KyUI.WHEEL_COUNT);
-        localLayout();
-        return false;
-      }
     }
     return true;
   }

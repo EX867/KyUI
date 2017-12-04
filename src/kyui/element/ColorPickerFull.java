@@ -1,6 +1,6 @@
 package kyui.element;
 import kyui.core.Element;
-import kyui.core.KyUI;
+import kyui.loader.ElementLoader;
 import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
 import kyui.util.Rect;
@@ -58,7 +58,7 @@ public class ColorPickerFull extends Element {
     colorPicker.attachRGB(values[0], values[1], values[2]);
     colorPicker.attachHSB(values[3], values[4], values[5]);
     colorPicker.attachA(values[6]);
-    acceptButton=new ImageButton(getName() + ":acceptButton", KyUI.Ref.loadImage("data/exit.png"));
+    acceptButton=new ImageButton(getName() + ":acceptButton", ElementLoader.loadImageResource("exit.png"));
     addChild(acceptButton);
     colorPicker.bgColor=0xFF7F7F7F;
   }

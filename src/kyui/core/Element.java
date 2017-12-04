@@ -3,11 +3,15 @@ import kyui.element.TreeGraph;
 import kyui.event.TreeNodeAction;
 import kyui.util.Task;
 import kyui.util.*;
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
+import javax.swing.*;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 public class Element implements TreeNodeAction {
@@ -198,14 +202,15 @@ public class Element implements TreeNodeAction {
     KyUI.invalidate(rect);
   }
   void render_(PGraphics g) {
+    boolean renderFlag_=renderFlag;
     if (clipping) {
       clipRect(g);
     }
-    if (renderFlag) {
+    if (renderFlag_) {
       render(g);
     }
     renderChildren(g);
-    if (renderFlag) {
+    if (renderFlag_) {
       overlay(g);
     }
     if (clipping) {
@@ -218,7 +223,9 @@ public class Element implements TreeNodeAction {
     for (int a=Math.max(0, startClip); a < end; a++) {
       Element child=children.get(a);
       if (child.isVisible() && child.isEnabled()) {
-        if (renderFlag) child.renderFlag=true;
+        if (renderFlag) {
+          child.renderFlag=true;
+        }
         child.render_(g);
       }
     }
@@ -355,7 +362,7 @@ public class Element implements TreeNodeAction {
     if (e.getAction() == MouseEvent.RELEASE) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
         KyUI.dropEnd(this, e, index);
-        invalidate();
+        if (trigger) invalidate();
       }
       pressedL=false;
     }
@@ -411,9 +418,6 @@ public class Element implements TreeNodeAction {
     int index=children.indexOf(KyUI.get(name));
     if (index == -1) return;
     removeChild(index);
-  }
-  public static PImage editorGetImage() {
-    return null;
   }
   @Override
   public final boolean checkNodeAction(TreeGraph.Node n) {

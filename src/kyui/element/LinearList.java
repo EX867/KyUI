@@ -124,11 +124,11 @@ public class LinearList extends Element {
   public void render(PGraphics g) {
     g.strokeWeight(strokeWeight);
     g.stroke(fgColor);
-    g.noFill();
-    pos.render(g);
-    g.fill(bgColor);
+    fill(g, bgColor);
     listLayout.pos.render(g);
     //slider.pos.render(g);
+    g.noFill();
+    pos.render(g);
     g.noStroke();
   }
   @Override
@@ -184,8 +184,8 @@ public class LinearList extends Element {
   }
   public static class SelectableButton extends Button {//parent_max=1;
     //modifiable values
-    boolean selected=false;
-    LinearList Ref;
+    protected boolean selected=false;
+    protected LinearList Ref;
     public SelectableButton(String name, LinearList Ref_) {
       super(name);
       Ref=Ref_;
@@ -225,6 +225,10 @@ public class LinearList extends Element {
       } else {
         textOffsetY=0;
       }
+      drawContent(g, overlap);
+    }
+    protected void drawContent(PGraphics g, float overlap) {
+      float height=(pos.bottom - pos.top);
       if (overlap > textSize && overlap > 0) {//this can not be correct.
         g.fill(ColorExt.scale(textColor, overlap / height));
         g.textSize(textSize);

@@ -19,7 +19,7 @@ import processing.event.MouseEvent;
 import processing.event.KeyEvent;
 import sojamo.drop.*;
 //===To ADD list===//
-//ADD>>optimize mouseEvent and rendering chain!!
+//ADD>>optimize mouseEvent and rendering chain!! especially clipping...
 //ADD>>name duplication error
 //ADD>>drag and drop overlay !!!**
 public class KyUI {
