@@ -20,6 +20,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   public float intervalY=20;
   public float scaleMin=0.3F;
   public float scaleMax=2.0F;
+  public int textSize=15;
   //
   protected float offsetX;
   protected float offsetY;
@@ -57,12 +58,15 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     bgColor=KyUI.Ref.color(127);
     selectionColor=0;//KyUI.Ref.color(0, 0, 127);
   }
-  public Node addNode(String text) {
-    return root.addNode(text);
+  public Node addNode(String text, Content content) {
+    return root.addNode(text, content);
     //no layout!
   }
   public Node get(int index) {
     return root.get(index);
+  }
+  public Node getRoot() {
+    return root;
   }
   @Override
   public void onLayout() {
@@ -71,6 +75,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       if (maxDepth < n.depth) {
         maxDepth=n.depth;
       }
+      n.textSize=(int)(scale * textSize);
       n.index=0;
     }
     float centerX=(pos.left + pos.right) / 2 - offsetX;
@@ -171,21 +176,20 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       if (selection != null) {
         selectionOffsetX=0;
         selectionOffsetY=0;
-        for (Node n : nodes) {//ADD>>check is node can move to new node.
-          selectionControl=(selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl);
-          if (n != selection && n.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) && selectionControl) {//move node
-            if (selection.content == null || selection.content.checkNodeAction(n)) {
-              Node s=selection;
-              selection.unselect();
-              s.parent.removeNode(s);
-              if (n.addNode(s) != n) {
-                s.setDepth(n.depth + 1);
-              }
-              onLayout();
-              invalidate();
-              selectionControl=false;
-              return false;
+        selectionControl=selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl;
+        Node n=getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
+        if (selectionControl && n != selection && n != null) {
+          if (selection.content == null || selection.content.checkNodeAction(n)) {
+            Node s=selection;
+            selection.unselect();
+            s.parent.removeNode(s);
+            if (n.addNode(s) != n) {
+              s.setDepth(n.depth + 1);
             }
+            onLayout();
+            invalidate();
+            selectionControl=false;
+            return false;
           }
         }
         onLayout();
@@ -213,8 +217,17 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       setOffset(offsetX, offsetY);
       onLayout();
       invalidate();
+      return false;
     }
     return true;
+  }
+  public Node<Content> getNodeOver(float x, float y) {
+    for (Node n : nodes) {
+      if (n.pos.contains(x, y)) {
+        return n;
+      }
+    }
+    return null;
   }
   public static class Node<Content extends TreeNodeAction> extends Button {
     TreeGraph Ref;
@@ -232,7 +245,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       localNodes=new ArrayList<Node>();
     }
     public boolean selected=false;
-    public Node addNode(String text) {
+    public Node addNode(String text, Content content_) {
       Node n=new Node(Ref.getName() + ":" + Ref.count, depth + 1, Ref);
       n.parent=this;
       n.text=text;
@@ -240,6 +253,10 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       Ref.nodes.add(n);
       Ref.count++;
       Ref.addChild(n);
+      n.content=content_;
+      if (content != null) {
+        content.addNodeAction(n);//!!!
+      }
       return n;
     }
     protected Node addNode(Node n) {

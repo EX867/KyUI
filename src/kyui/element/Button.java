@@ -64,7 +64,10 @@ public class Button extends Element {
     for (int a=1; a <= rotation.ordinal(); a++) {
       g.rotate(KyUI.Ref.radians(90));
     }
-    g.text(text, textOffsetX, textOffsetY);
+    g.translate(textOffsetX, textOffsetY);
+    float hwidth=getSizeX() / 2;
+    float hheight=getSizeY() / 2;
+    g.text(text, -hwidth, -hheight, hwidth, hheight);
     g.popMatrix();
   }
   @Override
@@ -83,6 +86,20 @@ public class Button extends Element {
     return true;
   }
   public void onPress() {
+  }
+  private float getSizeX() {
+    if (rotation.ordinal() % 2 == 0) {
+      return pos.right - pos.left;
+    } else {
+      return pos.bottom - pos.top;
+    }
+  }
+  private float getSizeY() {
+    if (rotation.ordinal() % 2 == 0) {
+      return pos.bottom - pos.top;
+    } else {
+      return pos.right - pos.left;
+    }
   }
   @Override
   public Vector2 getPreferredSize() {

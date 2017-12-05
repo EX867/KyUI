@@ -21,6 +21,7 @@ public class LinearLayout extends Element {
   private float childrenSize=0;
   private float clickScrollMax=0;
   private Rect cacheRect=new Rect();
+  protected boolean draggable=false;
   public LinearLayout(String name_) {
     super(name_);
     init();
@@ -50,11 +51,13 @@ public class LinearLayout extends Element {
     return childrenSize;//return already calculated value.
   }
   void setClip() {
-    startClip=(int)offset / fixedSize;
-    if (direction == Attributes.Direction.HORIZONTAL) {
-      endClip=(int)(offset + pos.right - pos.left) / fixedSize + 2;
-    } else if (direction == Attributes.Direction.VERTICAL) {
-      endClip=(int)(offset + pos.bottom - pos.top) / fixedSize + 2;
+    if (mode == Behavior.FIXED) {
+      startClip=(int)offset / fixedSize;
+      if (direction == Attributes.Direction.HORIZONTAL) {
+        endClip=(int)(offset + pos.right - pos.left) / fixedSize + 2;
+      } else if (direction == Attributes.Direction.VERTICAL) {
+        endClip=(int)(offset + pos.bottom - pos.top) / fixedSize + 2;
+      }
     }
   }
   public void setOffset(float value) {
@@ -168,6 +171,7 @@ public class LinearLayout extends Element {
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
+    if (!draggable) return true;
     if (mode == Behavior.STATIC) return true;
     if (mode == Behavior.FIXED) {
       setClip();

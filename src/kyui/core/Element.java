@@ -411,6 +411,7 @@ public class Element implements TreeNodeAction {
   }
   public void editorAdd(Element e) {//add e to this.
     if (editorCheck(e)) {
+      System.out.println(e.getName() + " is added to " + getName());
       addChild(e);
     }
   }
@@ -425,10 +426,14 @@ public class Element implements TreeNodeAction {
   }
   @Override
   public final void addNodeAction(TreeGraph.Node n) {
-    editorAdd((Element)(n.content));
+    if (n.content != null) {
+      editorAdd((Element)(n.content));
+    }
   }
   @Override
   public final void removeNodeAction(TreeGraph.Node n) {
-    editorRemove(((Element)(n.content)).getName());
+    if (n.content != null) {
+      editorRemove(((Element)(n.content)).getName());
+    }
   }
 }

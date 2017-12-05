@@ -11,6 +11,8 @@ import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
+
+import java.util.List;
 public class LinearList extends Element {
   int strokeWeight=4;
   protected DivisionLayout linkLayout;
@@ -98,6 +100,9 @@ public class LinearList extends Element {
   public void removeItem(String name) {
     listLayout.removeChild(listLayout.children.indexOf(name));
     afterModify();
+  }
+  public List<Element> getItems() {
+    return listLayout.children;
   }
   public void setSelectListener(ItemSelectListener l) {
     selectListener=l;

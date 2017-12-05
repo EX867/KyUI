@@ -126,14 +126,14 @@ public class ElementLoader {
     }
     return null;
   }
-  static class ElementImage extends LinearList.SelectableButton {
-    Class<? extends Element> element;
+  public static class ElementImage extends LinearList.SelectableButton {
+    public Class<? extends Element> element;
     PImage image;
     public ElementImage(Class<? extends Element> c, LinearList Ref_) {
       super(c.getTypeName(), Ref_);
       element=c;
       try {//recommended size of image is 120x120, max is 150x150.
-        String className=c.getName();
+        String className=c.getTypeName();
         image=loadImageResource(className + ".png");
         if (image == null) {
           if (imager == null) {

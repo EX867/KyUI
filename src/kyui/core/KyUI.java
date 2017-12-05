@@ -371,6 +371,10 @@ public class KyUI {
   }
   public static void clipRect(PGraphics g, Rect rect) {
     g.imageMode(PApplet.CORNERS);
+    if (rect == null) {
+      System.out.println("???");//FIX>>
+      return;
+    }
     g.clip(rect.left, rect.top, rect.right, rect.bottom);
     clipArea.add(rect);
   }
@@ -380,7 +384,10 @@ public class KyUI {
       if (clipArea.size() == 0) {
         g.noClip();
       } else {
-        g.clip(clipArea.getLast().left, clipArea.getLast().top, clipArea.getLast().right, clipArea.getLast().bottom);
+        g.noClip();
+        Rect last=clipArea.getLast();
+        g.imageMode(PApplet.CORNERS);
+        g.clip(last.left, last.top, last.right, last.bottom);
       }
     }
   }

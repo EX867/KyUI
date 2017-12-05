@@ -1,8 +1,10 @@
 package kyui.editor;
 import kyui.core.Attributes;
+import kyui.core.DropMessenger;
 import kyui.core.KyUI;
 import kyui.core.Element;
 import kyui.element.*;
+import kyui.event.DropEventListener;
 import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
 import kyui.loader.ElementLoader;
@@ -44,7 +46,7 @@ public class Main extends PApplet {
     RelativeFrame layout_frame=new RelativeFrame("layout_frame");
     LinearLayout layout_right=new LinearLayout("layout_right");
     layout_right.setMode(LinearLayout.Behavior.LEAVE);
-    layout_right.bgColor=color(0, 255, 0);//color(50);TEST(alter)
+    layout_right.bgColor=color(50);
     layout_right.padding=3;
     //set layout_right
     LinearLayout layout_top=new LinearLayout("layout_top", new Rect(0, 0, 400, 40));
@@ -55,10 +57,27 @@ public class Main extends PApplet {
     layout_top.setMode(LinearLayout.Behavior.FIXED);
     layout_top.setFixedSize(34);
     layout_top.padding=3;
+    layout_tree.getRoot().content=layout_frame;
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
     layout_elements.setFixedSize(150);
-    layout_elements.bgColor=color(255, 0, 0);//TEST(delete)
-    layout_elements.fgColor=color(0, 0, 255);//TEST(delete)
+    KyUI.addDragAndDrop(layout_elements, layout_tree, new DropEventListener() {
+      private int count=0;
+      @Override
+      public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
+        ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
+        TreeGraph.Node<Element> node=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
+        if (node != null) {
+          String name="" + count;
+          try {
+            TreeGraph.Node<Element> n=node.addNode(name, e.element.getDeclaredConstructor(String.class).newInstance(name));
+            n.content.setPosition(new Rect(200, 200, 400, 400));
+            count++;
+          } catch (Exception ee) {
+            ee.printStackTrace();
+          }
+        }
+      }
+    });
     layout_right.addChild(layout_top);
     layout_right.addChild(layout_tree);
     layout_right.addChild(layout_elements);
@@ -68,7 +87,6 @@ public class Main extends PApplet {
     layout_frame_move.setPressListener(new MouseEventListener() {
       @Override
       public boolean onEvent(MouseEvent e, int index) {
-        System.out.println("???");
         layout_frame.scroll=!layout_frame_move.value;
         return false;
       }
@@ -76,7 +94,6 @@ public class Main extends PApplet {
     layout_top.addChild(layout_frame_move);
     //add all to main_layout
     main_layout.addChild(layout_frame);
-    layout_frame.addChild(new Button("Adfaf", new Rect(0, 0, 400, 400)));//test
     main_layout.addChild(layout_right);
     //set main_colors
     main_colors.rotation=Attributes.Rotation.DOWN;
@@ -91,7 +108,8 @@ public class Main extends PApplet {
     colors_addVar.setNumberOnly(false);
     colors_down.addChild(colors_addVar);
     colors_down.addChild(colors_add);
-    main_colors.addChild(new LinearList("colors_list"));
+    main_colors.addChild(new
+        LinearList("colors_list"));
     main_colors.addChild(colors_down);
     //set main_shortcuts
     main_shortcut.rotation=Attributes.Rotation.DOWN;
@@ -101,16 +119,20 @@ public class Main extends PApplet {
     main_tabs.addTab(" SHORTCUT  ", main_shortcut);
     //add tabs and status to main
     main_statusDivision.addChild(main_tabs);
-    main_statusDivision.addChild(new StatusBar("main_status"));
+    main_statusDivision.addChild(new
+        StatusBar("main_status"));
     KyUI.add(main_statusDivision);
     KyUI.changeLayout();
-    KyUI.resizeListener=new EventListener() {
-      @Override
-      public void onEvent(Element e) {
-        main_statusDivision.setPosition(main_statusDivision.pos.set(0, 0, width, height));
-      }
-    };
-    KyUI.<StatusBar>get2("main_status").text=startText;
+    KyUI.resizeListener=new
+        EventListener() {
+          @Override
+          public void onEvent(Element e) {
+            main_statusDivision.setPosition(main_statusDivision.pos.set(0, 0, width, height));
+          }
+        }
+    ;
+    KyUI.
+        <StatusBar>get2("main_status").text=startText;
     ElementLoader.loadOnStart(layout_elements);
     main_tabs.selectTab(1);
   }
