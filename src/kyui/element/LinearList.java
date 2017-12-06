@@ -106,13 +106,17 @@ public class LinearList extends Element {
   public boolean editorCheck(Element e) {
     return e instanceof SelectableButton;
   }
+  @Override
+  public boolean editorIsChild(Element e) {
+    return listLayout.children.contains(e);
+  }
   public void removeItem(int index) {
     if (index < 0 || index >= size()) return;
     listLayout.removeChild(index);
     afterModify();
   }
   public void removeItem(String name) {
-    listLayout.removeChild(listLayout.children.indexOf(name));
+    listLayout.removeChild(listLayout.children.indexOf(KyUI.get(name)));
     afterModify();
   }
   public List<Element> getItems() {
@@ -138,6 +142,7 @@ public class LinearList extends Element {
     slider.direction=direction;
     linkLayout.setPosition(pos);
     setList();
+    setSliderLength();
   }
   @Override
   public void render(PGraphics g) {
@@ -192,7 +197,7 @@ public class LinearList extends Element {
     //list.totalSize is from onLayout.
     setSliderLength();
     listLayout.setOffset(slider.getOffset(listLayout.getTotalSize()));
-    listLayout.localLayout();
+    listLayout.onLayout();
   }
   void setSliderLength() {
     if (direction == Attributes.Direction.VERTICAL) {
@@ -220,7 +225,6 @@ public class LinearList extends Element {
     }
     @Override
     public boolean editorCheckTo(Element e) {
-      System.out.println("??? " + e.getClass().getName() + " " + e.getName());
       return e instanceof LinearList;
     }
     private void init() {
@@ -300,7 +304,7 @@ public class LinearList extends Element {
     }
   }
   //these inspector classes exists here because I will use it!
-  static class InspectorButton extends SelectableButton {
+  static abstract class InspectorButton extends SelectableButton {
     //modifiable values
     public float ratio=3.0F;//this is inspection button width by height.
     public InspectorButton(String name) {
@@ -317,7 +321,7 @@ public class LinearList extends Element {
     public void onLayout() {
       float padding2=(pos.bottom - pos.top) / 6;
       float left=padding2;
-      float width=(pos.bottom - pos.top) * ratio;
+      float width=Math.min((pos.bottom - pos.top) * ratio, (pos.right - pos.left) * 0.5F);//FIX>>default value??
       for (Element child : children) {//just works like horizontal LinearList...
         child.setPosition(child.pos.set(pos.right - left - width + padding2, pos.top + padding2, pos.right - left, pos.bottom - padding2));
         left+=width + padding2;

@@ -52,7 +52,7 @@ public class LinearLayout extends Element {
   }
   void setClip() {
     if (mode == Behavior.FIXED) {
-      startClip=(int)offset / fixedSize;
+      startClip=(int)offset / fixedSize - 1;
       if (direction == Attributes.Direction.HORIZONTAL) {
         endClip=(int)(offset + pos.right - pos.left) / fixedSize + 2;
       } else if (direction == Attributes.Direction.VERTICAL) {
@@ -92,8 +92,7 @@ public class LinearLayout extends Element {
     if (mode == Behavior.FIXED) {
       int end=Math.min(children.size(), endClip);
       float first=padding;
-      if (startClip > 0) first=0;
-      childrenSize=Math.max(0, startClip - 1) * fixedSize;
+      childrenSize=Math.max(0, startClip - 1) * (fixedSize + padding);
       if (direction == Attributes.Direction.HORIZONTAL) {
         for (int a=Math.max(0, startClip - 1); a < end; a++) {
           Element e=children.get(a);
@@ -113,7 +112,7 @@ public class LinearLayout extends Element {
           first=0;
         }
       }
-      childrenSize=(size()) * fixedSize;
+      childrenSize=children.size() * (fixedSize + padding) + padding;
     } else {
       float first=padding;
       if (direction == Attributes.Direction.HORIZONTAL) {

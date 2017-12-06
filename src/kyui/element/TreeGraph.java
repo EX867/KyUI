@@ -37,6 +37,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   float selectionOffsetY=0;
   boolean selectionControl;
   Rect defaultRootPos=new Rect(-60, -30, 60, 30);
+  boolean dragged=false;
   public TreeGraph(String name) {
     super(name);
     init("[root]");
@@ -142,7 +143,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.RELEASE) {
-      if (selection != null) {
+      if (!dragged && selection != null) {
         selection.unselect();
         return false;
       }
@@ -155,6 +156,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       clickOffsetX=offsetX;
       clickOffsetY=offsetY;
       clickScrollMaxSq=0;
+      dragged=false;
     } else if (e.getAction() == MouseEvent.DRAG) {
       if (pressedL) {
         requestFocus();
@@ -174,6 +176,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
           setOffset(clickOffsetX + valueX, clickOffsetY - valueY);
           localLayout();
           if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
+            dragged=true;
             return false;
           } else {
             offsetX=clickOffsetX;
@@ -182,51 +185,56 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         }
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
-      if (selection != null) {
-        selectionOffsetX=0;
-        selectionOffsetY=0;
-        selectionControl=selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl;
-        Node n=getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
-        if (selectionControl && n != selection && n != null) {
-          if ((selection.content == null || selection.content.checkNodeAction(n) && (n.content == null || n.content.checkNodeToAction(selection)))) {
-            Node s=selection;
-            selection.unselect();
-            s.parent.removeNode(s);
-            if (n.addNode(s) != n) {
-              s.setDepth(n.depth + 1);
+      if (pressedL) {
+        if (selection != null) {
+          selectionOffsetX=0;
+          selectionOffsetY=0;
+          selectionControl=selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl;
+          Node n=getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y, selection);
+          if (selectionControl && n != null) {
+            if ((!(selection.content == null && n.content == null)) && (selection.content == null || selection.content.checkNodeToAction(n)) && (n.content == null || n.content.checkNodeAction(selection))) {
+              Node s=selection;
+              selection.unselect();
+              s.parent.removeNode(s);
+              Node result=n.addNode(s);
+              if (result != null && result != n) {
+                s.setDepth(n.depth + 1);
+              }
+              onLayout();
+              invalidate();
+              selectionControl=false;
+              return false;
             }
-            onLayout();
-            invalidate();
-            selectionControl=false;
-            return false;
           }
+          onLayout();
+          invalidate();
+          selectionControl=false;
+        } else if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
+          return false;
         }
-        onLayout();
-        invalidate();
-        selectionControl=false;
-      } else if (pressedL && clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
-        return false;
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
-      float centerX=(pos.left + pos.right) / 2;
-      float centerY=(pos.top + pos.bottom) / 2;
-      float valueX=(centerX - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;
-      float valueY=(centerY - KyUI.mouseGlobal.y) * KyUI.scaleGlobal;
-      offsetX+=valueX * scale;
-      offsetY+=valueY * scale;
-      scale-=(float)e.getCount() * 5 / 100;//only real scale on pointercount 2.
-      if (scale < scaleMin) {
-        scale=scaleMin;
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        float centerX=(pos.left + pos.right) / 2;
+        float centerY=(pos.top + pos.bottom) / 2;
+        float valueX=(centerX - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;
+        float valueY=(centerY - KyUI.mouseGlobal.y) * KyUI.scaleGlobal;
+        offsetX+=valueX * scale;
+        offsetY+=valueY * scale;
+        scale-=(float)e.getCount() * 5 / 100;//only real scale on pointercount 2.
+        if (scale < scaleMin) {
+          scale=scaleMin;
+        }
+        if (scale > scaleMax) {
+          scale=scaleMax;
+        }
+        offsetX-=valueX * scale;
+        offsetY-=valueY * scale;
+        setOffset(offsetX, offsetY);
+        onLayout();
+        invalidate();
+        return false;
       }
-      if (scale > scaleMax) {
-        scale=scaleMax;
-      }
-      offsetX-=valueX * scale;
-      offsetY-=valueY * scale;
-      setOffset(offsetX, offsetY);
-      onLayout();
-      invalidate();
-      return false;
     }
     return true;
   }
@@ -238,6 +246,27 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     }
     return null;
   }
+  Node<Content> getNodeOver(float x, float y, Node<Content> exclude) {
+    for (Node n : nodes) {
+      if (exclude != n && n.pos.contains(x, y)) {
+        return n;
+      }
+    }
+    return null;
+  }
+  @Override
+  public void editorAdd(Element e) {
+    root.editorAdd(e);
+  }
+  @Override
+  public void editorRemove(String name) {
+    root.editorRemove(name);
+  }
+  @Override
+  public boolean editorCheck(Element e) {
+    return root.editorCheck(e);
+  }
+  //===Node===//
   public static class Node<Content extends TreeNodeAction> extends Button {
     TreeGraph Ref;
     Node parent;
@@ -248,6 +277,11 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     public boolean selected=false;
     //modifiable values
     public Content content;//!!!
+    private Node(String name) {
+      super(name);
+      depth=-1;//no depth.(still, this node is not connected to any node. use by reflection only. (and this will call addedTo().)
+      localNodes=new ArrayList<Node>();
+    }
     public Node(String name, int depth_) {
       super(name);
       depth=depth_;
@@ -264,54 +298,70 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       }
     }
     @Override
+    public void editorAdd(Element e) {
+      if (editorCheck(e)) {
+        if (e instanceof Node) {
+          addNode((Node)e);
+          Ref.localLayout();
+          ((Node)e).depth=depth + 1;
+        } else {
+          addChild(e);
+          localLayout();
+        }
+      }
+    }
+    @Override
+    public void editorRemove(String name) {
+      Element e=KyUI.get(name);
+      if (e instanceof Node) {
+        removeNode((Node)e);
+      } else {
+        removeChild(e);
+      }
+    }
+    @Override
     public boolean editorCheckTo(Element e) {
-      return (e instanceof TreeGraph || e instanceof Node);
+      return e instanceof TreeGraph || e instanceof Node;
     }
     public Node addNode(String text, Content content_) {
       Node n=new Node(Ref.getName() + ":" + Ref.count, depth + 1);
+      Ref.count++;
       n.text=text;
-      n.parent=this;
       n.content=content_;
-      if ((content == null || content.checkNodeAction(n) && (content_ == null || content_.checkNodeToAction(this)))) {
+      return addNode(n);
+    }
+    protected Node addNode(Node n) {
+      return addNode(localNodes.size(), n);
+    }
+    protected Node addNode(int index, Node n) {
+      if (n == this) {
+        return n;
+      }
+      n.parent=this;
+      if ((content == null || content.checkNodeAction(n) && (n.content == null || n.content.checkNodeToAction(this)))) {
         localNodes.add(n);
         Ref.nodes.add(n);
-        Ref.count++;
         Ref.addChild(n);
         if (content != null) {
           content.addNodeAction(n);//!!!
         }
         return n;
       }
-      return null;//failed!
-    }
-    protected Node addNode(Node n) {
-      return addNode(localNodes.size(), n);
-    }
-    protected Node addNode(int index, Node n) {//no child adding and create listener
-      if (n == this) {
-        return n;
-      }
-      n.parent=this;
-      localNodes.add(index, n);
-      Ref.nodes.add(n);
-      if (content != null) {
-        content.addNodeAction(n);//!!!
-      }
-      return n;
+      return null;
     }
     public void removeNode(Node node) {
       localNodes.remove(node);
       if (content != null) {
         content.removeNodeAction(node);
       }
+      Ref.removeChild(node);
+      Ref.nodes.remove(node);
     }
     public void delete() {
       parent.removeNode(this);
       delete_();
     }
     public void delete_() {
-      Ref.removeChild(getName());
-      Ref.nodes.remove(this);
       for (Node n : localNodes) {
         delete_();
       }

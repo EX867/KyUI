@@ -35,7 +35,6 @@ public class Main extends PApplet {
     main_statusDivision.rotation=Attributes.Rotation.DOWN;
     main_statusDivision.value=40;
     TabLayout main_tabs=new TabLayout("main_tabs");
-    main_tabs.setEnableX(false);
     main_tabs.setRotation(Attributes.Rotation.LEFT);
     main_tabs.setTabSize(40);
     //create tabs
@@ -69,15 +68,20 @@ public class Main extends PApplet {
         ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
         TreeGraph.Node<Element> node=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
         if (node != null) {
-          String name="" + count;
+          String name=e.element.getSimpleName() + count;//defult value
           try {
             Constructor<? extends Element> c=e.element.getDeclaredConstructor(String.class);
             c.setAccessible(true);
             TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
             if (n != null) {
               n.content.setPosition(new Rect(200, 200, 400, 400));//TEST(delete)
+              if (n.content instanceof DivisionLayout) {//TEST(delete)
+                ((DivisionLayout)n.content).mode=DivisionLayout.Behavior.PROPORTIONAL;
+                ((DivisionLayout)n.content).value=0.5F;
+              }
+              layout_tree.localLayout();
+              count++;
             }
-            count++;
           } catch (Exception ee) {
             ee.printStackTrace();
           }

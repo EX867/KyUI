@@ -3,6 +3,7 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.element.LinearList;
 import kyui.util.ColorExt;
+import kyui.util.HideInEditor;
 import kyui.util.Rect;
 import org.reflections.Reflections;
 import processing.core.PApplet;
@@ -14,6 +15,7 @@ import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -36,6 +38,7 @@ public class ElementLoader {
         return ((ElementImage)o1).text.compareTo(((ElementImage)o2).text);
       }
     });
+    elementList.localLayout();
     File paths=new File(getAppData() + "/externals.txt");
     if (paths.isFile()) {
       BufferedReader read=KyUI.Ref.createReader(paths.getAbsolutePath());
@@ -76,7 +79,7 @@ public class ElementLoader {
           Class.forName(className);
         } catch (ClassNotFoundException ee) {
           Class c=cl.loadClass(className);
-          if (c.isAssignableFrom(Element.class)) {
+          if (c.isAssignableFrom(Element.class) && !Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
             addElement(c);
           }
         }
@@ -90,7 +93,9 @@ public class ElementLoader {
     Reflections reflections=new Reflections("kyui.element");
     Set<Class<? extends Element>> set=reflections.getSubTypesOf(Element.class);
     for (Class c : set) {
-      addElement(c);
+      if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
+        addElement(c);
+      }
     }
   }
   static void addElement(Class<? extends Element> c) {

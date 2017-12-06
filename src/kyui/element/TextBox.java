@@ -42,6 +42,7 @@ public class TextBox extends TextEdit {
     hint=hint_;
   }
   private void init() {
+    filters.add(new Filter("\n"));
     numberFilter=new Filter("[^0-9\b\u007F\uFFFF\u0025\u0026\u0027\u0028]");
     filters.add(numberFilter);
     fgColor=50;
@@ -50,6 +51,7 @@ public class TextBox extends TextEdit {
     padding=textSize;
     lineNumSize=0;
     errorColor=KyUI.Ref.color(255, 0, 0);
+    clipping=true;
   }
   public void setNumberOnly(boolean v) {//default true...
     numberFilter.condition=v;

@@ -4,6 +4,7 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.event.MouseEventListener;
 import kyui.util.ColorExt;
+import kyui.util.HideInEditor;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
@@ -29,7 +30,7 @@ public class TabLayout extends Element {
   protected Attributes.Rotation rotation=Attributes.Rotation.UP;
   protected Attributes.Rotation buttonRotation=Attributes.Rotation.UP;
   protected Attributes.Rotation buttonEdgeRotation=Attributes.Rotation.UP;
-  protected boolean enableX=true;
+  protected boolean enableX=false;
   //in-class values
   public int selection=0;
   //temp vars
@@ -172,6 +173,22 @@ public class TabLayout extends Element {
     linkLayout.value=tabSize;
     super.onLayout();
   }
+  @Override
+  public void editorAdd(Element e) {
+    if (editorCheck(e)) {
+      addTab("Tab", e);
+    }
+  }
+  @Override
+  public void editorRemove(String name) {
+    int index=contents.indexOf(KyUI.get(name));
+    removeTab(index - 1);
+  }
+  @Override
+  public boolean editorIsChild(Element e) {
+    return contents.contains(e);
+  }
+  @HideInEditor
   public class TabButton extends Button {
     int edgeColor;
     Attributes.Rotation edgeRotation=Attributes.Rotation.UP;

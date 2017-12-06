@@ -236,11 +236,7 @@ public class KyUI {
       cacheGraphics.beginDraw();
       while (!end) {
         synchronized (updater) {
-          for (int a=0; a < roots.size(); a++) {
-            roots.get(a).render_(null);//FIX>> after making Modifiable Element!!
-          }
-          //empty EventQueue.
-          if (pwidth != Ref.width || pheight != Ref.height) {//...?
+          if (pwidth != Ref.width || pheight != Ref.height) {//resizing
             resize();
             pwidth=Ref.width;
             pheight=Ref.height;
@@ -249,6 +245,7 @@ public class KyUI {
             } catch (InterruptedException e) {
             }
           }
+          //empty EventQueue.
           while (EventQueue.size() > 0) {
             Event e=EventQueue.pollFirst();
             if (e instanceof KeyEvent) {
@@ -258,7 +255,9 @@ public class KyUI {
             }
           }
           KyUI.taskManager.executeAll();
-          //
+          for (int a=0; a < roots.size(); a++) {
+            roots.get(a).render_(null);//FIX>> after making Modifiable Element!!
+          }
           roots.getLast().update_();
         }
         frameCount++;
@@ -359,6 +358,7 @@ public class KyUI {
   public static void changeLayout() {
     taskManager.executeAll();
     roots.getLast().onLayout();
+    roots.getLast().invalidate();
   }
   public static void invalidate(Rect rect) {//adjust renderFlag.
     if (roots.isEmpty()) return;

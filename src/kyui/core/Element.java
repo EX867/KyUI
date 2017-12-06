@@ -38,6 +38,9 @@ public class Element implements TreeNodeAction {
         data.element.addedTo(parent);//...bad thing one more...
       } else if (data_raw instanceof RemoveChildData) {
         RemoveChildData data=(RemoveChildData)data_raw;
+        if (data.index < 0) {
+          return;
+        }
         Element element=parent.children.get(data.index);
         element.parents.remove(this);
         parent.children.remove(data.index);
@@ -47,8 +50,10 @@ public class Element implements TreeNodeAction {
         Element temp=parent.children.get(data.a);
         parent.children.set(data.a, parent.children.get(data.b));
         parent.children.set(data.b, temp);
+      } else if (data_raw == null) {
+        parent.onLayout();
+        //parent.invalidate();
       }
-      parent.localLayout();
     }
   }
   ModifyChildrenTask modifyChildrenTask=new ModifyChildrenTask(this);//task for this object.
@@ -131,7 +136,10 @@ public class Element implements TreeNodeAction {
     KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(index));
   }
   public final void removeChild(String name) {
-    int index=children.indexOf(KyUI.get(name));
+    removeChild(KyUI.get(name));
+  }
+  public final void removeChild(Element e) {
+    int index=children.indexOf(e);
     if (index == -1) return;
     KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(index));
   }
@@ -164,8 +172,7 @@ public class Element implements TreeNodeAction {
     }
   }
   public final void localLayout() {
-    onLayout();
-    invalidate();
+    KyUI.taskManager.addTask(modifyChildrenTask, null);
   }
   public final String getName() {
     return Name;
@@ -418,16 +425,17 @@ public class Element implements TreeNodeAction {
     }
   }
   public void editorRemove(String name) {
-    int index=children.indexOf(KyUI.get(name));
-    if (index == -1) return;
-    removeChild(index);
+    removeChild(name);
   }
   public boolean editorCheckTo(Element e) {
     return true;
   }
+  public boolean editorIsChild(Element e) {
+    return children.contains(e);
+  }
   @Override
   public final boolean checkNodeAction(TreeGraph.Node n) {
-    if (n.content != null) {
+    if (n.content != null && (children.size() < children_max) || editorIsChild((Element)n.content)) {//unstable...?
       return editorCheck((Element)n.content);
     }
     return false;
@@ -436,12 +444,14 @@ public class Element implements TreeNodeAction {
   public final void addNodeAction(TreeGraph.Node n) {
     if (n.content != null) {
       editorAdd((Element)(n.content));
+      localLayout();
     }
   }
   @Override
   public final void removeNodeAction(TreeGraph.Node n) {
     if (n.content != null) {
       editorRemove(((Element)(n.content)).getName());
+      localLayout();
     }
   }
   @Override
@@ -450,5 +460,9 @@ public class Element implements TreeNodeAction {
       return editorCheckTo((Element)(n.content));
     }
     return false;
+  }
+  @Override
+  public String toString() {
+    return getName();
   }
 }

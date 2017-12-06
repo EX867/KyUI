@@ -34,7 +34,8 @@ public class RelativeFrame extends Element {
         float value=valueX * valueX + valueY * valueY;
         clickScrollMaxSq=Math.max(value, clickScrollMaxSq);
         setOffset(clickOffsetX + valueX, clickOffsetY - valueY);
-        localLayout();
+        onLayout();
+        invalidate();
         if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
           return false;
         } else {

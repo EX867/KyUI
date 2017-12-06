@@ -65,9 +65,11 @@ public class Button extends Element {
       g.rotate(KyUI.Ref.radians(90));
     }
     g.translate(textOffsetX, textOffsetY);
-    float hwidth=getSizeX() / 2;
-    float hheight=getSizeY() / 2;
-    g.text(text, -hwidth, -hheight, hwidth, hheight);
+    //float hwidth=getSizeX() / 2;
+    //float hheight=getSizeY() / 2;
+    if (!text.isEmpty()) {
+      g.text(text, 0, 0);
+    }
     g.popMatrix();
   }
   @Override
