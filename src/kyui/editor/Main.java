@@ -12,6 +12,8 @@ import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+
+import java.lang.reflect.Constructor;
 public class Main extends PApplet {
   public static void main(String[] args) {
     PApplet.main("kyui.editor.Main");
@@ -69,8 +71,12 @@ public class Main extends PApplet {
         if (node != null) {
           String name="" + count;
           try {
-            TreeGraph.Node<Element> n=node.addNode(name, e.element.getDeclaredConstructor(String.class).newInstance(name));
-            n.content.setPosition(new Rect(200, 200, 400, 400));
+            Constructor<? extends Element> c=e.element.getDeclaredConstructor(String.class);
+            c.setAccessible(true);
+            TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
+            if (n != null) {
+              n.content.setPosition(new Rect(200, 200, 400, 400));//TEST(delete)
+            }
             count++;
           } catch (Exception ee) {
             ee.printStackTrace();

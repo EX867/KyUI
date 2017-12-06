@@ -164,6 +164,9 @@ public class LinearLayout extends Element {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
         setOffset(offset + e.getCount() * KyUI.WHEEL_COUNT);
         localLayout();
+        if (adjustListener != null) {
+          adjustListener.onEvent(this);
+        }
         return false;
       }
     }

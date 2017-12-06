@@ -37,6 +37,15 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   float selectionOffsetY=0;
   boolean selectionControl;
   Rect defaultRootPos=new Rect(-60, -30, 60, 30);
+  public TreeGraph(String name) {
+    super(name);
+    init("[root]");
+  }
+  public TreeGraph(String name, Rect pos_) {
+    super(name);
+    pos=pos_;
+    init("[root]");
+  }
   public TreeGraph(String name, String rootText) {
     super(name);
     init(rootText);
@@ -50,7 +59,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     clipping=true;
     nodes=new ArrayList<Node<Content>>();
     selection=null;
-    root=new Node(getName() + ":root", 0, this);
+    root=new Node(getName() + ":root", 0);
     root.pos=(defaultRootPos.clone());
     root.text=rootText;
     nodes.add(root);
@@ -179,7 +188,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         selectionControl=selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl;
         Node n=getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
         if (selectionControl && n != selection && n != null) {
-          if (selection.content == null || selection.content.checkNodeAction(n)) {
+          if ((selection.content == null || selection.content.checkNodeAction(n) && (n.content == null || n.content.checkNodeToAction(selection)))) {
             Node s=selection;
             selection.unselect();
             s.parent.removeNode(s);
@@ -236,28 +245,44 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     int depth;
     boolean related=false;//if related, selection's position will be added when layout.
     int index;//temp var when used in layout.
+    public boolean selected=false;
     //modifiable values
     public Content content;//!!!
-    public Node(String name, int depth_, TreeGraph Ref_) {
+    public Node(String name, int depth_) {
       super(name);
       depth=depth_;
-      Ref=Ref_;
       localNodes=new ArrayList<Node>();
     }
-    public boolean selected=false;
-    public Node addNode(String text, Content content_) {
-      Node n=new Node(Ref.getName() + ":" + Ref.count, depth + 1, Ref);
-      n.parent=this;
-      n.text=text;
-      localNodes.add(n);
-      Ref.nodes.add(n);
-      Ref.count++;
-      Ref.addChild(n);
-      n.content=content_;
-      if (content != null) {
-        content.addNodeAction(n);//!!!
+    @Override
+    protected void addedTo(Element e) {
+      if (e instanceof TreeGraph) {
+        Ref=(TreeGraph)e;
+      } else if (e instanceof Node) {
+        Ref=((Node)e).Ref;
+      } else {
+        throw new RuntimeException("[KyUI] TreeGraph : tried to add TreeGraph.Node to " + e.getClass().getTypeName());
       }
-      return n;
+    }
+    @Override
+    public boolean editorCheckTo(Element e) {
+      return (e instanceof TreeGraph || e instanceof Node);
+    }
+    public Node addNode(String text, Content content_) {
+      Node n=new Node(Ref.getName() + ":" + Ref.count, depth + 1);
+      n.text=text;
+      n.parent=this;
+      n.content=content_;
+      if ((content == null || content.checkNodeAction(n) && (content_ == null || content_.checkNodeToAction(this)))) {
+        localNodes.add(n);
+        Ref.nodes.add(n);
+        Ref.count++;
+        Ref.addChild(n);
+        if (content != null) {
+          content.addNodeAction(n);//!!!
+        }
+        return n;
+      }
+      return null;//failed!
     }
     protected Node addNode(Node n) {
       return addNode(localNodes.size(), n);
@@ -304,7 +329,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         pos.render(g, -Ref.strokeWidth / 2);
       }
       if (this != Ref.root) {
-        g.strokeWeight(Ref.linkWidth);
+        g.strokeWeight(Ref.linkWidth * Ref.scale);
         g.stroke(bgColor);
         float xdist=Math.abs(pos.left - parent.pos.right); //* 3 / 4;//from kpm...
         g.bezier(pos.left, (pos.top + pos.bottom) / 2, pos.left - xdist, (pos.top + pos.bottom) / 2, parent.pos.right + xdist, (parent.pos.top + parent.pos.bottom) / 2, parent.pos.right, (parent.pos.top + parent.pos.bottom) / 2);

@@ -9,16 +9,14 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 public class ElementLoader {
@@ -31,6 +29,13 @@ public class ElementLoader {
       return;
     }
     loadInternal();
+    KyUI.taskManager.executeAll();
+    Collections.sort(elementList.getItems(), new Comparator<Element>() {
+      @Override
+      public int compare(Element o1, Element o2) {
+        return ((ElementImage)o1).text.compareTo(((ElementImage)o2).text);
+      }
+    });
     File paths=new File(getAppData() + "/externals.txt");
     if (paths.isFile()) {
       BufferedReader read=KyUI.Ref.createReader(paths.getAbsolutePath());
@@ -90,7 +95,7 @@ public class ElementLoader {
   }
   static void addElement(Class<? extends Element> c) {
     types.add(c);
-    elementList.addItem(new ElementImage(c, elementList));
+    elementList.addItem(new ElementImage(c));
   }
   static String getAppData() {
     if (KyUI.Ref.platform == KyUI.Ref.WINDOWS) {
@@ -129,11 +134,12 @@ public class ElementLoader {
   public static class ElementImage extends LinearList.SelectableButton {
     public Class<? extends Element> element;
     PImage image;
-    public ElementImage(Class<? extends Element> c, LinearList Ref_) {
-      super(c.getTypeName(), Ref_);
+    public ElementImage(Class<? extends Element> c) {
+      super(c.getTypeName());
       element=c;
       try {//recommended size of image is 120x120, max is 150x150.
         String className=c.getTypeName();
+        text=c.getSimpleName();
         image=loadImageResource(className + ".png");
         if (image == null) {
           if (imager == null) {
@@ -150,6 +156,7 @@ public class ElementLoader {
           image=imager.copy();
         }
       } catch (Exception e) {
+        System.out.println("[KyUI] class load failed : " + c.getTypeName());
         e.printStackTrace();
       }
     }

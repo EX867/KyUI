@@ -35,6 +35,7 @@ public class Element implements TreeNodeAction {
         KyUI.addElement(data.element);
         parent.children.add(Math.min(data.index, parent.children.size()), data.element);
         data.element.parents.add(parent);
+        data.element.addedTo(parent);//...bad thing one more...
       } else if (data_raw instanceof RemoveChildData) {
         RemoveChildData data=(RemoveChildData)data_raw;
         Element element=parent.children.get(data.index);
@@ -72,7 +73,7 @@ public class Element implements TreeNodeAction {
       a=a_;
       b=b_;
     }
-  }
+  }//reorder is not nessessary to put to task...
   //
   private String Name;//identifier.
   //attributes
@@ -136,6 +137,8 @@ public class Element implements TreeNodeAction {
   }
   public final void reorderChild(int a, int b) {
     KyUI.taskManager.addTask(modifyChildrenTask, new ReorderChildData(a, b));
+  }
+  protected void addedTo(Element e) {//override this!
   }
   @Override
   public boolean equals(Object other) {
@@ -409,9 +412,8 @@ public class Element implements TreeNodeAction {
   public boolean editorCheck(Element e) {
     return true;
   }
-  public void editorAdd(Element e) {//add e to this.
+  public void editorAdd(Element e) {
     if (editorCheck(e)) {
-      System.out.println(e.getName() + " is added to " + getName());
       addChild(e);
     }
   }
@@ -420,9 +422,15 @@ public class Element implements TreeNodeAction {
     if (index == -1) return;
     removeChild(index);
   }
+  public boolean editorCheckTo(Element e) {
+    return true;
+  }
   @Override
   public final boolean checkNodeAction(TreeGraph.Node n) {
-    return editorCheck(n);
+    if (n.content != null) {
+      return editorCheck((Element)n.content);
+    }
+    return false;
   }
   @Override
   public final void addNodeAction(TreeGraph.Node n) {
@@ -435,5 +443,12 @@ public class Element implements TreeNodeAction {
     if (n.content != null) {
       editorRemove(((Element)(n.content)).getName());
     }
+  }
+  @Override
+  public final boolean checkNodeToAction(TreeGraph.Node n) {
+    if (n.content != null) {
+      return editorCheckTo((Element)(n.content));
+    }
+    return false;
   }
 }

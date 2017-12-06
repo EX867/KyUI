@@ -69,14 +69,14 @@ public class LinearList extends Element {
     addChild(linkLayout);
   }
   public void addItem(String text) {
-    SelectableButton btn=new SelectableButton(getName() + ":" + count, this);
+    SelectableButton btn=new SelectableButton(getName() + ":" + count);
     btn.text=text;
     listLayout.addChild(btn);
     count++;
     afterModify();
   }
   public void addItem(int index, String text) {
-    SelectableButton btn=new SelectableButton(getName() + ":" + count, this);
+    SelectableButton btn=new SelectableButton(getName() + ":" + count);
     btn.text=text;
     listLayout.addChild(index, btn);
     count++;
@@ -91,6 +91,20 @@ public class LinearList extends Element {
     listLayout.addChild(index, e);
     e.Ref=this;
     afterModify();
+  }
+  @Override
+  public void editorAdd(Element e) {
+    if (editorCheck(e)) {
+      addItem((SelectableButton)e);
+    }
+  }
+  @Override
+  public void editorRemove(String name) {
+    removeItem(name);
+  }
+  @Override
+  public boolean editorCheck(Element e) {
+    return e instanceof SelectableButton;
   }
   public void removeItem(int index) {
     if (index < 0 || index >= size()) return;
@@ -191,15 +205,23 @@ public class LinearList extends Element {
     //modifiable values
     protected boolean selected=false;
     protected LinearList Ref;
-    public SelectableButton(String name, LinearList Ref_) {
+    public SelectableButton(String name) {
       super(name);
-      Ref=Ref_;
       init();
     }
-    public SelectableButton(String name, Rect pos_, LinearList Ref_) {
-      super(name, pos_);
-      Ref=Ref_;
-      init();
+    @Override
+    protected void addedTo(Element e) {
+      if (e instanceof LinearLayout) {
+        Ref=(LinearList)(e.parents.get(0).parents.get(0));//this works because  LinearList->linkLayout(DivisionLayout)->listLayout(LinearLayout).
+        //if user added SelectableButton to other Element directly, there will be error.
+      } else {
+        throw new RuntimeException("[KyUI] LinearList : tried to add LinearList.SelectableButton to " + e.getClass().getTypeName());
+      }
+    }
+    @Override
+    public boolean editorCheckTo(Element e) {
+      System.out.println("??? " + e.getClass().getName() + " " + e.getName());
+      return e instanceof LinearList;
     }
     private void init() {
       setPressListener(new ListItemPressListener(this));
@@ -281,8 +303,8 @@ public class LinearList extends Element {
   static class InspectorButton extends SelectableButton {
     //modifiable values
     public float ratio=3.0F;//this is inspection button width by height.
-    public InspectorButton(String name, LinearList Ref_) {
-      super(name, Ref_);
+    public InspectorButton(String name) {
+      super(name);
     }
     @Override
     public void render(PGraphics g) {
@@ -310,8 +332,8 @@ public class LinearList extends Element {
   }
   public static class InspectorColorButton extends InspectorButton {
     public ColorButton colorButton;
-    public InspectorColorButton(String name, LinearList Ref_) {
-      super(name, Ref_);
+    public InspectorColorButton(String name) {
+      super(name);
       init();
     }
     private void init() {
@@ -324,8 +346,8 @@ public class LinearList extends Element {
   }
   public static class InspectorTextButton extends InspectorButton {
     public TextBox textBox;//get this TextBox directly and you can modify this.
-    public InspectorTextButton(String name, LinearList Ref_) {
-      super(name, Ref_);
+    public InspectorTextButton(String name) {
+      super(name);
       init();
     }
     private void init() {
@@ -336,8 +358,8 @@ public class LinearList extends Element {
   }
   public static class InspectorImageButton extends InspectorButton {
     public ImageDrop imageDrop;//get this TextBox directly and you can modify this.
-    public InspectorImageButton(String name, LinearList Ref_) {
-      super(name, Ref_);
+    public InspectorImageButton(String name) {
+      super(name);
       init();
     }
     private void init() {
