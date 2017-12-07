@@ -122,6 +122,9 @@ public class LinearList extends Element {
   public List<Element> getItems() {
     return listLayout.children;
   }
+  public void setItems(List<SelectableButton> items) {
+    listLayout.children=(List)items;
+  }
   public void setSelectListener(ItemSelectListener l) {
     selectListener=l;
   }
@@ -193,7 +196,8 @@ public class LinearList extends Element {
     setSliderLength();
     slider.setOffset(listLayout.getTotalSize(), listLayout.offset);
   }
-  void setList() {//when move list
+  void setList() {
+    //when move list
     //list.totalSize is from onLayout.
     setSliderLength();
     listLayout.setOffset(slider.getOffset(listLayout.getTotalSize()));

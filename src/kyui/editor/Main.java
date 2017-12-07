@@ -14,6 +14,7 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 public class Main extends PApplet {
   public static void main(String[] args) {
     PApplet.main("kyui.editor.Main");
@@ -59,6 +60,14 @@ public class Main extends PApplet {
     layout_top.setFixedSize(34);
     layout_top.padding=3;
     layout_tree.getRoot().content=layout_frame;
+    layout_tree.setSelectListener(new EventListener() {
+      @Override
+      public void onEvent(Element e_) {
+        Element e=(Element)((TreeGraph.Node)e_).content;
+        ArrayList<Attribute> attrs=ElementLoader.attributes.get(e.getClass());
+
+      }
+    });
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
     layout_elements.setFixedSize(150);
     KyUI.addDragAndDrop(layout_elements, layout_tree, new DropEventListener() {

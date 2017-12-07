@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.event.EventListener;
 import kyui.event.TreeNodeAction;
 import kyui.util.Rect;
 import processing.core.PGraphics;
@@ -11,6 +12,7 @@ import java.util.Stack;
 public class TreeGraph<Content extends TreeNodeAction> extends Element {//includes scroll. for now, I only need horizontal one.
   Node root;
   ArrayList<Node<Content>> nodes;
+  EventListener onSelectListener;
   Node selection;
   //modifiable values
   public int selectionColor;
@@ -77,6 +79,9 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   }
   public Node getRoot() {
     return root;
+  }
+  public void setSelectListener(EventListener e) {
+    onSelectListener=e;
   }
   @Override
   public void onLayout() {
@@ -428,6 +433,9 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       if (e.getAction() == MouseEvent.PRESS) {//select node, and set selection's children node to "not related"
         if (Ref.selection != null) Ref.selection.unselect();
         select();
+        if (Ref.onSelectListener != null) {
+          Ref.onSelectListener.onEvent(this);
+        }
         return true;
       }
       return super.mouseEvent(e, index);

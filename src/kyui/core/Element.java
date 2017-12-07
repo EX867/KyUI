@@ -1,8 +1,12 @@
 package kyui.core;
+import kyui.editor.Attribute;
 import kyui.element.TreeGraph;
 import kyui.event.TreeNodeAction;
 import kyui.util.Task;
-import kyui.util.*;
+import kyui.util.Vector2;
+import kyui.util.TaskManager;
+import kyui.util.Rect;
+import kyui.util.ColorExt;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -30,7 +34,7 @@ public class Element implements TreeNodeAction {
         AddChildData data=(AddChildData)data_raw;
         if (parent.children_max <= parent.children.size()) {
           System.err.println("[KyUI] children.size() already reached max value.");
-          return;
+          //return;//some classes can behave strange, not refuse them only put error.
         }
         KyUI.addElement(data.element);
         parent.children.add(Math.min(data.index, parent.children.size()), data.element);
@@ -82,14 +86,20 @@ public class Element implements TreeNodeAction {
   //
   private String Name;//identifier.
   //attributes
-  public AttributeSet attributeSet=new AttributeSet();
+  @Attribute(setter="isEnabled", getter="setEnabled", layout=Attribute.PARENT)
   private boolean enabled=true;// this parameter controls object's existence.
+  @Attribute(setter="isVisible", getter="setVisible", layout=Attribute.NONE)
   private boolean visible=true;// this parameter controls object rendering
+  @Attribute(setter="isActive", getter="setActive", layout=Attribute.NONE)
   private boolean active=true;// this parameter controls object control (use inputs)
+  @Attribute(setter="setPosition", layout=Attribute.NONE)//setPosition includes layout.
   public Rect pos=new Rect(0, 0, 0, 0);
-  public Description description;
+  public Description description;//ADD>>implement this!
+  @Attribute
   public int bgColor=0;
+  @Attribute(layout=Attribute.PARENT)
   public int margin=0;
+  @Attribute(layout=Attribute.SELF)
   public int padding=0;
   //
   protected int startClip=0;//used in rendering or
@@ -112,18 +122,6 @@ public class Element implements TreeNodeAction {
   //
   public Element(String name) {
     Name=name;
-  }
-  protected void setAttributeSet() {
-    attributeSet.add(new Attribute<Integer>("bgColor", 0xFF323232) {
-      @Override
-      public Integer get() {
-        return bgColor;
-      }
-      @Override
-      public void set(Integer value) {
-        bgColor=value;
-      }
-    });
   }
   //children modify
   public final void addChild(Element object) {

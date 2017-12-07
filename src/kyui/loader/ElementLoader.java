@@ -1,6 +1,7 @@
 package kyui.loader;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.element.LinearList;
 import kyui.util.ColorExt;
 import kyui.util.HideInEditor;
@@ -15,6 +16,7 @@ import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -24,6 +26,7 @@ import java.util.jar.JarFile;
 public class ElementLoader {
   static LinearList elementList;
   public static ArrayList<Class<? extends Element>> types=new ArrayList<>();
+  public static HashMap<Class, AttributeSet> attributes=new HashMap<>();
   static PGraphics imager;
   public static void loadOnStart(LinearList list) {
     elementList=list;
@@ -79,8 +82,8 @@ public class ElementLoader {
           Class.forName(className);
         } catch (ClassNotFoundException ee) {
           Class c=cl.loadClass(className);
-          if (c.isAssignableFrom(Element.class) && !Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
-            addElement(c);
+          if (c.isAssignableFrom(Element.class)) {
+            loadClass(c);
           }
         }
       }
@@ -89,18 +92,23 @@ public class ElementLoader {
     }
   }
   public static void loadInternal() {
-    addElement(Element.class);
-    Reflections reflections=new Reflections("kyui.element");
-    Set<Class<? extends Element>> set=reflections.getSubTypesOf(Element.class);
-    for (Class c : set) {
-      if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
-        addElement(c);
+    try {
+      loadClass(Element.class);
+      Reflections reflections=new Reflections("kyui.element");
+      Set<Class<? extends Element>> set=reflections.getSubTypesOf(Element.class);
+      for (Class c : set) {
+        loadClass(c);
       }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
-  static void addElement(Class<? extends Element> c) {
-    types.add(c);
-    elementList.addItem(new ElementImage(c));
+  static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
+    if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
+      types.add(c);
+      elementList.addItem(new ElementImage(c));
+      attributes.put(c, new AttributeSet(getAttributeFields(c)));
+    }
   }
   static String getAppData() {
     if (KyUI.Ref.platform == KyUI.Ref.WINDOWS) {
@@ -173,6 +181,37 @@ public class ElementLoader {
       g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
       g.image(image, 0, 0);
       g.popMatrix();
+    }
+  }
+  public static ArrayList<Attribute.Editor> getAttributeFields(Class<?> c) throws Exception {
+    ArrayList<Attribute.Editor> fields=new ArrayList<>();
+    while (!c.equals(Object.class)) {
+      Field[] fieldArray=c.getDeclaredFields();
+      for (Field f : fieldArray) {
+        Attribute a=f.getAnnotation(Attribute.class);
+        if (a != null) {
+          fields.add(new Attribute.Editor(a, c, f));
+        }
+      }
+      c=c.getSuperclass();
+    }
+    return fields;
+  }
+  public static class AttributeSet {
+    ArrayList<Attribute.Editor> attrs;
+    ArrayList<LinearList.SelectableButton> items;
+    public AttributeSet(ArrayList<Attribute.Editor> attrs_) {
+      attrs=attrs_;
+      items=new ArrayList<>();
+      items.ensureCapacity(attrs.size());
+      for (Attribute.Editor a : attrs_) {
+        if (a.field.getType() == int.class || a.field.getType() == Integer.class) {
+          //items.add(new InspectorTextButton());...
+        } else if (a.field.getType() == Integer.class) {
+        } else if (a.field.getType() == Integer.class) {
+        } else if (a.field.getType() == Integer.class) {
+        }
+      }
     }
   }
 }
