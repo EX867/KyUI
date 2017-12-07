@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.CachingFrame;
+import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.event.ItemSelectListener;
 import kyui.event.MouseEventListener;
@@ -74,6 +75,27 @@ public class DropDown extends Button {
   }
   public void removeItem(int index) {
     picker.removeItem(index);
+  }
+  public void removeItem(String name) {
+    picker.removeItem(name);
+  }
+  @Override
+  public void editorAdd(Element e) {
+    if (editorCheck(e)) {
+      addItem((LinearList.SelectableButton)e);
+    }
+  }
+  @Override
+  public void editorRemove(String name) {
+    removeItem(name);
+  }
+  @Override
+  public boolean editorCheck(Element e) {
+    return e instanceof LinearList.SelectableButton;
+  }
+  @Override
+  public boolean editorIsChild(Element e) {
+    return picker.editorIsChild(e);
   }
   @Override
   public void onLayout() {

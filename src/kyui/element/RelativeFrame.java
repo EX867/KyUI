@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.util.Vector2;
 import processing.event.MouseEvent;
 //FIX>> process relative position in more general and correct way...
@@ -11,6 +12,7 @@ public class RelativeFrame extends Element {
   public float offsetX=0;
   public float offsetY=0;
   //modifiable values
+  @Attribute
   public boolean scroll=true;
   public RelativeFrame(String name) {
     super(name);

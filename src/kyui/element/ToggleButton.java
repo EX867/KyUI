@@ -1,10 +1,12 @@
 package kyui.element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class ToggleButton extends Button {
+  @Attribute
   public boolean value=false;
   public ToggleButton(String name) {
     super(name);

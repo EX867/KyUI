@@ -1,20 +1,24 @@
 package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class RangeSlider extends Button {
   int strokeWeight=4;
-  Attributes.Direction direction=Attributes.Direction.VERTICAL;
+  @Attribute
+  public Attributes.Direction direction=Attributes.Direction.VERTICAL;
   EventListener adjustListener;
   //
   float sliderRatio;//value of startPoint
   float sliderLength;
   //modifiable values
-  int fgColor;
-  int sliderBgColor;
+  @Attribute(type=Attribute.COLOR)
+  public int fgColor;
+  @Attribute(type=Attribute.COLOR)
+  public int sliderBgColor;
   //temp values
   Rect cacheRect=new Rect();
   private float clickRatio=0;

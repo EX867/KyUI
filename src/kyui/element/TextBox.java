@@ -1,5 +1,6 @@
 package kyui.element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import processing.core.PApplet;
@@ -8,12 +9,18 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 public class TextBox extends TextEdit {
   //modifiable values
+  @Attribute
   public String title="";
+  @Attribute
   public String hint="";
   public int value;
+  @Attribute(type=Attribute.COLOR)
   public int fgColor;
+  @Attribute(type=Attribute.COLOR)
   public int errorColor;
+  @Attribute
   public String rightText="";
+  @Attribute
   public boolean error=false;
   //...?
   public int strokeWeight=6;

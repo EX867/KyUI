@@ -2,6 +2,7 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
@@ -10,18 +11,23 @@ public class LinearLayout extends Element {
   public static enum Behavior {
     STATIC, DYNAMIC, FIXED, LEAVE
   }
+  @Attribute(setter="setOffset",layout=Attribute.SELF)
   protected float offset=0;
   EventListener adjustListener;
   //protected modifiable values
+  @Attribute(setter="setMode", layout=Attribute.SELF)
   protected Behavior mode=Behavior.DYNAMIC;
+  @Attribute(setter="setDirection", layout=Attribute.SELF)
   protected Attributes.Direction direction=Attributes.Direction.HORIZONTAL;
+  @Attribute(setter="setFixedSize")//setFixedSize includes layout.
   protected int fixedSize;
   //temp vars
   private float clickOffset=0;
   private float childrenSize=0;
   private float clickScrollMax=0;
   private Rect cacheRect=new Rect();
-  protected boolean draggable=false;
+  @Attribute
+  public boolean draggable=false;
   public LinearLayout(String name_) {
     super(name_);
     init();

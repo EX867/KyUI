@@ -1,9 +1,11 @@
 package kyui.element;
+import kyui.editor.Attribute;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.core.PImage;
 public class ImageToggleButton extends ImageButton {
+  @Attribute
   public boolean value=false;
   public ImageToggleButton(String name) {
     super(name);

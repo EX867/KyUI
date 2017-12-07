@@ -2,6 +2,7 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.MouseEventListener;
 import kyui.util.ColorExt;
 import kyui.util.HideInEditor;
@@ -22,15 +23,23 @@ public class TabLayout extends Element {
   protected LinearLayout tabLayout;
   protected FrameLayout contentLayout;
   //modifiable values
+  @Attribute(type=Attribute.COLOR)
   public int tabColor1;//selected
+  @Attribute(type=Attribute.COLOR)
   public int tabColor2;
+  @Attribute
   public int edgeSize=8;
   //protected modifiable values
+  @Attribute(setter="setTabSize")
   protected int tabSize;
+  @Attribute(setter="setRotation")//these attributes are not synchronized with list properly...but that has no problem. data will be saved by real element's value.
   protected Attributes.Rotation rotation=Attributes.Rotation.UP;
+  @Attribute(setter="setButtonRotation")
   protected Attributes.Rotation buttonRotation=Attributes.Rotation.UP;
+  @Attribute(setter="setButtonEdgeRotation")
   protected Attributes.Rotation buttonEdgeRotation=Attributes.Rotation.UP;
-  protected boolean enableX=false;
+  @Attribute(layout=Attribute.SELF)
+  public boolean enableX=false;
   //in-class values
   public int selection=0;
   //temp vars
@@ -163,9 +172,6 @@ public class TabLayout extends Element {
       ((TabButton)e).edgeRotation=buttonEdgeRotation;
     }
     localLayout();
-  }
-  public void setEnableX(boolean v) {
-    enableX=v;
   }
   @Override
   public void onLayout() {

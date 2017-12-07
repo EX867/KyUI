@@ -1,9 +1,13 @@
 package kyui.element;
+import kyui.editor.Attribute;
 import kyui.util.Rect;
 public class IntSlider extends Slider {
-  int maxI;
-  int minI;
-  int valueI;
+  @Attribute(setter="setMax")
+  public int maxI;
+  @Attribute(setter="setMin")
+  public int minI;
+  @Attribute(setter="set")
+  public int valueI;
   public IntSlider(String name) {
     super(name);
     init();
@@ -49,5 +53,12 @@ public class IntSlider extends Slider {
     valueI=value_;
     valueI=Math.min(Math.max(valueI, minI), maxI);
     super.set(value_);
+  }
+  //for attribute...
+  public void setMin(int min_){
+    set(min_,max);
+  }
+  public void setMax(int max_){
+    set(min,max_);
   }
 }

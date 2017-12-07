@@ -95,7 +95,7 @@ public class Element implements TreeNodeAction {
   @Attribute(setter="setPosition", layout=Attribute.NONE)//setPosition includes layout.
   public Rect pos=new Rect(0, 0, 0, 0);
   public Description description;//ADD>>implement this!
-  @Attribute
+  @Attribute(type=Attribute.COLOR)
   public int bgColor=0;
   @Attribute(layout=Attribute.PARENT)
   public int margin=0;

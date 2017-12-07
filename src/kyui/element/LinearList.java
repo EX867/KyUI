@@ -2,6 +2,7 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.ItemSelectListener;
 import kyui.event.MouseEventListener;
 import kyui.event.EventListener;
@@ -14,7 +15,7 @@ import processing.event.MouseEvent;
 
 import java.util.List;
 public class LinearList extends Element {
-  int strokeWeight=4;
+  public int strokeWeight=4;
   protected DivisionLayout linkLayout;
   protected LinearLayout listLayout;
   protected RangeSlider slider;
@@ -24,8 +25,11 @@ public class LinearList extends Element {
   SelectableButton pressItemOld;
   int count=0;
   //modifiable values
+  @Attribute(layout=Attribute.SELF)
   public int sliderSize;
+  @Attribute(type=Attribute.COLOR)
   public int fgColor;
+  @Attribute(layout=Attribute.SELF)
   public Attributes.Direction direction=Attributes.Direction.VERTICAL;
   //temp values
   Rect cacheRect=new Rect();

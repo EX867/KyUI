@@ -64,8 +64,7 @@ public class Main extends PApplet {
       @Override
       public void onEvent(Element e_) {
         Element e=(Element)((TreeGraph.Node)e_).content;
-        ArrayList<Attribute> attrs=ElementLoader.attributes.get(e.getClass());
-
+       ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
       }
     });
     layout_elements.direction=Attributes.Direction.HORIZONTAL;

@@ -1,14 +1,18 @@
 package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
+import kyui.editor.Attribute;
 import kyui.util.Rect;
 public class DivisionLayout extends Element {
   public static enum Behavior {
     FIXED, PROPORTIONAL
   }
   //add child in up->down or left->right order...
+  @Attribute(layout=Attribute.SELF)
   public Behavior mode=Behavior.FIXED;//proportional or fixed
+  @Attribute(layout=Attribute.SELF)
   public float value=0.5F;//first's size
+  @Attribute(layout=Attribute.SELF)
   public boolean inverse=false;
   public Attributes.Rotation rotation=Attributes.Rotation.LEFT;
   public DivisionLayout(String name) {

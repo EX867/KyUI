@@ -5,11 +5,12 @@ import kyui.event.EventListener;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.event.MouseEvent;
 
 import java.awt.Color;
 public class ColorPicker extends Element {
-  ColorPicker this_=this;
+  private ColorPicker this_=this;
   class ColorModifyListenerRGB implements EventListener {
     @Override
     public void onEvent(Element e) {
@@ -48,6 +49,7 @@ public class ColorPicker extends Element {
   ColorModifyListenerA aListener=new ColorModifyListenerA();
   EventListener onAdjust;
   PGraphics colorImage;
+  PImage sbImage;//set pixels on hue change
   //attachments
   protected TextBox red;
   protected TextBox green;

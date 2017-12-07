@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.event.TreeNodeAction;
 import kyui.util.Rect;
@@ -15,13 +16,21 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   EventListener onSelectListener;
   Node selection;
   //modifiable values
+  @Attribute(type=Attribute.COLOR)
   public int selectionColor;
+  @Attribute
   public int strokeWidth=6;
+  @Attribute
   public int linkWidth=6;
+  @Attribute(layout=Attribute.SELF)
   public float intervalX=20;
+  @Attribute(layout=Attribute.SELF)
   public float intervalY=20;
+  @Attribute(layout=Attribute.SELF)
   public float scaleMin=0.3F;
+  @Attribute(layout=Attribute.SELF)
   public float scaleMax=2.0F;
+  @Attribute
   public int textSize=15;
   //
   protected float offsetX;

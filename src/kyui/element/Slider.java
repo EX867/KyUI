@@ -2,19 +2,26 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class Slider extends Element {
   int strokeWeight=4;
+  @Attribute
   Attributes.Direction direction=Attributes.Direction.HORIZONTAL;
   EventListener adjustListener;
-  float max;
-  float min;
-  float value;
-  int sliderSize=3;//half of width
+  @Attribute(setter="setMax")
+  public float max;
+  @Attribute(setter="setMin")
+  public float min;
+  @Attribute(setter="set")
+  public float value;
+  @Attribute
+  public int sliderSize=3;//half of width
   //modifiable values
+  @Attribute(type=Attribute.COLOR)
   public int fgColor=50;
   public Slider(String name) {
     super(name);
@@ -112,5 +119,12 @@ public class Slider extends Element {
       }
     }
     return true;
+  }
+  //for attribute...
+  public void setMin(float min_) {
+    set(min_, max);
+  }
+  public void setMax(float max_) {
+    set(min, max_);
   }
 }

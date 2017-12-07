@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.FileDropEventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
@@ -8,7 +9,9 @@ import processing.core.PImage;
 import sojamo.drop.DropEvent;
 public class ImageDrop extends Element {
   //modifiable values
+  @Attribute(type=Attribute.COLOR)
   public int fgColor;
+  @Attribute
   public int strokeWidth=6;
   public PImage display;
   public ImageDrop(String name) {

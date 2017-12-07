@@ -1,12 +1,14 @@
 package kyui.element;
 import kyui.core.CachingFrame;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.MouseEventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class ColorButton extends Button {
   //modifiable values
+  @Attribute(type=Attribute.COLOR)
   public int c=0xFF000000;
   public ColorButton(String name) {
     super(name);

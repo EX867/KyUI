@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.util.ColorExt;
 import kyui.util.EditorString;
@@ -13,7 +14,9 @@ import processing.event.MouseEvent;
 import java.util.ArrayList;
 public class TextEdit extends Element {//no sliderX for now...
   RangeSlider slider;//if not null, it will work.
-  EditorString content;
+  @Attribute(getter="getText", setter="setText")
+  private String text;//no use...! just meaning for string type one attribute...
+  EditorString content;//real value for text.
   EventListener onTextChangeListener;
   ArrayList<Filter> filters;
   class Filter {
@@ -34,14 +37,23 @@ public class TextEdit extends Element {//no sliderX for now...
     }
   }
   //modifiable values
+  @Attribute
   public PFont textFont;
+  @Attribute
   public String hint="";//this is one-line hint if text is empty.
+  @Attribute
   public int textSize=20;
+  @Attribute
   public int lineNumSize=0;
+  @Attribute(type=Attribute.COLOR)
   public int lineNumBgColor;
+  @Attribute(type=Attribute.COLOR)
   public int lineNumColor;
+  @Attribute
   public int blankLines=6;//blank lines to show below the content.
+  @Attribute(type=Attribute.COLOR)
   public int textColor;
+  @Attribute(type=Attribute.COLOR)
   public int selectionColor;
   //temp values
   int clickLine=0;
@@ -325,7 +337,7 @@ public class TextEdit extends Element {//no sliderX for now...
     cacheRect.set(pos.left, pos.top, pos.left + lineNumSize, pos.bottom);
     cacheRect.render(g);
     clipRect.set(pos.left, pos.top, pos.right, pos.bottom);
-    KyUI.clipRect(g,clipRect);
+    KyUI.clipRect(g, clipRect);
     //setup text
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
     g.textFont(textFont);
@@ -386,5 +398,8 @@ public class TextEdit extends Element {//no sliderX for now...
     }
     content.setText(text);
     invalidate();
+  }
+  public String getText() {
+    return content.toString();
   }
 }

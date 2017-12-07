@@ -1,9 +1,11 @@
 package kyui.element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.core.PImage;
 public class ImageButton extends Button {
+  @Attribute
   PImage image;
   public ImageButton(String name) {
     super(name);

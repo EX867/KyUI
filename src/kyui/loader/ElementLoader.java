@@ -8,6 +8,7 @@ import kyui.util.HideInEditor;
 import kyui.util.Rect;
 import org.reflections.Reflections;
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
@@ -206,10 +207,18 @@ public class ElementLoader {
       items.ensureCapacity(attrs.size());
       for (Attribute.Editor a : attrs_) {
         if (a.field.getType() == int.class || a.field.getType() == Integer.class) {
-          //items.add(new InspectorTextButton());...
-        } else if (a.field.getType() == Integer.class) {
-        } else if (a.field.getType() == Integer.class) {
-        } else if (a.field.getType() == Integer.class) {
+          if(a.attr.type()==Attribute.COLOR){
+            //items.add(new InspectorTextButton());...
+          }else{
+
+          }
+        } else if (a.field.getType() == float.class||a.field.getType()==Float.class) {
+        } else if (a.field.getType() == boolean.class||a.field.getType() == Boolean.class) {
+        } else if (a.field.getType() == Rect.class) {
+        } else if (a.field.getType() == String.class) {
+        } else if (a.field.getType() == PImage.class) {
+        } else if (a.field.getType() == PFont.class) {
+        } else if (a.field.getType() == Enumeration.class) {
         }
       }
     }

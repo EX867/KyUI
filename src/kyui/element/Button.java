@@ -2,6 +2,7 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.editor.Attribute;
 import kyui.event.MouseEventListener;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
@@ -11,9 +12,13 @@ import processing.event.MouseEvent;
 public class Button extends Element {
   protected MouseEventListener pressListener;
   //modifiable values
+  @Attribute(type=Attribute.COLOR)
   public int textColor;
+  @Attribute
   public int textSize;
+  @Attribute
   public String text="Button";
+  @Attribute(layout=Attribute.SELF)
   public Attributes.Rotation rotation=Attributes.Rotation.UP;
   //in-class values
   protected int textOffsetX=0;
