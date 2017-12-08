@@ -33,7 +33,7 @@ public class Element implements TreeNodeAction {
       if (data_raw instanceof AddChildData) {
         AddChildData data=(AddChildData)data_raw;
         if (parent.children_max <= parent.children.size()) {
-          System.err.println("[KyUI] children.size() already reached max value.");
+          System.err.println("[KyUI] children.size() already reached max valueI.");
           //return;//some classes can behave strange, not refuse them only put error.
         }
         KyUI.addElement(data.element);
@@ -84,13 +84,13 @@ public class Element implements TreeNodeAction {
     }
   }//reorder is not nessessary to put to task...
   //
-  private String Name;//identifier.
+  String Name;//identifier.
   //attributes
-  @Attribute(setter="isEnabled", getter="setEnabled", layout=Attribute.PARENT)
+  @Attribute(setter="setEnabled", getter="isEnabled", layout=Attribute.PARENT)
   private boolean enabled=true;// this parameter controls object's existence.
-  @Attribute(setter="isVisible", getter="setVisible", layout=Attribute.NONE)
+  @Attribute(setter="setVisible", getter="isVisible", layout=Attribute.NONE)
   private boolean visible=true;// this parameter controls object rendering
-  @Attribute(setter="isActive", getter="setActive", layout=Attribute.NONE)
+  @Attribute(setter="setActive", getter="isActive", layout=Attribute.NONE)
   private boolean active=true;// this parameter controls object control (use inputs)
   @Attribute(setter="setPosition", layout=Attribute.NONE)//setPosition includes layout.
   public Rect pos=new Rect(0, 0, 0, 0);
@@ -122,6 +122,7 @@ public class Element implements TreeNodeAction {
   //
   public Element(String name) {
     Name=name;
+    KyUI.addElement(this);
   }
   //children modify
   public final void addChild(Element object) {

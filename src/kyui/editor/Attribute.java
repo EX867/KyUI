@@ -1,8 +1,14 @@
 package kyui.editor;
 import kyui.core.Element;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Attribute {
   //layout param
   public int NONE=0;
@@ -11,11 +17,11 @@ public @interface Attribute {
   //type param
   public int NORMAL=0;
   public int COLOR=1;//should be integer.(if not,ignored)
-  String setter() default "";//if setterName=="", set value directly.
+  String setter() default "";//if setterName=="", set valueI directly.
   String getter() default "";//same.
   int layout() default NONE;
   int type() default NORMAL;
-  //inavlidate is called when set value
+  //inavlidate is called when set valueI
   public static class Editor {//Editor represents editable one Attribute. field of class
     public Attribute attr;
     Method getMethod;
@@ -29,12 +35,12 @@ public @interface Attribute {
       field.setAccessible(true);
       if (!attr.getter().isEmpty()) {
         getMethod=c.getMethod(attr.getter());
+        getMethod.setAccessible(true);
       }
-      getMethod.setAccessible(true);
       if (!attr.setter().isEmpty()) {
-        setMethod=c.getMethod(attr.setter());
+        setMethod=c.getMethod(attr.setter(), field.getType());
+        setMethod.setAccessible(true);
       }
-      setMethod.setAccessible(true);
     }
     //objects are Element.
     public Object getField(Object o) throws Exception {

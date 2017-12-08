@@ -64,7 +64,10 @@ public class Main extends PApplet {
       @Override
       public void onEvent(Element e_) {
         Element e=(Element)((TreeGraph.Node)e_).content;
-       ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
+        ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
+        layout_inspector.setItems(attrs.items);
+        layout_inspector.localLayout();
+        attrs.setAttribute(e);
       }
     });
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
@@ -76,17 +79,13 @@ public class Main extends PApplet {
         ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
         TreeGraph.Node<Element> node=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
         if (node != null) {
-          String name=e.element.getSimpleName() + count;//defult value
+          String name=e.element.getSimpleName() + count;//defult valueI
           try {
             Constructor<? extends Element> c=e.element.getDeclaredConstructor(String.class);
             c.setAccessible(true);
             TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
             if (n != null) {
               n.content.setPosition(new Rect(200, 200, 400, 400));//TEST(delete)
-              if (n.content instanceof DivisionLayout) {//TEST(delete)
-                ((DivisionLayout)n.content).mode=DivisionLayout.Behavior.PROPORTIONAL;
-                ((DivisionLayout)n.content).value=0.5F;
-              }
               layout_tree.localLayout();
               count++;
             }
@@ -123,7 +122,7 @@ public class Main extends PApplet {
     colors_add.text="ADD";
     colors_add.margin=3;
     TextBox colors_addVar=new TextBox("colors_addVar");
-    colors_addVar.setNumberOnly(false);
+    colors_addVar.setNumberOnly(TextBox.NumberType.NONE);
     colors_down.addChild(colors_addVar);
     colors_down.addChild(colors_add);
     main_colors.addChild(new

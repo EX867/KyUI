@@ -11,13 +11,14 @@ import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.event.MouseEvent;
 
 import java.util.List;
 public class LinearList extends Element {
   public int strokeWeight=4;
   protected DivisionLayout linkLayout;
-  protected LinearLayout listLayout;
+  public LinearLayout listLayout;//NOOOO!!!!
   protected RangeSlider slider;
   protected ItemSelectListener selectListener;
   protected SelectableButton selection=null;
@@ -223,7 +224,7 @@ public class LinearList extends Element {
       init();
     }
     @Override
-    protected void addedTo(Element e) {
+    public void addedTo(Element e) {
       if (e instanceof LinearLayout) {
         Ref=(LinearList)(e.parents.get(0).parents.get(0));//this works because  LinearList->linkLayout(DivisionLayout)->listLayout(LinearLayout).
         //if user added SelectableButton to other Element directly, there will be error.
@@ -312,7 +313,7 @@ public class LinearList extends Element {
     }
   }
   //these inspector classes exists here because I will use it!
-  static abstract class InspectorButton extends SelectableButton {
+  public static abstract class InspectorButton<Type> extends SelectableButton {
     //modifiable values
     public float ratio=3.0F;//this is inspection button width by height.
     public InspectorButton(String name) {
@@ -329,7 +330,7 @@ public class LinearList extends Element {
     public void onLayout() {
       float padding2=(pos.bottom - pos.top) / 6;
       float left=padding2;
-      float width=Math.min((pos.bottom - pos.top) * ratio, (pos.right - pos.left) * 0.5F);//FIX>>default value??
+      float width=Math.min((pos.bottom - pos.top) * ratio, (pos.right - pos.left) * 0.5F);//FIX>>default valueI??
       for (Element child : children) {//just works like horizontal LinearList...
         child.setPosition(child.pos.set(pos.right - left - width + padding2, pos.top + padding2, pos.right - left, pos.bottom - padding2));
         left+=width + padding2;
@@ -341,8 +342,10 @@ public class LinearList extends Element {
         }
       }
     }
+    public abstract void set(Type value);
+    public abstract Type get();
   }
-  public static class InspectorColorButton extends InspectorButton {
+  public static class InspectorColorButton extends InspectorButton<Integer> {
     public ColorButton colorButton;
     public InspectorColorButton(String name) {
       super(name);
@@ -355,8 +358,16 @@ public class LinearList extends Element {
       colorButton.c=KyUI.Ref.color((int)(Math.random() * 0xFF), (int)(Math.random() * 0xFF), (int)(Math.random() * 0xFF), 255);//FIX>>temporary
       addChild(colorButton);
     }
+    @Override
+    public void set(Integer value) {
+      colorButton.c=value;
+    }
+    @Override
+    public Integer get() {
+      return colorButton.c;
+    }
   }
-  public static class InspectorTextButton extends InspectorButton {
+  public static class InspectorTextButton extends InspectorButton<String> {
     public TextBox textBox;//get this TextBox directly and you can modify this.
     public InspectorTextButton(String name) {
       super(name);
@@ -364,11 +375,37 @@ public class LinearList extends Element {
     }
     private void init() {
       textBox=new TextBox(getName() + ":texBox");
-      textBox.setNumberOnly(false);
       addChild(textBox);
     }
+    @Override
+    public void set(String value) {
+      textBox.setText(value);
+    }
+    @Override
+    public String get() {
+      return textBox.getText();
+    }
   }
-  public static class InspectorImageButton extends InspectorButton {
+  public static class InspectorToggleButton extends InspectorButton<Boolean> {
+    public ToggleButton toggleButton;
+    public InspectorToggleButton(String name) {
+      super(name);
+      init();
+    }
+    private void init() {
+      toggleButton=new ToggleButton(getName() + ":toggleButton");
+      addChild(toggleButton);
+    }
+    @Override
+    public void set(Boolean value) {
+      toggleButton.value=value;
+    }
+    @Override
+    public Boolean get() {
+      return toggleButton.value;
+    }
+  }
+  public static class InspectorImageButton extends InspectorButton<PImage> {
     public ImageDrop imageDrop;//get this TextBox directly and you can modify this.
     public InspectorImageButton(String name) {
       super(name);
@@ -377,6 +414,47 @@ public class LinearList extends Element {
     private void init() {
       imageDrop=new ImageDrop(getName() + ":imageDrop");
       addChild(imageDrop);
+    }
+    @Override
+    public void set(PImage value) {
+      imageDrop.display=value;
+    }
+    @Override
+    public PImage get() {
+      return imageDrop.display;
+    }
+  }
+  public static class InspectorRectButton extends InspectorButton<Rect> {
+    Rect cacheRect=new Rect();
+    public TextBox x1;//4 are all integer.
+    public TextBox y1;
+    public TextBox x2;
+    public TextBox y2;
+    public InspectorRectButton(String name) {
+      super(name);
+      init();
+    }
+    private void init() {
+      ratio=1;
+      x1=new TextBox(getName() + ":x1");
+      y1=new TextBox(getName() + ":y1");
+      x2=new TextBox(getName() + ":x2");
+      y2=new TextBox(getName() + ":y2");
+      addChild(x1);
+      addChild(y1);
+      addChild(x2);
+      addChild(y2);
+    }
+    @Override
+    public void set(Rect value) {
+      x1.setText("" + value.left);
+      y1.setText("" + value.top);
+      x2.setText("" + value.right);
+      y2.setText("" + value.bottom);
+    }
+    @Override
+    public Rect get() {
+      return cacheRect.set(x1.valueI, y1.valueI, x2.valueI, y2.valueI);
     }
   }
   @Override

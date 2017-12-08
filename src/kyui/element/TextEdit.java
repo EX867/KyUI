@@ -16,7 +16,7 @@ public class TextEdit extends Element {//no sliderX for now...
   RangeSlider slider;//if not null, it will work.
   @Attribute(getter="getText", setter="setText")
   private String text;//no use...! just meaning for string type one attribute...
-  EditorString content;//real value for text.
+  EditorString content;//real valueI for text.
   EventListener onTextChangeListener;
   ArrayList<Filter> filters;
   class Filter {

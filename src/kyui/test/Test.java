@@ -45,11 +45,11 @@ public class Test extends PApplet {
     KyUI.get("asdf7").addChild(bb);
     //
     //
-    TreeGraph t=KyUI.<TreeGraph>get2("asdf5");
-    t.addNode("1").addNode("2");
-    t.get(0).addNode("3").addNode("4").addNode("5");
-    t.get(0).get(1).addNode("6");
-    t.get(0).get(1).addNode("7");
+//    TreeGraph t=KyUI.<TreeGraph>get2("asdf5");
+//    t.addNode("1").addNode("2");
+//    t.get(0).addNode("3").addNode("4").addNode("5");
+//    t.get(0).get(1).addNode("6");
+//    t.get(0).get(1).addNode("7");
     //
     KyUI.get("asdf2").addChild(new IntSlider("slider"));
     KyUI.get("slider").setPosition(new Rect(10, 40, 290, 80));
@@ -79,7 +79,7 @@ public class Test extends PApplet {
     }
     LinearList f=(LinearList)KyUI.get("list2");
     for (int a=0; a < 10; a++) {
-      LinearList.InspectorColorButton b=new LinearList.InspectorColorButton("f" + a, f);
+      LinearList.InspectorColorButton b=new LinearList.InspectorColorButton("f" + a);
       b.text="f" + a;
       f.addItem(b);
     }

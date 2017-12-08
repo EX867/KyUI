@@ -12,7 +12,7 @@ public class RangeSlider extends Button {
   public Attributes.Direction direction=Attributes.Direction.VERTICAL;
   EventListener adjustListener;
   //
-  float sliderRatio;//value of startPoint
+  float sliderRatio;//valueI of startPoint
   float sliderLength;
   //modifiable values
   @Attribute(type=Attribute.COLOR)

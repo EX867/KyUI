@@ -11,7 +11,7 @@ public class DivisionLayout extends Element {
   @Attribute(layout=Attribute.SELF)
   public Behavior mode=Behavior.FIXED;//proportional or fixed
   @Attribute(layout=Attribute.SELF)
-  public float value=0.5F;//first's size
+  public float value=40;//first's size
   @Attribute(layout=Attribute.SELF)
   public boolean inverse=false;
   public Attributes.Rotation rotation=Attributes.Rotation.LEFT;

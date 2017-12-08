@@ -15,7 +15,7 @@ public class ColorPicker extends Element {
     @Override
     public void onEvent(Element e) {
       updateColorFromRGB();
-      ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      ((TextBox)e).valueI=Math.max(0, Math.min(255, ((TextBox)e).valueI));
       if (onAdjust != null) {
         onAdjust.onEvent(this_);
       }
@@ -26,7 +26,7 @@ public class ColorPicker extends Element {
     @Override
     public void onEvent(Element e) {
       updateColorFromHSB();
-      ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      ((TextBox)e).valueI=Math.max(0, Math.min(255, ((TextBox)e).valueI));
       if (onAdjust != null) {
         onAdjust.onEvent(this_);
       }
@@ -37,7 +37,7 @@ public class ColorPicker extends Element {
     @Override
     public void onEvent(Element e) {
       updateColorFromA();
-      ((TextBox)e).value=Math.max(0, Math.min(255, ((TextBox)e).value));
+      ((TextBox)e).valueI=Math.max(0, Math.min(255, ((TextBox)e).valueI));
       if (onAdjust != null) {
         onAdjust.onEvent(this_);
       }
@@ -214,19 +214,19 @@ public class ColorPicker extends Element {
   }
   void updateColorFromRGB() {
     if (red == null) return;//only compare once...
-    selectedRGB=KyUI.Ref.color(red.value, green.value, blue.value);
+    selectedRGB=KyUI.Ref.color(red.valueI, green.valueI, blue.valueI);
     selectedHSB=KyUI.Ref.color(KyUI.Ref.hue(selectedRGB), KyUI.Ref.saturation(selectedRGB), KyUI.Ref.brightness(selectedRGB));
     updateColorHSB();
   }
   void updateColorFromHSB() {
     if (hue == null) return;//only compare once...
-    selectedHSB=KyUI.Ref.color(hue.value, saturation.value, brightness.value);
+    selectedHSB=KyUI.Ref.color(hue.valueI, saturation.valueI, brightness.valueI);
     selectedRGB=Color.HSBtoRGB(KyUI.Ref.red(selectedHSB) / 255, KyUI.Ref.green(selectedHSB) / 255, KyUI.Ref.blue(selectedHSB) / 255);
     updateColorRGB();
   }
   void updateColorFromA() {
     if (alpha == null) return;
-    alphav=alpha.value;
+    alphav=alpha.valueI;
     selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alphav);
     selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alphav);
   }

@@ -54,7 +54,7 @@ public class LinearLayout extends Element {
     localLayout();
   }
   public float getTotalSize() {
-    return childrenSize;//return already calculated value.
+    return childrenSize;//return already calculated valueI.
   }
   void setClip() {
     if (mode == Behavior.FIXED) {

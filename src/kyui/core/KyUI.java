@@ -20,8 +20,9 @@ import processing.event.KeyEvent;
 import sojamo.drop.*;
 //===To ADD list===//
 //ADD>>optimize mouseEvent and rendering chain!! especially clipping...
-//ADD>>name duplication error
+//ADD>>search elements in editor
 //ADD>>drag and drop overlay !!!**
+//ADD>>textBox filtering text in setText!!**
 public class KyUI {
   //
   public static PApplet Ref;
@@ -85,7 +86,7 @@ public class KyUI {
   }
   static CheckOverlayTask checkOverlayTask=new CheckOverlayTask();
   //
-  public static int KEY_INIT_DELAY=1000;// you can change this value.
+  public static int KEY_INIT_DELAY=1000;// you can change this valueI.
   public static int KEY_INTERVAL=300;
   public static boolean ctrlPressed=false;
   public static boolean shiftPressed=false;
@@ -200,8 +201,28 @@ public class KyUI {
   public static CachingFrame getNewLayer() {
     return new CachingFrame("KyUI:" + count++, new Rect(0, 0, Ref.width, Ref.height));
   }
-  protected static void addElement(Element object) {
-    Elements.put(object.getName(), object);
+  protected static void addElement(Element e) {
+    if (!Elements.containsKey(e.Name)) {
+      Elements.put(e.Name, e);
+    } else {
+      if (e != Elements.get(e.Name) && !e.Name.equals("KyUI:messenger")) {//messenger always share same name...
+        throw new RuntimeException("[KyUI] try to add existing name. (" + e.Name + ")");
+      }
+    }
+  }
+  public static boolean rename(Element e, String name) {
+    if (e.Name.equals(name)) {
+      return true;
+    }
+    if (!Elements.containsKey(name)) {
+      Elements.remove(e.Name);
+      e.Name=name;
+      Elements.put(name, e);
+      return true;
+    } else {
+      System.err.println("[KyUI] try to rename to existing name. (" + e.Name + " to " + name + ")");
+      return false;
+    }
   }
   public static void removeElement(String name) {
     Elements.remove(name);

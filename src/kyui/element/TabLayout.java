@@ -32,7 +32,7 @@ public class TabLayout extends Element {
   //protected modifiable values
   @Attribute(setter="setTabSize")
   protected int tabSize;
-  @Attribute(setter="setRotation")//these attributes are not synchronized with list properly...but that has no problem. data will be saved by real element's value.
+  @Attribute(setter="setRotation")//these attributes are not synchronized with list properly...but that has no problem. data will be saved by real element's valueI.
   protected Attributes.Rotation rotation=Attributes.Rotation.UP;
   @Attribute(setter="setButtonRotation")
   protected Attributes.Rotation buttonRotation=Attributes.Rotation.UP;

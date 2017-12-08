@@ -13,7 +13,8 @@ public class TextBox extends TextEdit {
   public String title="";
   @Attribute
   public String hint="";
-  public int value;
+  public int valueI=0;
+  public float valueF=0;
   @Attribute(type=Attribute.COLOR)
   public int fgColor;
   @Attribute(type=Attribute.COLOR)
@@ -25,7 +26,12 @@ public class TextBox extends TextEdit {
   //...?
   public int strokeWeight=6;
   //
-  Filter numberFilter;
+  public enum NumberType {
+    NONE, INTEGER, FLOAT
+  }
+  @Attribute(setter="setNumberOnly")
+  NumberType numberOnly=NumberType.INTEGER;
+  //Filter numberFilter;
   //temp values
   boolean changed=false;
   public TextBox(String name) {
@@ -50,8 +56,8 @@ public class TextBox extends TextEdit {
   }
   private void init() {
     filters.add(new Filter("\n"));
-    numberFilter=new Filter("[^0-9\b\u007F\uFFFF\u0025\u0026\u0027\u0028]");
-    filters.add(numberFilter);
+    //numberFilter=new Filter("[^0-9\b\u007F\uFFFF\u0025\u0026\u0027\u0028]");
+    //filters.add(numberFilter);
     fgColor=50;
     textColor=50;
     bgColor=KyUI.Ref.color(127);
@@ -60,8 +66,10 @@ public class TextBox extends TextEdit {
     errorColor=KyUI.Ref.color(255, 0, 0);
     clipping=true;
   }
-  public void setNumberOnly(boolean v) {//default true...
-    numberFilter.condition=v;
+  public void setNumberOnly(NumberType v) {//default true...
+    //numberFilter.condition=v;
+    numberOnly=v;
+    setText(content.toString());
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
@@ -71,11 +79,22 @@ public class TextBox extends TextEdit {
     return super.mouseEvent(e, index);
   }
   @Override
-  public void keyEvent(KeyEvent e) {
-    super.keyEvent(e);
+  public void keyTyped(KeyEvent e) {
+    String before=content.toString();
+    super.keyTyped(e);
     String str=content.toString();
-    if (numberFilter.condition && isInt(str)) {
-      value=Integer.parseInt(str);
+    if (numberOnly == NumberType.INTEGER) {
+      if (isInt(str)) {
+        valueI=Integer.parseInt(str);
+      } else {
+        content.setText(before);
+      }
+    } else if (numberOnly == NumberType.FLOAT) {
+      if (isFloat(str)) {
+        valueF=Float.parseFloat(str);
+      } else {
+        content.setText(before);
+      }
     }
     if (changed && onTextChangeListener != null) {
       onTextChangeListener.onEvent(this);
@@ -98,6 +117,12 @@ public class TextBox extends TextEdit {
       a=a + 1;
     }
     return true;
+  }
+  private static boolean isFloat(String str) {//https://stackoverflow.com/questions/43156077/how-to-check-a-string-is-float-or-int
+    if (str.equals("")) return false;
+    if (str.length() > 9) return false;
+    if (str.equals("-")) return false;
+    return str.matches("\\d*\\.?\\d*");//FIX>>minus...
   }
   @Override
   public void moveTo(int line) {//do nothing!
@@ -177,8 +202,15 @@ public class TextBox extends TextEdit {
   @Override
   public void setText(String text) {
     super.setText(text);
-    if (numberFilter.condition) {
-      value=Integer.parseInt(text);
+    //ADD>>filter text!!!
+    if (numberOnly == NumberType.INTEGER) {
+      if (isInt(text)) {
+        valueI=Integer.parseInt(text);
+      }
+    } else if (numberOnly == NumberType.FLOAT) {
+      if (isFloat(text)) {
+        valueF=Float.parseFloat(text);
+      }
     }
   }
 }

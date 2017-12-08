@@ -2,7 +2,10 @@ package kyui.loader;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.element.LinearLayout;
 import kyui.element.LinearList;
+import kyui.element.TextBox;
+import kyui.element.ToggleButton;
 import kyui.util.ColorExt;
 import kyui.util.HideInEditor;
 import kyui.util.Rect;
@@ -185,13 +188,15 @@ public class ElementLoader {
     }
   }
   public static ArrayList<Attribute.Editor> getAttributeFields(Class<?> c) throws Exception {
+    Class originalC=c;
     ArrayList<Attribute.Editor> fields=new ArrayList<>();
-    while (!c.equals(Object.class)) {
+    while (c != Object.class) {
       Field[] fieldArray=c.getDeclaredFields();
       for (Field f : fieldArray) {
+        f.setAccessible(true);
         Attribute a=f.getAnnotation(Attribute.class);
         if (a != null) {
-          fields.add(new Attribute.Editor(a, c, f));
+          fields.add(new Attribute.Editor(a, originalC, f));
         }
       }
       c=c.getSuperclass();
@@ -199,28 +204,51 @@ public class ElementLoader {
     return fields;
   }
   public static class AttributeSet {
-    ArrayList<Attribute.Editor> attrs;
-    ArrayList<LinearList.SelectableButton> items;
+    public ArrayList<Attribute.Editor> attrs;
+    public ArrayList<LinearList.SelectableButton> items;
     public AttributeSet(ArrayList<Attribute.Editor> attrs_) {
       attrs=attrs_;
       items=new ArrayList<>();
       items.ensureCapacity(attrs.size());
+      LinearLayout inspector=KyUI.<LinearList>get2("layout_inspector").listLayout;
       for (Attribute.Editor a : attrs_) {
+        LinearList.InspectorButton i=null;
+        String name=a.c.getTypeName() + "." + a.field.getName();
         if (a.field.getType() == int.class || a.field.getType() == Integer.class) {
-          if(a.attr.type()==Attribute.COLOR){
-            //items.add(new InspectorTextButton());...
-          }else{
-
+          if (a.attr.type() == Attribute.COLOR) {
+            i=new LinearList.InspectorColorButton(name);
+          } else {
+            i=new LinearList.InspectorTextButton(name);
+            ((LinearList.InspectorTextButton)i).textBox.setNumberOnly(TextBox.NumberType.INTEGER);
           }
-        } else if (a.field.getType() == float.class||a.field.getType()==Float.class) {
-        } else if (a.field.getType() == boolean.class||a.field.getType() == Boolean.class) {
+        } else if (a.field.getType() == float.class || a.field.getType() == Float.class) {
+          i=new LinearList.InspectorTextButton(name);
+          ((LinearList.InspectorTextButton)i).textBox.setNumberOnly(TextBox.NumberType.FLOAT);
+        } else if (a.field.getType() == boolean.class || a.field.getType() == Boolean.class) {
+          i=new LinearList.InspectorToggleButton(name);
         } else if (a.field.getType() == Rect.class) {
+          i=new LinearList.InspectorRectButton(name);
         } else if (a.field.getType() == String.class) {
+          i=new LinearList.InspectorTextButton(name);
+          ((LinearList.InspectorTextButton)i).textBox.setNumberOnly(TextBox.NumberType.NONE);
         } else if (a.field.getType() == PImage.class) {
+          i=new LinearList.InspectorImageButton(name);
         } else if (a.field.getType() == PFont.class) {
-        } else if (a.field.getType() == Enumeration.class) {
+          //ADD>>i=new LinearList.InspectorFontButton(name);
+          return;
+        } else if (a.field.getType().isEnum()) {
+          //ADD>>i=new LinearList.InspectorDropDownButton(name);
+          return;
+        } else {
+          System.err.println(a.field.getType().getTypeName() + " is not handled in ElementLoader.");
+          return;
         }
+        i.text=a.field.getName();
+        i.addedTo(inspector);
+        items.add(i);
       }
+    }
+    public void setAttribute(Element e) {
     }
   }
 }
