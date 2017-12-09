@@ -108,6 +108,7 @@ public class KyUI {
   public static PFont fontMain;//set manually! (so public)
   public static PFont fontText;//set manually! (2)
   public static int INF=987654321;
+  private static Rect clipRect=new Rect();
   //thread
   public static Thread updater;
   public static int updater_interval;
@@ -206,7 +207,7 @@ public class KyUI {
       Elements.put(e.Name, e);
     } else {
       if (e != Elements.get(e.Name) && !e.Name.equals("KyUI:messenger")) {//messenger always share same name...
-        throw new RuntimeException("[KyUI] try to add existing name. (" + e.Name + ")");
+        throw new RuntimeException("[KyUI] try to add existing name. (" + e.Name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.Name).getClass().getTypeName());
       }
     }
   }
@@ -392,12 +393,12 @@ public class KyUI {
   }
   public static void clipRect(PGraphics g, Rect rect) {
     g.imageMode(PApplet.CORNERS);
-    if (rect == null) {
-      System.out.println("???");//FIX>>
-      return;
+    clipRect.set(rect);
+    if (clipArea.size() > 0) {
+      Rect.getIntersection(rect, clipArea.getLast(), clipRect);
     }
-    g.clip(rect.left, rect.top, rect.right, rect.bottom);
-    clipArea.add(rect);
+    g.clip(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
+    clipArea.add(rect.set(clipRect));
   }
   public static void removeClip(PGraphics g) {
     if (clipArea.size() > 0) {

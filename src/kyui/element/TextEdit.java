@@ -59,7 +59,6 @@ public class TextEdit extends Element {//no sliderX for now...
   int clickLine=0;
   int clickPoint=0;
   float offset=0;
-  Rect clipRect=new Rect();
   Rect cacheRect=new Rect();
   protected boolean cursorOn=true;
   int cursorFrame=0;
@@ -73,6 +72,7 @@ public class TextEdit extends Element {//no sliderX for now...
     init();
   }
   private void init() {
+    clipping=true;
     content=new EditorString();
     filters=new ArrayList<Filter>();
     padding=8;
@@ -141,7 +141,7 @@ public class TextEdit extends Element {//no sliderX for now...
     content.setCursorLine(Math.max(Math.min(offsetToLine(offset - padding + KyUI.mouseGlobal.y - pos.top), content.lines() - 1), 0));
     PGraphics cg=KyUI.cacheGraphics;
     cg.textFont(textFont);
-    cg.textSize(textSize);//just using function...
+    cg.textSize(Math.max(1, textSize));//just using function...
     float mouseX=/*offsetX+*/KyUI.mouseGlobal.x - pos.left - padding - lineNumSize;
     String line=content.getLine(content.line);
     int point=0;//mid
@@ -296,7 +296,7 @@ public class TextEdit extends Element {//no sliderX for now...
     moveTo(content.line);
   }
   int offsetToLine(float offset_) {
-    return (int)offset_ / textSize;
+    return (int)offset_ / Math.max(1, textSize);
   }
   @Override
   public void update() {
@@ -336,12 +336,11 @@ public class TextEdit extends Element {//no sliderX for now...
     g.fill(lineNumBgColor);
     cacheRect.set(pos.left, pos.top, pos.left + lineNumSize, pos.bottom);
     cacheRect.render(g);
-    clipRect.set(pos.left, pos.top, pos.right, pos.bottom);
-    KyUI.clipRect(g, clipRect);
+    cacheRect.set(pos.left, pos.top, pos.right, pos.bottom);
     //setup text
     g.textAlign(KyUI.Ref.LEFT, KyUI.Ref.CENTER);
     g.textFont(textFont);
-    g.textSize(textSize);
+    g.textSize(Math.max(1, textSize));
     g.textLeading(textSize / 2);
     //iterate lines
     int start=offsetToLine(offset - padding);
@@ -379,7 +378,7 @@ public class TextEdit extends Element {//no sliderX for now...
     }
     g.textAlign(KyUI.Ref.RIGHT, KyUI.Ref.CENTER);
     g.textFont(KyUI.fontMain);
-    g.textSize(textSize);
+    g.textSize(Math.max(1, textSize));
     g.textLeading(textSize / 2);
     for (int a=Math.max(0, start - 1); a < end + 1; a++) {
       if (a < content.lines()) {
@@ -390,7 +389,6 @@ public class TextEdit extends Element {//no sliderX for now...
       g.text(a + "", pos.left + lineNumSize - padding, pos.top + (a + 0.5F) * textSize - offset + padding);
     }
     g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
-    KyUI.removeClip(g);
   }
   public void setText(String text) {
     for (Filter filter : filters) {

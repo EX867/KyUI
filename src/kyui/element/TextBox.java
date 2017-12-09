@@ -11,8 +11,6 @@ public class TextBox extends TextEdit {
   //modifiable values
   @Attribute
   public String title="";
-  @Attribute
-  public String hint="";
   public int valueI=0;
   public float valueF=0;
   @Attribute(type=Attribute.COLOR)
@@ -31,7 +29,8 @@ public class TextBox extends TextEdit {
   }
   @Attribute(setter="setNumberOnly")
   NumberType numberOnly=NumberType.INTEGER;
-  //Filter numberFilter;
+  Filter numberFilter;
+  Filter integerFilter;
   //temp values
   boolean changed=false;
   public TextBox(String name) {
@@ -56,18 +55,27 @@ public class TextBox extends TextEdit {
   }
   private void init() {
     filters.add(new Filter("\n"));
-    //numberFilter=new Filter("[^0-9\b\u007F\uFFFF\u0025\u0026\u0027\u0028]");
-    //filters.add(numberFilter);
+    numberFilter=new Filter("[^-0-9\\.\b\u007F\uFFFF\u0025\u0026\u0027\u0028]");
+    integerFilter=new Filter("\\.");
+    filters.add(numberFilter);
+    filters.add(integerFilter);
+    numberFilter.condition=false;
     fgColor=50;
     textColor=50;
     bgColor=KyUI.Ref.color(127);
     padding=textSize;
     lineNumSize=0;
     errorColor=KyUI.Ref.color(255, 0, 0);
-    clipping=true;
   }
   public void setNumberOnly(NumberType v) {//default true...
-    //numberFilter.condition=v;
+    numberFilter.condition=false;
+    integerFilter.condition=false;
+    if (v != NumberType.NONE) {
+      numberFilter.condition=true;
+    }
+    if (v == NumberType.INTEGER) {
+      integerFilter.condition=true;
+    }
     numberOnly=v;
     setText(content.toString());
   }
@@ -80,22 +88,10 @@ public class TextBox extends TextEdit {
   }
   @Override
   public void keyTyped(KeyEvent e) {
-    String before=content.toString();
+    //String before=content.toString();
     super.keyTyped(e);
     String str=content.toString();
-    if (numberOnly == NumberType.INTEGER) {
-      if (isInt(str)) {
-        valueI=Integer.parseInt(str);
-      } else {
-        content.setText(before);
-      }
-    } else if (numberOnly == NumberType.FLOAT) {
-      if (isFloat(str)) {
-        valueF=Float.parseFloat(str);
-      } else {
-        content.setText(before);
-      }
-    }
+    setValue(str);
     if (changed && onTextChangeListener != null) {
       onTextChangeListener.onEvent(this);
     }
@@ -105,7 +101,7 @@ public class TextBox extends TextEdit {
   protected void textChange() {
     changed=true;
   }
-  private static boolean isInt(String str) {
+  private static boolean isInt(String str) {//^-?\\d+$
     if (str.equals("")) return false;
     if (str.length() > 9) return false;
     if (str.equals("-")) return false;
@@ -122,7 +118,7 @@ public class TextBox extends TextEdit {
     if (str.equals("")) return false;
     if (str.length() > 9) return false;
     if (str.equals("-")) return false;
-    return str.matches("\\d*\\.?\\d*");//FIX>>minus...
+    return str.matches("-?\\d*\\.?\\d*");//FIX>>minus...
   }
   @Override
   public void moveTo(int line) {//do nothing!
@@ -131,7 +127,7 @@ public class TextBox extends TextEdit {
   public void render(PGraphics g) {
     //draw basic form
     g.strokeWeight(strokeWeight);
-    clipRect.set(pos.left + strokeWeight / 2, pos.top + strokeWeight / 2, pos.right - strokeWeight / 2, pos.bottom - strokeWeight / 2);
+    cacheRect.set(pos.left + strokeWeight / 2, pos.top + strokeWeight / 2, pos.right - strokeWeight / 2, pos.bottom - strokeWeight / 2);
     if (entered) {
       if (pressedL) {
         g.fill(ColorExt.brighter(bgColor, 20));
@@ -149,14 +145,13 @@ public class TextBox extends TextEdit {
         g.stroke(fgColor);
       }
     }
-    clipRect.render(g);
+    cacheRect.render(g);
     if (error) {
       g.stroke(errorColor);
       g.noFill();
       g.strokeWeight(1);
-      clipRect.render(g);
+      cacheRect.render(g);
     }
-    KyUI.clipRect(g, clipRect);
     float centerY=(pos.top + pos.bottom) / 2;
     g.noStroke();
     g.textAlign(PApplet.LEFT, PApplet.CENTER);
@@ -168,7 +163,7 @@ public class TextBox extends TextEdit {
     } else {
       offset=0;
     }
-    g.textSize(textSize);
+    g.textSize(Math.max(1, textSize));
     if (content.hasSelection()) {
       g.fill(selectionColor);
       String selectionPart=content.getSelectionPart(0);
@@ -181,7 +176,7 @@ public class TextBox extends TextEdit {
       g.text(hint, pos.left + padding, centerY + offset);
     } else {
       g.fill(textColor);
-      g.text(content.getLine(0), pos.left + textSize, centerY + offset);
+      g.text(content.getLine(0), pos.left + padding, centerY + offset);
     }
     if (KyUI.focus == this) {
       if (cursorOn) {
@@ -197,19 +192,26 @@ public class TextBox extends TextEdit {
     //g.textFont(KyUI.fontMain);
     g.noStroke();
     g.textAlign(PApplet.CENTER, PApplet.CENTER);
-    KyUI.removeClip(g);
   }
   @Override
-  public void setText(String text) {
+  public void setText(String text) {//no textChangeListener...because this is called from outside. not changed internally.
     super.setText(text);
     //ADD>>filter text!!!
-    if (numberOnly == NumberType.INTEGER) {
-      if (isInt(text)) {
-        valueI=Integer.parseInt(text);
-      }
-    } else if (numberOnly == NumberType.FLOAT) {
-      if (isFloat(text)) {
-        valueF=Float.parseFloat(text);
+    setValue(text);
+  }
+  void setValue(String text) {
+    if (text.equals("")) {
+      valueI=0;
+      valueF=0;
+    } else {
+      if (numberOnly == NumberType.INTEGER) {
+        if (isInt(text)) {
+          valueI=Integer.parseInt(text);
+        }
+      } else if (numberOnly == NumberType.FLOAT) {
+        if (isFloat(text)) {
+          valueF=Float.parseFloat(text);
+        }
       }
     }
   }

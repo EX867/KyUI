@@ -16,6 +16,7 @@ import processing.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 public class Main extends PApplet {
+  public static Element selection=null;//used in layout_tree
   public static void main(String[] args) {
     PApplet.main("kyui.editor.Main");
   }
@@ -64,8 +65,9 @@ public class Main extends PApplet {
       @Override
       public void onEvent(Element e_) {
         Element e=(Element)((TreeGraph.Node)e_).content;
+        selection=e;
         ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
-        layout_inspector.setItems(attrs.items);
+        layout_inspector.setItems((java.util.List)attrs.items);
         layout_inspector.localLayout();
         attrs.setAttribute(e);
       }

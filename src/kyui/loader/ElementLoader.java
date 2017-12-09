@@ -9,6 +9,7 @@ import kyui.element.ToggleButton;
 import kyui.util.ColorExt;
 import kyui.util.HideInEditor;
 import kyui.util.Rect;
+import kyui.editor.inspectorItem.*;
 import org.reflections.Reflections;
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -103,6 +104,11 @@ public class ElementLoader {
       for (Class c : set) {
         loadClass(c);
       }
+      reflections=new Reflections("kyui.editor.inspectorItem");
+      Set<Class<? extends kyui.editor.inspectorItem.InspectorButton>> set2=reflections.getSubTypesOf(kyui.editor.inspectorItem.InspectorButton.class);//????
+      for (Class c : set2) {
+        loadClass(c);
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -189,66 +195,85 @@ public class ElementLoader {
   }
   public static ArrayList<Attribute.Editor> getAttributeFields(Class<?> c) throws Exception {
     Class originalC=c;
-    ArrayList<Attribute.Editor> fields=new ArrayList<>();
+    LinkedList<Attribute.Editor> fields=new LinkedList<>();
     while (c != Object.class) {
-      Field[] fieldArray=c.getDeclaredFields();
+      ArrayList<Field> fieldArray=new ArrayList<Field>();
+      Field[] fieldArray_=c.getDeclaredFields();
+      for (Field f : fieldArray_) {
+        fieldArray.add(f);
+      }
+      Collections.sort(fieldArray, new Comparator<Field>() {
+        @Override
+        public int compare(Field o1, Field o2) {
+          return -o1.getName().compareTo(o2.getName());
+        }//because I added reversely.
+      });
       for (Field f : fieldArray) {
         f.setAccessible(true);
         Attribute a=f.getAnnotation(Attribute.class);
         if (a != null) {
-          fields.add(new Attribute.Editor(a, originalC, f));
+          fields.addFirst(new Attribute.Editor(a, originalC, f));
         }
       }
       c=c.getSuperclass();
     }
-    return fields;
+    return new ArrayList<Attribute.Editor>(fields);
   }
   public static class AttributeSet {
     public ArrayList<Attribute.Editor> attrs;
-    public ArrayList<LinearList.SelectableButton> items;
+    public ArrayList<InspectorButton> items;
     public AttributeSet(ArrayList<Attribute.Editor> attrs_) {
       attrs=attrs_;
       items=new ArrayList<>();
       items.ensureCapacity(attrs.size());
       LinearLayout inspector=KyUI.<LinearList>get2("layout_inspector").listLayout;
-      for (Attribute.Editor a : attrs_) {
-        LinearList.InspectorButton i=null;
+      for (Attribute.Editor a : attrs) {
+        InspectorButton i=null;
         String name=a.c.getTypeName() + "." + a.field.getName();
         if (a.field.getType() == int.class || a.field.getType() == Integer.class) {
           if (a.attr.type() == Attribute.COLOR) {
-            i=new LinearList.InspectorColorButton(name);
+            i=new InspectorColorButton(name);//FIX>> this to new class InspectorColorButton + Variable
           } else {
-            i=new LinearList.InspectorTextButton(name);
-            ((LinearList.InspectorTextButton)i).textBox.setNumberOnly(TextBox.NumberType.INTEGER);
+            i=new InspectorTextButton<Integer>(name, Integer.class);
           }
         } else if (a.field.getType() == float.class || a.field.getType() == Float.class) {
-          i=new LinearList.InspectorTextButton(name);
-          ((LinearList.InspectorTextButton)i).textBox.setNumberOnly(TextBox.NumberType.FLOAT);
+          i=new InspectorTextButton<Float>(name, Float.class);
         } else if (a.field.getType() == boolean.class || a.field.getType() == Boolean.class) {
-          i=new LinearList.InspectorToggleButton(name);
+          i=new InspectorToggleButton(name);
         } else if (a.field.getType() == Rect.class) {
-          i=new LinearList.InspectorRectButton(name);
+          i=new InspectorRectButton(name);
         } else if (a.field.getType() == String.class) {
-          i=new LinearList.InspectorTextButton(name);
-          ((LinearList.InspectorTextButton)i).textBox.setNumberOnly(TextBox.NumberType.NONE);
+          i=new InspectorTextButton<String>(name, String.class);
         } else if (a.field.getType() == PImage.class) {
-          i=new LinearList.InspectorImageButton(name);
+          i=new InspectorImageButton(name);
         } else if (a.field.getType() == PFont.class) {
-          //ADD>>i=new LinearList.InspectorFontButton(name);
-          return;
+          i=new InspectorFontButton(name);
         } else if (a.field.getType().isEnum()) {
-          //ADD>>i=new LinearList.InspectorDropDownButton(name);
-          return;
+          i=new InspectorDropDownButton(name, a.field.getType());
+          Object[] enumConstants=a.field.getType().getEnumConstants();
+          for (Object o : enumConstants) {
+            ((InspectorDropDownButton)i).dropDown.addItem(o.toString());
+          }
         } else {
           System.err.println(a.field.getType().getTypeName() + " is not handled in ElementLoader.");
-          return;
+          continue;
         }
         i.text=a.field.getName();
         i.addedTo(inspector);
+        a.setRef(i);
         items.add(i);
       }
     }
     public void setAttribute(Element e) {
+      try {
+        for (Attribute.Editor a : attrs) {
+          if (a.ref != null) {
+            a.ref.set(a.getField(e));
+          }
+        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
     }
   }
 }

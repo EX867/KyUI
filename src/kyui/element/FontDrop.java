@@ -5,38 +5,41 @@ import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.event.FileDropEventListener;
 import kyui.util.Rect;
+import processing.core.PFont;
 import processing.core.PGraphics;
-import processing.core.PImage;
 import sojamo.drop.DropEvent;
-public class ImageDrop extends Element {
+public class FontDrop extends Element {
   //modifiable values
   @Attribute(type=Attribute.COLOR)
   public int fgColor;
   @Attribute
   public int strokeWidth=6;
-  public PImage display;
+  public PFont font;
+  @Attribute
+  public int textSize=15;
   EventListener onDropListener;
-  public ImageDrop(String name) {
+  public FontDrop(String name) {
     super(name);
     init();
   }
-  public ImageDrop(String name, Rect pos_) {
+  public FontDrop(String name, Rect pos_) {
     super(name);
     pos=pos_;
     init();
   }
   private void init() {
+    font=KyUI.fontMain;
     margin=strokeWidth / 2;
     padding=strokeWidth / 2 + 1;
     bgColor=KyUI.Ref.color(127);
     fgColor=KyUI.Ref.color(50);
-    ImageDrop self=this;
+    FontDrop self=this;
     KyUI.addDragAndDrop(this, new FileDropEventListener() {
       @Override
       public void onEvent(DropEvent de) {
         String filename=de.file().getAbsolutePath().replace("\\", "/");
-        display=KyUI.Ref.loadImage(filename);
-        System.out.println("[KyUI] image dropped on " + getName() + ", " + filename);
+        font=KyUI.Ref.createFont(filename, 20);
+        System.out.println("[KyUI] font dropped on " + getName() + ", " + filename);
         if (onDropListener != null) {
           onDropListener.onEvent(self);
         }
@@ -52,14 +55,11 @@ public class ImageDrop extends Element {
     g.stroke(fgColor);
     g.strokeWeight(strokeWidth);
     super.render(g);
-    if (display != null) {
-      g.imageMode(KyUI.Ref.CENTER);
-      g.pushMatrix();
-      g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
-      g.scale(Math.min((pos.right - pos.left - padding * 2) / (display.width + 1), (pos.bottom - pos.top - padding * 2) / (display.height + 1)));
-      g.image(display, (display.width % 2 == 0) ? 0 : (-0.5F), (display.height % 2 == 0) ? 0 : (-0.5F));
-      g.popMatrix();
-    }
+    g.fill(fgColor);
+    g.textFont(font);
+    g.textSize(Math.max(1,textSize));
+    g.text("Aa한글", (pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
+    g.textFont(KyUI.fontMain);
     g.noStroke();
   }
 }

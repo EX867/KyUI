@@ -43,6 +43,12 @@ public class Rect implements Cloneable {//it is like android's rect...
     if (left < r.left && right > r.right && top < r.top && bottom > r.bottom) return true;
     return false;
   }
+  private boolean containsX(Rect r) {
+    return left <= r.left && right >= r.right;
+  }
+  private boolean containsY(Rect r) {
+    return top <= r.top && bottom >= r.bottom;
+  }
   public boolean intersects(Rect r) {
     if (r.right < left || r.left > right || r.top > bottom || r.bottom < top) return false;
     if (contains(r) || r.contains(this)) return false;
@@ -55,5 +61,43 @@ public class Rect implements Cloneable {//it is like android's rect...
   @Override
   public Rect clone() {
     return new Rect(left, top, right, bottom);
+  }
+  public static Rect getIntersection(Rect a, Rect b, Rect container) {
+    container.set(0, 0, 0, 0);
+    if (a.containsX(b)) {
+      container.left=b.left;
+      container.right=b.right;
+    } else if (b.containsX(a)) {
+      container.left=a.left;
+      container.right=a.right;
+    } else {
+      if (a.left > b.left) {
+        Rect temp=a;
+        a=b;
+        b=temp;
+      }//now a is left than b.
+      if (a.right >= b.left) {//intersects in x axis
+        container.left=b.left;
+        container.right=a.right;
+      }
+    }
+    if (a.containsY(b)) {
+      container.top=b.top;
+      container.bottom=b.bottom;
+    } else if (b.containsY(a)) {
+      container.top=a.top;
+      container.bottom=a.bottom;
+    } else {
+      if (a.top > b.top) {
+        Rect temp=a;
+        a=b;
+        b=temp;
+      }//now a is up than b.
+      if (a.bottom >= b.top) {//intersects in y axis
+        container.top=b.top;
+        container.bottom=a.bottom;
+      }
+    }
+    return container;
   }
 }

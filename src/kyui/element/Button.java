@@ -63,7 +63,7 @@ public class Button extends Element {
   }
   protected void drawContent(PGraphics g, int textC) {
     g.fill(textC);
-    g.textSize(textSize);
+    g.textSize(Math.max(1,textSize));
     g.pushMatrix();
     g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
     for (int a=1; a <= rotation.ordinal(); a++) {
