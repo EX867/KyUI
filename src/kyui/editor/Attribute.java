@@ -2,6 +2,7 @@ package kyui.editor;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.inspectorItem.*;
+import kyui.element.ColorButton;
 import kyui.element.LinearList;
 import kyui.element.TextBox;
 import kyui.element.TreeGraph;
@@ -84,7 +85,9 @@ public @interface Attribute {
         setField(Main.selection, ref.get());
       };
       if (ref instanceof InspectorColorButton) {
-        //ADD>>open color editor, and set value, and change to InspectorColorButton + Variable.
+        ((InspectorColorButton)ref).colorButton.setPressListener(new ColorButton.OpenColorPickerEvent(((InspectorColorButton)ref).colorButton, (Element e) -> {
+          el.onEvent(e);
+        }));
       } else if (ref instanceof InspectorDropDownButton) {
         InspectorDropDownButton i=(InspectorDropDownButton)ref;
         i.dropDown.setSelectListener((int index) -> {

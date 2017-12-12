@@ -4,8 +4,8 @@ import kyui.core.KyUI;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.core.PGraphics;
-public class CachingFrame extends Element {
-  protected PGraphics display;
+public final class CachingFrame extends Element {
+  public PGraphics display;
   boolean invalidated=false;
   public CachingFrame(String name, Rect pos_) {
     super(name);
@@ -27,9 +27,8 @@ public class CachingFrame extends Element {
     display.beginDraw();
     display.pushMatrix();
     display.scale(KyUI.scaleGlobal);
-    if (bgColor != 0) {
-      display.fill(bgColor);
-      pos.render(display);
+    if (renderFlag) {
+      display.clear();
     }
     display.rectMode(PApplet.CORNERS);
     display.textAlign(PApplet.CENTER, PApplet.CENTER);
@@ -47,10 +46,16 @@ public class CachingFrame extends Element {
     display.endDraw();
   }
   public void resize(int width, int height) {
+    if (width == 0 || height == 0) {
+      return;
+    }
     display.dispose();
-    display=KyUI.Ref.createGraphics((int)(pos.right - pos.left), (int)(pos.bottom - pos.top));
+    display=KyUI.Ref.createGraphics(width, height);
+    onLayout();//FIX>> resize layout problem!!!
+    renderFlag=true;
+    render_(null);
   }
   public synchronized void renderReal(PGraphics g) {
-    g.image(display, (pos.left + pos.right) / 2, (pos.bottom + pos.top) / 2);
+    g.image(display, display.width / 2, display.height / 2);
   }
 }

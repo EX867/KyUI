@@ -118,7 +118,7 @@ public class TextBox extends TextEdit {
     if (str.equals("")) return false;
     if (str.length() > 9) return false;
     if (str.equals("-")) return false;
-    return str.matches("-?\\d*\\.?\\d*");//FIX>>minus...
+    return str.matches("-?\\d*\\.?\\d*");
   }
   @Override
   public void moveTo(int line) {//do nothing!
@@ -196,7 +196,6 @@ public class TextBox extends TextEdit {
   @Override
   public void setText(String text) {//no textChangeListener...because this is called from outside. not changed internally.
     super.setText(text);
-    //ADD>>filter text!!!
     setValue(text);
   }
   void setValue(String text) {

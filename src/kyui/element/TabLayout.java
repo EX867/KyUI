@@ -175,9 +175,8 @@ public class TabLayout extends Element {
   }
   @Override
   public void onLayout() {
-    linkLayout.setPosition(pos);
     linkLayout.value=tabSize;
-    super.onLayout();
+    linkLayout.setPosition(pos);
   }
   @Override
   public void editorAdd(Element e) {

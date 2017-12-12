@@ -15,6 +15,8 @@ public class DropMessenger extends Element {
   protected Visual defaultVisual=new Visual() {
     @Override
     public void render(DropMessenger e, PGraphics g) {
+      fill(g, bgColor);
+      pos.render(g);
       g.fill(0);
       g.textSize(e.textSize);
       g.text(e.displayText, (e.pos.right + e.pos.left) / 2, (e.pos.top + e.pos.bottom) / 2);
@@ -29,7 +31,8 @@ public class DropMessenger extends Element {
     message=message_;
     displayText=displayText_;
     padding=10;
-    float hwidth=KyUI.Ref.textWidth(displayText) / 2 + padding;
+    KyUI.cacheGraphics.textSize(textSize);//is this making sync error?
+    float hwidth=KyUI.cacheGraphics.textWidth(displayText) / 2 + padding;
     float hheight=textSize / 2 + padding;
     setPosition(new Rect(KyUI.mouseGlobal.x - hwidth, KyUI.mouseGlobal.y - hheight, KyUI.mouseGlobal.x + hwidth, KyUI.mouseGlobal.y + hheight));
     bgColor=KyUI.Ref.color(255, 100);
@@ -37,7 +40,6 @@ public class DropMessenger extends Element {
   @Override
   public void render(PGraphics g) {
     g.clear();
-    super.render(g);
     if (visual != null) {
       visual.render(this, g);
     }

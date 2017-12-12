@@ -11,8 +11,6 @@ public class InspectorColorButton extends InspectorButton<Integer> {
   private void init() {
     colorButton=new ColorButton(getName() + ":colorButton");
     colorButton.bgColor=KyUI.Ref.color(127);
-    colorButton.setPressListener(new ColorButton.OpenColorPickerEvent(colorButton));//auto for picking and storing color
-    colorButton.c=KyUI.Ref.color((int)(Math.random() * 0xFF), (int)(Math.random() * 0xFF), (int)(Math.random() * 0xFF), 255);//FIX>>temporary
     addChild(colorButton);
   }
   @Override

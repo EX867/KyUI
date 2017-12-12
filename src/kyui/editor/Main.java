@@ -127,8 +127,7 @@ public class Main extends PApplet {
     colors_addVar.setNumberOnly(TextBox.NumberType.NONE);
     colors_down.addChild(colors_addVar);
     colors_down.addChild(colors_add);
-    main_colors.addChild(new
-        LinearList("colors_list"));
+    main_colors.addChild(new LinearList("colors_list"));
     main_colors.addChild(colors_down);
     //set main_shortcuts
     main_shortcut.rotation=Attributes.Rotation.DOWN;
@@ -138,20 +137,19 @@ public class Main extends PApplet {
     main_tabs.addTab(" SHORTCUT  ", main_shortcut);
     //add tabs and status to main
     main_statusDivision.addChild(main_tabs);
-    main_statusDivision.addChild(new
-        StatusBar("main_status"));
+    main_statusDivision.addChild(new StatusBar("main_status"));
     KyUI.add(main_statusDivision);
     KyUI.changeLayout();
-    KyUI.resizeListener=new
-        EventListener() {
-          @Override
-          public void onEvent(Element e) {
-            main_statusDivision.setPosition(main_statusDivision.pos.set(0, 0, width, height));
-          }
-        }
-    ;
-    KyUI.
-        <StatusBar>get2("main_status").text=startText;
+    KyUI.addResizeListener((int w, int h) -> {
+      main_statusDivision.pos.set(0, 0, w, h);
+      main_statusDivision.onLayout();
+      main_statusDivision.invalidate();
+      System.out.println(main_statusDivision.pos);
+      System.out.println(main_tabs.pos);
+      System.out.println(main_layout.pos);
+      System.out.println();
+    });
+    KyUI.<StatusBar>get2("main_status").text=startText;
     ElementLoader.loadOnStart(layout_elements);
     main_tabs.selectTab(1);
   }

@@ -263,7 +263,7 @@ public class TextEdit extends Element {//no sliderX for now...
     slider.setLength(getTotalSize(), pos.bottom - pos.top);
     slider.setOffset(getTotalSize(), offset);
   }
-  int getTotalSize() {//FIX>>
+  int getTotalSize() {
     return (content.lines() + blankLines) * textSize + padding * 2;
   }
   public void insert(int point_, int line_, String text) {

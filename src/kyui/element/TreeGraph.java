@@ -10,7 +10,7 @@ import processing.event.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.Stack;
-public class TreeGraph<Content extends TreeNodeAction> extends Element {//includes scroll. for now, I only need horizontal one.
+public class TreeGraph<Content extends TreeNodeAction> extends Element {//includes scroll.
   Node root;
   ArrayList<Node<Content>> nodes;
   EventListener onSelectListener;

@@ -56,7 +56,7 @@ public class Element implements TreeNodeAction {
         parent.children.set(data.b, temp);
       } else if (data_raw == null) {
         parent.onLayout();
-        //parent.invalidate();
+        parent.invalidate();
       }
     }
   }
@@ -369,7 +369,7 @@ public class Element implements TreeNodeAction {
       }
     }
     if (e.getAction() == MouseEvent.RELEASE) {
-      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) && enabled) {//??
         KyUI.dropEnd(this, e, index);
         if (trigger) invalidate();
       }

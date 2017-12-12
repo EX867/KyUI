@@ -1,11 +1,16 @@
 package kyui.element;
+import com.sun.istack.internal.Nullable;
 import kyui.core.CachingFrame;
+import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
+
+import java.util.HashMap;
 public class ColorButton extends Button {
   //modifiable values
   @Attribute(type=Attribute.COLOR)
@@ -35,17 +40,42 @@ public class ColorButton extends Button {
     //really, you can use this event listener in other ColorButtons too...
     static CachingFrame colorPickerLayer;//one colorPicker shares many OpenColorPickerE
     static ColorPickerFull colorPicker;
+    static HashMap<ColorButton, EventListener> acceptEv;
+    static ColorButton last;//not works in nested situation(colorbutton is in colorpicker)
     ColorButton c;
-    public OpenColorPickerEvent(ColorButton c_) {
+    public OpenColorPickerEvent(ColorButton c_, @Nullable EventListener addition) {//add this object to colorbutton.
       c=c_;
       if (colorPickerLayer == null) {
+        acceptEv=new HashMap<ColorButton, EventListener>(100);
         colorPickerLayer=KyUI.getNewLayer();
         colorPicker=new ColorPickerFull("KyUI:OpenColorPickerEvent.colorPicker");
+        colorPickerLayer.addChild(colorPicker);
+        colorPicker.acceptButton.setPressListener((MouseEvent e, int index) -> {
+          if (acceptEv.get(last) != null) {
+            acceptEv.get(last).onEvent(last);
+          }
+          KyUI.removeLayer();
+          return false;
+        });
+        KyUI.addResizeListener((int w, int h) -> {
+          //if (!KyUI.isRootPresent(colorPickerLayer)) {
+          //  colorPickerLayer.resize((int)e.pos.right/* - e.pos.left*/, (int)e.pos.bottom/* - e.pos.top*/);
+          //}
+          colorPicker.setPosition(new Rect(0, 0, w, h));
+        });
       }
+      acceptEv.put(c, (Element e) -> {
+        c.c=colorPicker.colorPicker.getColor();
+        if (addition != null) {
+          addition.onEvent(e);
+        }
+      });
+      c.setPressListener(this);//not nessessary.
     }
     @Override
     public boolean onEvent(MouseEvent e, int index) {
-      //System.out.println("color button pressed");
+      last=c;
+      KyUI.addLayer(colorPickerLayer);
       return false;
     }
   }

@@ -58,8 +58,8 @@ public class ColorPicker extends Element {
   protected TextBox saturation;
   protected TextBox brightness;
   protected TextBox alpha;
-  protected int selectedRGB=0;
-  protected int selectedHSB=0;
+  protected int selectedRGB=0xFF000000;
+  protected int selectedHSB=0xFF000000;
   //temp vars
   boolean hueClicked=false;
   boolean sbClicked=false;

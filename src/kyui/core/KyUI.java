@@ -1,4 +1,6 @@
 package kyui.core;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,6 +9,7 @@ import java.util.List;
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
 import kyui.event.FileDropEventListener;
+import kyui.event.ResizeListener;
 import kyui.util.Task;
 import kyui.util.TaskManager;
 import kyui.util.Rect;
@@ -20,9 +23,8 @@ import processing.event.KeyEvent;
 import sojamo.drop.*;
 //===To ADD list===//
 //ADD>>optimize mouseEvent and rendering chain!! especially clipping...
-//ADD>>search elements in editor
+//ADD>>search elements in editor (later)
 //ADD>>drag and drop overlay !!!**
-//ADD>>textBox filtering text in setText!!**
 public class KyUI {
   //
   public static PApplet Ref;
@@ -52,7 +54,7 @@ public class KyUI {
     }
   }
   static ModifyLayerTask modifyLayerTask=new ModifyLayerTask();//task for this object.
-  public static EventListener resizeListener;
+  static LinkedList<ResizeListener> resizeListeners=new LinkedList<>();
   //
   public static final int STATE_PRESS=1;
   public static final int STATE_PRESSED=2;
@@ -151,6 +153,25 @@ public class KyUI {
           taskManager.addTask(checkOverlayTask, de);
         }
       });
+      cp.addComponentListener(new ComponentListener() {
+        @Override
+        public void componentResized(ComponentEvent e) {
+          synchronized (updater) {
+            //System.out.println(e.getComponent().getSize().width+" "+e.getComponent().getSize().height);
+            resize(e.getComponent().getSize().width, e.getComponent().getSize().height);
+            KyUI.taskManager.executeAll();
+          }
+        }
+        @Override
+        public void componentMoved(ComponentEvent e) {
+        }
+        @Override
+        public void componentShown(ComponentEvent e) {
+        }
+        @Override
+        public void componentHidden(ComponentEvent e) {
+        }
+      });
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -180,14 +201,20 @@ public class KyUI {
   public static void end() {
     end=true;
   }
-  public static void resize() {
-    for (int a=0; a < roots.size(); a++) {
-      roots.get(a).pos.set(0, 0, Ref.width, Ref.height);
-      roots.get(a).resize(Ref.width, Ref.height);
-      if (resizeListener != null) {
-        resizeListener.onEvent(roots.get(a));
-      }
+  public static void resize(int w, int h) {
+    for (CachingFrame root : roots) {
+      root.pos.set(0, 0, w, h);
+      root.resize(w, h);
     }
+    for (ResizeListener resizeListener : resizeListeners) {
+      resizeListener.onEvent(w, h);
+    }
+  }
+  public static void addResizeListener(ResizeListener e) {
+    resizeListeners.add(e);
+  }
+  public static boolean isRootPresent(CachingFrame e) {
+    return roots.contains(e);
   }
   public static void frameRate(int rate) {//update thread frame rate.
     updater_interval=1000 / rate;
@@ -258,15 +285,6 @@ public class KyUI {
       cacheGraphics.beginDraw();
       while (!end) {
         synchronized (updater) {
-          if (pwidth != Ref.width || pheight != Ref.height) {//resizing
-            resize();
-            pwidth=Ref.width;
-            pheight=Ref.height;
-            try {//resizing is heavy action.
-              Thread.sleep(300);//wait 0.3s to not make cpu hot!
-            } catch (InterruptedException e) {
-            }
-          }
           //empty EventQueue.
           while (EventQueue.size() > 0) {
             Event e=EventQueue.pollFirst();
@@ -278,7 +296,7 @@ public class KyUI {
           }
           KyUI.taskManager.executeAll();
           for (int a=0; a < roots.size(); a++) {
-            roots.get(a).render_(null);//FIX>> after making Modifiable Element!!
+            roots.getLast().render_(null);
           }
           roots.getLast().update_();
         }
@@ -287,6 +305,16 @@ public class KyUI {
           Thread.sleep(updater_interval);
         } catch (InterruptedException e) {
         }
+        /*if (pwidth != Ref.width || pheight != Ref.height) {//resizing
+          pwidth=Ref.width;
+          pheight=Ref.height;
+          resize();
+          KyUI.taskManager.executeAll();
+          //try {//resizing is heavy action.
+          //  Thread.sleep(200);//wait 0.2s to not make cpu hot!
+          //} catch (InterruptedException e) {
+          //}
+        }*/
       }
       cacheGraphics.endDraw();
     }
@@ -395,7 +423,7 @@ public class KyUI {
     g.imageMode(PApplet.CORNERS);
     clipRect.set(rect);
     if (clipArea.size() > 0) {
-      Rect.getIntersection(rect, clipArea.getLast(), clipRect);
+      clipRect=Rect.getIntersection(rect, clipArea.getLast(), clipRect);
     }
     g.clip(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
     clipArea.add(rect.set(clipRect));
