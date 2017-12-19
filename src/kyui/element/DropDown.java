@@ -3,13 +3,16 @@ import kyui.core.Attributes;
 import kyui.core.CachingFrame;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.event.EventListener;
 import kyui.event.ItemSelectListener;
 import kyui.event.MouseEventListener;
+import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-public class DropDown extends Button {
+public class DropDown extends Button implements DataTransferable<Integer> {
+  EventListener dataChangeListener;
   public static String DOWN="\u25BE";
   public static String UP="\u25B4";
   protected Button downButton;
@@ -17,6 +20,7 @@ public class DropDown extends Button {
   protected ItemSelectListener selectListener;
   protected CachingFrame downLayer;
   protected Button pickerCancel;
+  int selectedIndex=0;
   //
   public DropDown(String name) {
     super(name);
@@ -145,9 +149,14 @@ public class DropDown extends Button {
     public boolean onEvent(MouseEvent e, int index) {
       if (picker.size() == 0) return true;
       downButton.text=UP;
-      invalidate();
+      float top=pos.bottom;
+      float bottom=Math.min(pos.bottom + picker.getPreferredSize().y, KyUI.Ref.height);
+      if (KyUI.Ref.height - pos.bottom < pos.top) {
+        top=Math.max(top - picker.getPreferredSize().y, 0);
+        bottom=pos.top;
+      }
+      picker.setPosition(new Rect(pos.left, top, pos.right, bottom));
       KyUI.addLayer(downLayer);
-      picker.setPosition(new Rect(pos.left, pos.bottom, pos.right, Math.min(pos.bottom + picker.getPreferredSize().y, KyUI.Ref.height)));//!!!
       return false;
     }
   }
@@ -155,7 +164,28 @@ public class DropDown extends Button {
     public void onEvent(int index) {
       KyUI.removeLayer();
       downButton.text=DOWN;
-      selectListener.onEvent(index);//propagate. set text and etc...
+      selectedIndex=index;
+      text=((Button)picker.getItems().get(selectedIndex)).text;
+      if (selectListener != null) {
+        selectListener.onEvent(index);//propagate. set text and etc...
+      }
+      if (dataChangeListener != null) {
+        dataChangeListener.onEvent(DropDown.this);//propagate. set text and etc...
+      }
     }
+  }
+  @Override
+  public Integer get() {
+    return selectedIndex;
+  }
+  @Override
+  public void set(Integer value) {
+    if (value < 0 || value >= picker.getItems().size()) return;
+    selectedIndex=value;
+    text=((Button)picker.getItems().get(selectedIndex)).text;
+  }
+  @Override
+  public void setDataChangeListener(EventListener event) {
+    dataChangeListener=event;
   }
 }

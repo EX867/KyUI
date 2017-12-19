@@ -58,4 +58,9 @@ public final class CachingFrame extends Element {
   public synchronized void renderReal(PGraphics g) {
     g.image(display, display.width / 2, display.height / 2);
   }
+  public void clear() {
+    display.beginDraw();
+    display.clear();
+    display.endDraw();
+  }
 }

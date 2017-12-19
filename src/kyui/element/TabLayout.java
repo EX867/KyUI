@@ -22,6 +22,8 @@ public class TabLayout extends Element {
   protected DivisionLayout linkLayout;
   protected LinearLayout tabLayout;
   protected FrameLayout contentLayout;
+  @Attribute(layout=Attribute.SELF, setter="setMode")
+  public LinearLayout.Behavior mode=LinearLayout.Behavior.DYNAMIC;
   //modifiable values
   @Attribute(type=Attribute.COLOR)
   public int tabColor1;//selected

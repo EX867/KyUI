@@ -5,7 +5,8 @@ import kyui.core.KyUI;
 import kyui.element.LinearList;
 import kyui.event.EventListener;
 import processing.core.PGraphics;
-public abstract class InspectorButton<Type> extends LinearList.SelectableButton {
+//FIX>>generalize with generic(<GetType,ElementType>)
+public class InspectorButton extends LinearList.SelectableButton {
   //modifiable values
   public float ratio=3.0F;//this is inspection button width by height.
   public float padding2;
@@ -24,7 +25,8 @@ public abstract class InspectorButton<Type> extends LinearList.SelectableButton 
     padding2=(pos.bottom - pos.top) / 6;
     float left=padding2;
     float width=Math.min((pos.bottom - pos.top) * ratio, (pos.right - pos.left) * 0.5F);//FIX>>default valueI??
-    for (Element child : children) {//just works like horizontal LinearList...
+    for (int a=children.size() - 1; a >= 0; a--) {//just works like horizontal LinearList...
+      Element child=children.get(a);
       child.setPosition(child.pos.set(pos.right - left - width + padding2, pos.top + padding2, pos.right - left, pos.bottom - padding2));
       left+=width;
     }
@@ -35,6 +37,4 @@ public abstract class InspectorButton<Type> extends LinearList.SelectableButton 
       }
     }
   }
-  public abstract void set(Type value);
-  public abstract Type get();
 }

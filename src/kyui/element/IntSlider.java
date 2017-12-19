@@ -1,7 +1,10 @@
 package kyui.element;
 import kyui.editor.Attribute;
+import kyui.event.EventListener;
+import kyui.util.DataTransferable;
 import kyui.util.Rect;
 public class IntSlider extends Slider {
+  EventListener dataChangeListener;
   @Attribute(setter="setMax")
   public int maxI;
   @Attribute(setter="setMin")
@@ -55,10 +58,14 @@ public class IntSlider extends Slider {
     super.set(value_);
   }
   //for attribute...
-  public void setMin(int min_){
-    set(min_,max);
+  public void setMin(int min_) {
+    set(min_, max);
   }
-  public void setMax(int max_){
-    set(min,max_);
+  public void setMax(int max_) {
+    set(min, max_);
+  }
+  @Override
+  public void set(Object value) {
+    valueI=(int)value;
   }
 }

@@ -9,6 +9,7 @@ import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
 import kyui.loader.ElementLoader;
 import kyui.util.Rect;
+import kyui.core.RelativeFrame;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -67,9 +68,13 @@ public class Main extends PApplet {
         Element e=(Element)((TreeGraph.Node)e_).content;
         selection=e;
         ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
-        layout_inspector.setItems((java.util.List)attrs.items);
-        layout_inspector.localLayout();
-        attrs.setAttribute(e);
+        if (attrs != null) {
+          layout_inspector.setItems((java.util.List)attrs.items);
+          layout_inspector.localLayout();
+          attrs.setAttribute(e);
+        } else {
+          System.out.println("class " + e.getClass().getTypeName() + " returned null.");
+        }
       }
     });
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
@@ -144,10 +149,6 @@ public class Main extends PApplet {
       main_statusDivision.pos.set(0, 0, w, h);
       main_statusDivision.onLayout();
       main_statusDivision.invalidate();
-      System.out.println(main_statusDivision.pos);
-      System.out.println(main_tabs.pos);
-      System.out.println(main_layout.pos);
-      System.out.println();
     });
     KyUI.<StatusBar>get2("main_status").text=startText;
     ElementLoader.loadOnStart(layout_elements);

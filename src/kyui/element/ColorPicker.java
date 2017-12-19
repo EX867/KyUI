@@ -3,6 +3,7 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.event.EventListener;
 import kyui.util.Rect;
+import kyui.util.Vector2;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -77,13 +78,21 @@ public class ColorPicker extends Element {
     bgColor=KyUI.Ref.color(127);
     createColorImage();
   }
+  @Override
+  public void setBgColor(int c) {
+    super.setBgColor(c);
+    createColorImage();
+  }
   public void setAdjustListener(EventListener e) {
     onAdjust=e;
   }
   @Override
   public void setPosition(Rect rect) {
+    Vector2 size=new Vector2(pos.right - pos.left, pos.bottom - pos.top);
     super.setPosition(rect);
-    createColorImage();
+    if (size.x != (rect.right - rect.left) || size.y != (rect.bottom - rect.top)) {
+      createColorImage();
+    }
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {

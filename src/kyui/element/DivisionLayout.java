@@ -14,6 +14,7 @@ public class DivisionLayout extends Element {
   public float value=40;//first's size
   @Attribute(layout=Attribute.SELF)
   public boolean inverse=false;
+  @Attribute(layout=Attribute.SELF)
   public Attributes.Rotation rotation=Attributes.Rotation.LEFT;
   public DivisionLayout(String name) {
     super(name);
@@ -59,15 +60,15 @@ public class DivisionLayout extends Element {
         first=getSize() * first;
       }
       if (rotation.ordinal() % 2 == 1) {//horizontal
-        e1.setPosition(new Rect(pos.left + e1.margin, pos.top + e1.margin, pos.left + first - e1.margin, pos.bottom - e1.margin));
-        e2.setPosition(new Rect(pos.left + first + e2.margin, pos.top + e2.margin, pos.right - e2.margin, pos.bottom - e2.margin));
+        e1.setPosition(new Rect(pos.left + e1.margin + padding, pos.top + e1.margin + padding, pos.left + first - e1.margin - padding / 2, pos.bottom - e1.margin - padding));
+        e2.setPosition(new Rect(pos.left + first + e2.margin + padding / 2, pos.top + e2.margin + padding, pos.right - e2.margin - padding, pos.bottom - e2.margin - padding));
       } else {//vertical
-        e1.setPosition(new Rect(pos.left + e1.margin, pos.top + e1.margin, pos.right - e1.margin, pos.top + first - e1.margin));
-        e2.setPosition(new Rect(pos.left + e2.margin, pos.top + first + e2.margin, pos.right - e2.margin, pos.bottom - e2.margin));
+        e1.setPosition(new Rect(pos.left + e1.margin + padding, pos.top + e1.margin + padding, pos.right - e1.margin - padding, pos.top + first - e1.margin - padding / 3));
+        e2.setPosition(new Rect(pos.left + e2.margin + padding, pos.top + first + e2.margin + padding / 2, pos.right - e2.margin - padding, pos.bottom - e2.margin - padding));
       }
     } else if (size == 1) {
       Element e=children.get(0);
-      e.setPosition(new Rect(pos.left + e.margin, pos.top + e.margin, pos.right - e.margin, pos.bottom - e.margin));
+      e.setPosition(new Rect(pos.left + e.margin + padding, pos.top + e.margin + padding, pos.right - e.margin - padding, pos.bottom - e.margin - padding));
     }
   }
 }

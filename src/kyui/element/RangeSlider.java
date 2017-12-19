@@ -113,7 +113,7 @@ public class RangeSlider extends Button {
         if (adjustListener != null) {
           adjustListener.onEvent(this);
         }
-        //invalidate();
+        invalidate();
         return false;
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {

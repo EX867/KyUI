@@ -395,6 +395,7 @@ public class TextEdit extends Element {//no sliderX for now...
       text=filter.filter(text);
     }
     content.setText(text);
+    content.fixSelection();
     invalidate();
   }
   public String getText() {

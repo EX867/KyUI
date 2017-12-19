@@ -7,6 +7,7 @@ import kyui.element.LinearList;
 import kyui.element.TextBox;
 import kyui.element.TreeGraph;
 import kyui.event.EventListener;
+import kyui.util.DataTransferable;
 import processing.event.MouseEvent;
 
 import java.lang.annotation.ElementType;
@@ -36,7 +37,7 @@ public @interface Attribute {
     Method setMethod;
     public Class c;
     public Field field;
-    public InspectorButton ref;//set manually by ElementLoader.AttributeSet. this can be null is ignored.
+    public DataTransferable ref;//set manually by ElementLoader.AttributeSet. this can be null is ignored.
     public Editor(Attribute attr_, Class c_, Field field_) throws Exception {
       attr=attr_;
       c=c_;
@@ -79,39 +80,11 @@ public @interface Attribute {
         e.printStackTrace();
       }
     }
-    public void setRef(InspectorButton ref_) {
+    public void setRef(DataTransferable ref_) {
       ref=ref_;
-      EventListener el=(Element e) -> {
+      ref.setDataChangeListener((Element e) -> {
         setField(Main.selection, ref.get());
-      };
-      if (ref instanceof InspectorColorButton) {
-        ((InspectorColorButton)ref).colorButton.setPressListener(new ColorButton.OpenColorPickerEvent(((InspectorColorButton)ref).colorButton, (Element e) -> {
-          el.onEvent(e);
-        }));
-      } else if (ref instanceof InspectorDropDownButton) {
-        InspectorDropDownButton i=(InspectorDropDownButton)ref;
-        i.dropDown.setSelectListener((int index) -> {
-          i.selection=index;
-          i.dropDown.text=i.Type_c.getEnumConstants()[i.selection].toString();
-          setField(Main.selection, i.get());
-        });
-      } else if (ref instanceof InspectorFontButton) {
-        ((InspectorFontButton)ref).fontDrop.setDropListener(el);
-      } else if (ref instanceof InspectorImageButton) {
-        ((InspectorImageButton)ref).imageDrop.setDropListener(el);
-      } else if (ref instanceof InspectorRectButton) {
-        InspectorRectButton i=(InspectorRectButton)ref;
-        for (TextBox t : i.ltrb) {
-          t.setTextChangeListener(el);
-        }
-      } else if (ref instanceof InspectorTextButton) {
-        ((InspectorTextButton)ref).textBox.setTextChangeListener(el);
-      } else if (ref instanceof InspectorToggleButton) {
-        ((InspectorToggleButton)ref).toggleButton.setPressListener((MouseEvent e, int index) -> {
-          setField(Main.selection, ref.get());
-          return false;
-        });
-      }
+      });
     }
   }
 }

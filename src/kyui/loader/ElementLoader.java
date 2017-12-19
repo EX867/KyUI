@@ -6,9 +6,7 @@ import kyui.element.LinearLayout;
 import kyui.element.LinearList;
 import kyui.element.TextBox;
 import kyui.element.ToggleButton;
-import kyui.util.ColorExt;
-import kyui.util.HideInEditor;
-import kyui.util.Rect;
+import kyui.util.*;
 import kyui.editor.inspectorItem.*;
 import org.reflections.Reflections;
 import processing.core.PApplet;
@@ -28,6 +26,8 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import kyui.element.*;
 public class ElementLoader {
   static LinearList elementList;
   public static ArrayList<Class<? extends Element>> types=new ArrayList<>();
@@ -230,37 +230,55 @@ public class ElementLoader {
       for (Attribute.Editor a : attrs) {
         InspectorButton i=null;
         String name=a.c.getTypeName() + "." + a.field.getName();
+        String name1=name + ":element";
         if (a.field.getType() == int.class || a.field.getType() == Integer.class) {
           if (a.attr.type() == Attribute.COLOR) {
-            i=new InspectorColorButton(name);//FIX>> this to new class InspectorColorButton + Variable
+            ColorButton e=new ColorButton(name1);
+            e.setPressListener(new ColorButton.OpenColorPickerEvent(e));
+            i=new InspectorButton1<Integer, ColorButton>(name, e);//FIX>> this to new class InspectorColorButton + Variable
           } else {
-            i=new InspectorTextButton<Integer>(name, Integer.class);
+            i=new InspectorButton1<Integer, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.INTEGER));
           }
         } else if (a.field.getType() == float.class || a.field.getType() == Float.class) {
-          i=new InspectorTextButton<Float>(name, Float.class);
+          i=new InspectorButton1<Float, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.FLOAT));
         } else if (a.field.getType() == boolean.class || a.field.getType() == Boolean.class) {
-          i=new InspectorToggleButton(name);
+          i=new InspectorButton1<Boolean, ToggleButton>(name, new ToggleButton(name1));
         } else if (a.field.getType() == Rect.class) {
           i=new InspectorRectButton(name);
         } else if (a.field.getType() == String.class) {
-          i=new InspectorTextButton<String>(name, String.class);
+          i=new InspectorButton1<String, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.NONE));
         } else if (a.field.getType() == PImage.class) {
-          i=new InspectorImageButton(name);
+          i=new InspectorButton1<PImage, ImageDrop>(name, new ImageDrop(name1));
         } else if (a.field.getType() == PFont.class) {
-          i=new InspectorFontButton(name);
+          i=new InspectorButton1<PFont, FontDrop>(name, new FontDrop(name1));
         } else if (a.field.getType().isEnum()) {
-          i=new InspectorDropDownButton(name, a.field.getType());
+          DropDown dd=new DropDown(name1);
           Object[] enumConstants=a.field.getType().getEnumConstants();
           for (Object o : enumConstants) {
-            ((InspectorDropDownButton)i).dropDown.addItem(o.toString());
+            dd.addItem(o.toString());
           }
+          i=new InspectorButton1<Enum, DropDown>(name, dd, new TypeChanger<Enum, Integer>() {
+            @Override
+            public Enum changeBtoA(Integer in) {
+              return (Enum)enumConstants[in];
+            }
+            @Override
+            public Integer changeAtoB(Enum in) {
+              for (int index=0; index < enumConstants.length; index++) {
+                if (enumConstants[index].equals(in)) {
+                  return index;
+                }
+              }
+              return -1;
+            }
+          });
         } else {
           System.err.println(a.field.getType().getTypeName() + " is not handled in ElementLoader.");
           continue;
         }
         i.text=a.field.getName();
         i.addedTo(inspector);
-        a.setRef(i);
+        a.setRef((DataTransferable)i);
         items.add(i);
       }
     }
@@ -268,7 +286,7 @@ public class ElementLoader {
       try {
         for (Attribute.Editor a : attrs) {
           if (a.ref != null) {
-            a.ref.set(a.getField(e));
+            ((DataTransferable)a.ref).set(a.getField(e));
           }
         }
       } catch (Exception ex) {

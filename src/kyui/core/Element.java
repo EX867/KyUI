@@ -95,7 +95,7 @@ public class Element implements TreeNodeAction {
   @Attribute(setter="setPosition", layout=Attribute.NONE)//setPosition includes layout.
   public Rect pos=new Rect(0, 0, 0, 0);
   public Description description;//ADD>>implement this!
-  @Attribute(type=Attribute.COLOR)
+  @Attribute(type=Attribute.COLOR, setter="setBgColor")
   public int bgColor=0;
   @Attribute(layout=Attribute.PARENT)
   public int margin=0;
@@ -150,6 +150,9 @@ public class Element implements TreeNodeAction {
   @Override
   public boolean equals(Object other) {
     return (other instanceof Element && ((Element)other).Name.equals(Name));
+  }
+  public void setBgColor(int c) {
+    bgColor=c;
   }
   public void setPosition(Rect rect) {
     //System.out.println(getName() + " moved to " + rect.toString());
@@ -254,8 +257,7 @@ public class Element implements TreeNodeAction {
     if (clipRect == null) {
       clipRect=new Rect();
     }
-    clipRect.set(pos);
-    KyUI.clipRect(g, clipRect);
+    KyUI.clipRect(g, clipRect.set(pos));
   }
   public void removeClip(PGraphics g) {
     KyUI.removeClip(g);
@@ -311,7 +313,7 @@ public class Element implements TreeNodeAction {
   public void keyTyped(KeyEvent e) {//override this!
     //do not use e.getAction() in here! (incorrect)
   }
-  synchronized final boolean mouseEvent_(MouseEvent e, int index, boolean trigger) {
+  synchronized boolean mouseEvent_(MouseEvent e, int index, boolean trigger) {
     if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       if (!entered) {
         entered=true;

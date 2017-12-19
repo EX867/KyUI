@@ -4,10 +4,12 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
+import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-public class Slider extends Element {
+public class Slider extends Element implements DataTransferable {
+  EventListener dataChangeListener;
   int strokeWeight=4;
   @Attribute
   Attributes.Direction direction=Attributes.Direction.HORIZONTAL;
@@ -126,5 +128,17 @@ public class Slider extends Element {
   }
   public void setMax(float max_) {
     set(min, max_);
+  }
+  @Override
+  public Object get() {
+    return value;
+  }
+  @Override
+  public void set(Object value) {
+    this.value=(float)value;
+  }
+  @Override
+  public void setDataChangeListener(EventListener event) {
+    dataChangeListener=event;
   }
 }

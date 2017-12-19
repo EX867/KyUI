@@ -1,11 +1,14 @@
 package kyui.element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.event.EventListener;
 import kyui.util.ColorExt;
+import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-public class ToggleButton extends Button {
+public class ToggleButton extends Button implements DataTransferable<Boolean> {
+  EventListener dataChangeListener;
   @Attribute
   public boolean value=false;
   public ToggleButton(String name) {
@@ -30,5 +33,20 @@ public class ToggleButton extends Button {
   public void onPress() {
     if (value) value=false;
     else value=true;
+    if (dataChangeListener != null) {
+      dataChangeListener.onEvent(this);
+    }
+  }
+  @Override
+  public Boolean get() {
+    return value;
+  }
+  @Override
+  public void set(Boolean value) {
+    this.value=value;
+  }
+  @Override
+  public void setDataChangeListener(EventListener event) {
+    dataChangeListener=event;
   }
 }

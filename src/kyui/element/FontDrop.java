@@ -4,11 +4,14 @@ import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.event.FileDropEventListener;
+import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import processing.core.PFont;
 import processing.core.PGraphics;
+import processing.core.PImage;
 import sojamo.drop.DropEvent;
-public class FontDrop extends Element {
+public class FontDrop extends Element implements DataTransferable<PFont> {
+  EventListener dataChangeListener;
   //modifiable values
   @Attribute(type=Attribute.COLOR)
   public int fgColor;
@@ -43,6 +46,9 @@ public class FontDrop extends Element {
         if (onDropListener != null) {
           onDropListener.onEvent(self);
         }
+        if(dataChangeListener!=null){
+          dataChangeListener.onEvent(self);
+        }
         invalidate();
       }
     });
@@ -57,9 +63,21 @@ public class FontDrop extends Element {
     super.render(g);
     g.fill(fgColor);
     g.textFont(font);
-    g.textSize(Math.max(1,textSize));
+    g.textSize(Math.max(1, textSize));
     g.text("Aa한글", (pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
     g.textFont(KyUI.fontMain);
     g.noStroke();
+  }
+  @Override
+  public PFont get() {
+    return font;
+  }
+  @Override
+  public void set(PFont value) {
+    font=value;
+  }
+  @Override
+  public void setDataChangeListener(EventListener event) {
+    dataChangeListener=event;
   }
 }

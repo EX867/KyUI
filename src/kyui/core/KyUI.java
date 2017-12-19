@@ -156,10 +156,14 @@ public class KyUI {
       cp.addComponentListener(new ComponentListener() {
         @Override
         public void componentResized(ComponentEvent e) {
-          synchronized (updater) {
-            //System.out.println(e.getComponent().getSize().width+" "+e.getComponent().getSize().height);
-            resize(e.getComponent().getSize().width, e.getComponent().getSize().height);
-            KyUI.taskManager.executeAll();
+          try {
+            synchronized (updater) {
+              //System.out.println(e.getComponent().getSize().width+" "+e.getComponent().getSize().height);
+              resize(e.getComponent().getSize().width, e.getComponent().getSize().height);
+              KyUI.taskManager.executeAll();
+            }
+          } catch (NullPointerException ex) {
+            ex.printStackTrace();
           }
         }
         @Override
@@ -220,6 +224,7 @@ public class KyUI {
     updater_interval=1000 / rate;
   }
   public static void addLayer(CachingFrame root) {
+    root.clear();
     taskManager.addTask(modifyLayerTask, root);
   }
   public static void removeLayer() {

@@ -78,12 +78,6 @@ public class Test extends PApplet {
     for (int a=0; a < 10; a++) {
       e.addItem("e" + a);
     }
-    LinearList f=(LinearList)KyUI.get("list2");
-    for (int a=0; a < 10; a++) {
-      InspectorColorButton b=new InspectorColorButton("f" + a);
-      b.text="f" + a;
-      f.addItem(b);
-    }
     KyUI.addDragAndDrop(e, f, new DropEventListener() {
       @Override
       public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {

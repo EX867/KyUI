@@ -1,13 +1,16 @@
 package kyui.element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.event.EventListener;
 import kyui.util.ColorExt;
+import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-public class TextBox extends TextEdit {
+public class TextBox extends TextEdit implements DataTransferable {
+  EventListener dataChangeListener;
   //modifiable values
   @Attribute
   public String title="";
@@ -67,7 +70,7 @@ public class TextBox extends TextEdit {
     lineNumSize=0;
     errorColor=KyUI.Ref.color(255, 0, 0);
   }
-  public void setNumberOnly(NumberType v) {//default true...
+  public TextBox setNumberOnly(NumberType v) {//default true...
     numberFilter.condition=false;
     integerFilter.condition=false;
     if (v != NumberType.NONE) {
@@ -78,6 +81,7 @@ public class TextBox extends TextEdit {
     }
     numberOnly=v;
     setText(content.toString());
+    return this;
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
@@ -92,8 +96,13 @@ public class TextBox extends TextEdit {
     super.keyTyped(e);
     String str=content.toString();
     setValue(str);
-    if (changed && onTextChangeListener != null) {
-      onTextChangeListener.onEvent(this);
+    if (changed) {
+      if (onTextChangeListener != null) {
+        onTextChangeListener.onEvent(this);
+      }
+      if (dataChangeListener != null) {
+        dataChangeListener.onEvent(this);
+      }
     }
     changed=false;
   }
@@ -213,5 +222,23 @@ public class TextBox extends TextEdit {
         }
       }
     }
+  }
+  @Override
+  public Object get() {
+    if (numberOnly == NumberType.INTEGER) {
+      return valueI;
+    } else if (numberOnly == NumberType.FLOAT) {
+      return valueF;
+    } else {
+      return content.toString();
+    }
+  }
+  @Override
+  public void set(Object value) {
+    setText(value.toString());
+  }
+  @Override
+  public void setDataChangeListener(EventListener event) {
+    dataChangeListener=event;
   }
 }
