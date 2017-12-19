@@ -24,23 +24,26 @@ public class Vector2 {
   public Vector2 add(Vector2 other) {
     return new Vector2(x + other.x, y + other.y);
   }
-  public void addAssign(Vector2 other) {
+  public Vector2 addAssign(Vector2 other) {
     x+=other.x;
     y+=other.y;
+    return this;
   }
   public Vector2 sub(Vector2 other) {
     return new Vector2(x - other.x, y - other.y);
   }
-  public void subAssign(Vector2 other) {
+  public Vector2 subAssign(Vector2 other) {
     x-=other.x;
     y-=other.y;
+    return this;
   }
   public Vector2 multi(float r) {
     return new Vector2(x * r, y * r);
   }
-  public void multiAssign(float r) {
+  public Vector2 multiAssign(float r) {
     x*=r;
     y*=r;
+    return this;
   }
   @Override
   public String toString() {

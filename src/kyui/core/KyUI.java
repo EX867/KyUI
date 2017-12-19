@@ -102,6 +102,10 @@ public class KyUI {
   public static LinkedList<Shortcut> shortcuts=new LinkedList<Shortcut>();
   // graphics
   public static PGraphics cacheGraphics;
+  public static LinkedList<Vector2> transform=new LinkedList<>();
+  static {
+    transform.add(new Vector2());
+  }
   public static LinkedList<Rect> clipArea=new LinkedList<Rect>();
   public static long drawStart=0;// these 3 parameters used to measure elapsed time.
   public static long drawEnd=0;
@@ -428,7 +432,7 @@ public class KyUI {
     g.imageMode(PApplet.CORNERS);
     clipRect.set(rect);
     if (clipArea.size() > 0) {
-      clipRect=Rect.getIntersection(rect, clipArea.getLast(), clipRect);
+      clipRect=Rect.getIntersection(rect, clipArea.getLast().translate(transform.getLast().x, transform.getLast().y), clipRect);
     }
     g.clip(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
     clipArea.add(rect.set(clipRect));
@@ -440,11 +444,20 @@ public class KyUI {
         g.noClip();
       } else {
         g.noClip();
-        Rect last=clipArea.getLast();
+        Rect last=clipArea.getLast().translate(transform.getLast().x, transform.getLast().y);
         g.imageMode(PApplet.CORNERS);
         g.clip(last.left, last.top, last.right, last.bottom);
       }
     }
+  }
+  public static void test(PGraphics g) {
+    clipRect.render(g);
+  }
+  public static void transform(float x, float y) {//transforms clipArea and mouseEvent
+    transform.addLast(new Vector2(x, y).addAssign(transform.getLast()));
+  }
+  public static void restore() {
+    transform.removeLast();
   }
   public static void dropStart(Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
     dropMessenger=new DropMessenger("KyUI:messenger", start_, startEvent_, startIndex_, message_, displayText_);

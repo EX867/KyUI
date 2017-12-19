@@ -154,14 +154,10 @@ public class LinearLayout extends Element {
   }
   @Override
   public void render(PGraphics g) {
-    if (bgColor != 0) {
-      g.fill(bgColor);
-      pos.render(g);
-    }
+    super.render(g);
     if (mode == Behavior.FIXED) {
       setClip();
     }
-    g.noStroke();
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {

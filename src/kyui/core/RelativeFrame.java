@@ -23,25 +23,24 @@ public class RelativeFrame extends Element {
   }
   @Override
   public void clipRect(PGraphics g) {
-    if (!renderFlag) {
-      KyUI.clipRect(g, clipRect.set(pos));
-      g.pushMatrix();
-      g.translate(-offsetX, -offsetY);
+    if (renderFlag) {
+      super.render(g);
     }
-  }
-  @Override
-  public void render(PGraphics g) {
-    g.stroke(0);
-    super.render(g);
     //clipRect.set(pos.left - offsetX, pos.top - offsetY, pos.right - offsetX, pos.bottom - offsetY);
     KyUI.clipRect(g, clipRect.set(pos));
+    KyUI.transform(offsetX, offsetY);
     g.pushMatrix();
     g.translate(-offsetX, -offsetY);
   }
   @Override
+  public void render(PGraphics g) {
+    //nothing!!
+  }
+  @Override
   public void removeClip(PGraphics g) {
-    g.popMatrix();
+    KyUI.restore();
     super.removeClip(g);
+    g.popMatrix();
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {//from LinearLayout.

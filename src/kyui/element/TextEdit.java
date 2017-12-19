@@ -329,7 +329,8 @@ public class TextEdit extends Element {//no sliderX for now...
     }
   }
   @Override
-  public void render(PGraphics g) {//no draw slider...
+  public void render(PGraphics g) {
+    //no draw slider...
     //draw basic form
     g.fill(bgColor);
     pos.render(g);

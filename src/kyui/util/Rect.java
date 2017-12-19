@@ -100,4 +100,10 @@ public class Rect implements Cloneable {//it is like android's rect...
     }
     return container;
   }
+  public Rect translate(float x, float y) {
+    return new Rect(left + x, top + y, right + x, bottom + y);
+  }
+  public Rect getTranslated(float x, float y) {
+    return set(left + x, top + y, right + x, bottom + y);
+  }
 }
