@@ -3,6 +3,7 @@ import kyui.core.Attributes;
 import kyui.core.DropMessenger;
 import kyui.core.KyUI;
 import kyui.core.Element;
+import kyui.editor.inspectorItem.InspectorButton1;
 import kyui.element.*;
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
@@ -16,6 +17,8 @@ import processing.event.MouseEvent;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 public class Main extends PApplet {
   public static Element selection=null;//used in layout_tree
   public static void main(String[] args) {
@@ -125,14 +128,34 @@ public class Main extends PApplet {
     DivisionLayout colors_down=new DivisionLayout("colors_down");
     colors_down.rotation=Attributes.Rotation.RIGHT;
     colors_down.value=60;
+    LinearList colors_list=new LinearList("colors_list");
     Button colors_add=new Button("colors_add");
     colors_add.text="ADD";
     colors_add.margin=3;
     TextBox colors_addVar=new TextBox("colors_addVar");
     colors_addVar.setNumberOnly(TextBox.NumberType.NONE);
+    colors_add.setPressListener((MouseEvent e, int index) -> {
+      String text=colors_addVar.getText();
+      if (!colors_addVar.error && !text.isEmpty() && !ElementLoader.vars.containsKey(text)) {
+        ElementLoader.vars.put(text, new ElementLoader.ColorVariable(text, 0xFF000000));//default value=black.
+        ColorButton cb=new ColorButton("variableValue:" + text);
+        cb.setPressListener(new ColorButton.OpenColorPickerEvent(cb));
+        InspectorButton1 b=new InspectorButton1<String, ColorButton>("variable:" + text, cb);
+        b.text=text;
+        b.setDataChangeListener((Element el) -> {
+          ElementLoader.ColorVariable var=ElementLoader.vars.get(text);
+          var.value=cb.c;
+          for (ElementLoader.ColorVariable.Reference ref : var.references) {
+            ref.attr.setField(ref.el, cb.c);
+          }
+        });
+        colors_list.addItem(b);
+      }
+      return false;
+    });
     colors_down.addChild(colors_addVar);
     colors_down.addChild(colors_add);
-    main_colors.addChild(new LinearList("colors_list"));
+    main_colors.addChild(colors_list);
     main_colors.addChild(colors_down);
     //set main_shortcuts
     main_shortcut.rotation=Attributes.Rotation.DOWN;

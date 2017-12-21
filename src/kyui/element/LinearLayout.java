@@ -175,40 +175,40 @@ public class LinearLayout extends Element {
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
-    if (!draggable) return true;
-    if (mode == Behavior.STATIC) return true;
-    if (mode == Behavior.FIXED) {
-      setClip();
-    }
-    if (e.getAction() == MouseEvent.PRESS) {
-      clickOffset=offset;
-      clickScrollMax=0;
-      if (adjustListener != null) {
-        adjustListener.onEvent(this);
+    if (draggable || mode != Behavior.STATIC) {
+      if (mode == Behavior.FIXED) {
+        setClip();
       }
-    } else if (e.getAction() == MouseEvent.DRAG) {
-      if (pressedL) {
-        requestFocus();
-        float value=0;
-        if (direction == Attributes.Direction.HORIZONTAL) {
-          value=(KyUI.mouseClick.x - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;
-        } else if (direction == Attributes.Direction.VERTICAL) {
-          value=(KyUI.mouseClick.y - KyUI.mouseGlobal.y) * KyUI.scaleGlobal;
+      if (e.getAction() == MouseEvent.PRESS) {
+        clickOffset=offset;
+        clickScrollMax=0;
+        if (adjustListener != null) {
+          adjustListener.onEvent(this);
         }
-        clickScrollMax=Math.max(Math.abs(value), clickScrollMax);
-        setOffset(clickOffset + value);
-        localLayout();
-        if (clickScrollMax > KyUI.GESTURE_THRESHOLD) {
-          if (adjustListener != null) {
-            adjustListener.onEvent(this);
+      } else if (e.getAction() == MouseEvent.DRAG) {
+        if (pressedL) {
+          requestFocus();
+          float value=0;
+          if (direction == Attributes.Direction.HORIZONTAL) {
+            value=(KyUI.mouseClick.x - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;
+          } else if (direction == Attributes.Direction.VERTICAL) {
+            value=(KyUI.mouseClick.y - KyUI.mouseGlobal.y) * KyUI.scaleGlobal;
           }
-          return false;
-        } else {
-          offset=clickOffset;
+          clickScrollMax=Math.max(Math.abs(value), clickScrollMax);
+          setOffset(clickOffset + value);
+          localLayout();
+          if (clickScrollMax > KyUI.GESTURE_THRESHOLD) {
+            if (adjustListener != null) {
+              adjustListener.onEvent(this);
+            }
+            return false;
+          } else {
+            offset=clickOffset;
+          }
         }
+      } else if (e.getAction() == MouseEvent.RELEASE) {
+        if (pressedL && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
       }
-    } else if (e.getAction() == MouseEvent.RELEASE) {
-      if (pressedL && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;
     }
     return true;
   }

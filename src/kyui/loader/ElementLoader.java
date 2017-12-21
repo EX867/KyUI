@@ -33,7 +33,10 @@ public class ElementLoader {
   public static ArrayList<Class<? extends Element>> types=new ArrayList<>();
   public static HashMap<Class, AttributeSet> attributes=new HashMap<>();
   static PGraphics imager;
+  public static HashMap<String, InspectorColorVarButton.ColorVariable> vars=new HashMap<>();
+  public static LinkedList<LinearList.SelectableButton> variableList=new LinkedList<>();//this is used to change picker! managed by colorVariable.
   public static void loadOnStart(LinearList list) {
+    vars.put("NONE", null);
     elementList=list;
     if (list == null) {
       return;
