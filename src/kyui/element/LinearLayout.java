@@ -201,7 +201,7 @@ public class LinearLayout extends Element {
             if (adjustListener != null) {
               adjustListener.onEvent(this);
             }
-            return false;
+            //return false;FIX>>this make dragging is propagated to children. requesting focus...?
           } else {
             offset=clickOffset;
           }

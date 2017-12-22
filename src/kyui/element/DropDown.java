@@ -21,6 +21,7 @@ public class DropDown extends Button implements DataTransferable<Integer> {
   protected CachingFrame downLayer;
   protected Button pickerCancel;
   int selectedIndex=0;
+  MouseEventListener pressListener2;
   //
   public DropDown(String name) {
     super(name);
@@ -37,7 +38,7 @@ public class DropDown extends Button implements DataTransferable<Integer> {
     picker.setFixedSize(40);
     downButton.bgColor=0;
     downButton.text=DOWN;
-    setPressListener(new DropButtonListener());
+    super.setPressListener(new DropButtonListener());
     picker.setSelectListener(new DropDownClickListener());
     addChild(downButton);
     downLayer=KyUI.getNewLayer();
@@ -54,6 +55,10 @@ public class DropDown extends Button implements DataTransferable<Integer> {
       }
     });
     pickerCancel.bgColor=0;
+  }
+  @Override
+  public void setPressListener(MouseEventListener el) {
+    pressListener2=el;
   }
   public void setSelectListener(ItemSelectListener l) {
     selectListener=l;
@@ -147,12 +152,15 @@ public class DropDown extends Button implements DataTransferable<Integer> {
   }
   class DropButtonListener implements MouseEventListener {
     public boolean onEvent(MouseEvent e, int index) {
+      if (pressListener2 != null) {
+        pressListener2.onEvent(e, index);
+      }
       if (picker.size() == 0) return true;
       downButton.text=UP;
       float top=pos.bottom;
       float bottom=Math.min(pos.bottom + picker.getPreferredSize().y, KyUI.Ref.height);
       if (KyUI.Ref.height - pos.bottom < pos.top) {
-        top=Math.max(top - picker.getPreferredSize().y, 0);
+        top=Math.max(pos.top - picker.getPreferredSize().y, 0);
         bottom=pos.top;
       }
       picker.setPosition(new Rect(pos.left, top, pos.right, bottom));

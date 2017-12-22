@@ -3,7 +3,6 @@ import kyui.core.Attributes;
 import kyui.core.DropMessenger;
 import kyui.core.KyUI;
 import kyui.core.Element;
-import kyui.editor.inspectorItem.InspectorButton1;
 import kyui.element.*;
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
@@ -16,9 +15,6 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 public class Main extends PApplet {
   public static Element selection=null;//used in layout_tree
   public static void main(String[] args) {
@@ -83,24 +79,18 @@ public class Main extends PApplet {
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
     layout_elements.setFixedSize(150);
     KyUI.addDragAndDrop(layout_elements, layout_tree, new DropEventListener() {
-      private int count=0;
+      private int count=0;//FIX>>to find not duplicated name!
       @Override
       public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
         ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
         TreeGraph.Node<Element> node=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
         if (node != null) {
-          String name=e.element.getSimpleName() + count;//defult valueI
-          try {
-            Constructor<? extends Element> c=e.element.getDeclaredConstructor(String.class);
-            c.setAccessible(true);
-            TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
-            if (n != null) {
-              n.content.setPosition(new Rect(200, 200, 400, 400));//TEST(delete)
-              layout_tree.localLayout();
-              count++;
-            }
-          } catch (Exception ee) {
-            ee.printStackTrace();
+          String name=e.element.getSimpleName() + count + "_" + System.currentTimeMillis();//FIX>>defult valueI
+          Element el=ElementLoader.addElement(node, name, e.element);
+          if (el != null) {
+            el.setPosition(new Rect(200, 200, 400, 400));//TEST(delete)
+            layout_tree.localLayout();
+            count++;//FIX>>(2)
           }
         }
       }
@@ -137,15 +127,15 @@ public class Main extends PApplet {
     colors_add.setPressListener((MouseEvent e, int index) -> {
       String text=colors_addVar.getText();
       if (!colors_addVar.error && !text.isEmpty() && !ElementLoader.vars.containsKey(text)) {
-        ElementLoader.vars.put(text, new ElementLoader.ColorVariable(text, 0xFF000000));//default value=black.
+        ElementLoader.vars.put(text, new InspectorColorVarButton.ColorVariable(text, 0xFF000000));//default value=black.
         ColorButton cb=new ColorButton("variableValue:" + text);
         cb.setPressListener(new ColorButton.OpenColorPickerEvent(cb));
         InspectorButton1 b=new InspectorButton1<String, ColorButton>("variable:" + text, cb);
         b.text=text;
         b.setDataChangeListener((Element el) -> {
-          ElementLoader.ColorVariable var=ElementLoader.vars.get(text);
+          InspectorColorVarButton.ColorVariable var=ElementLoader.vars.get(text);
           var.value=cb.c;
-          for (ElementLoader.ColorVariable.Reference ref : var.references) {
+          for (InspectorColorVarButton.ColorVariable.Reference ref : var.references) {
             ref.attr.setField(ref.el, cb.c);
           }
         });
@@ -175,6 +165,7 @@ public class Main extends PApplet {
     });
     KyUI.<StatusBar>get2("main_status").text=startText;
     ElementLoader.loadOnStart(layout_elements);
+    ElementLoader.vars.put("NONE", new InspectorColorVarButton.ColorVariable("NONE", 0));
     main_tabs.selectTab(1);
   }
   @Override

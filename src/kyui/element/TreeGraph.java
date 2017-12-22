@@ -191,7 +191,10 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
           localLayout();
           if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
             dragged=true;
-            return false;
+            /**
+             * @see LinearLayout:204(mouseIntercept:FIX)
+             */
+            //return false;
           } else {
             offsetX=clickOffsetX;
             offsetY=clickOffsetY;

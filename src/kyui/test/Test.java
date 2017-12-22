@@ -7,7 +7,6 @@ import kyui.event.ItemSelectListener;
 import kyui.loader.ShortcutLoader;
 import kyui.util.Rect;
 import kyui.util.Vector2;
-import kyui.editor.inspectorItem.*;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;

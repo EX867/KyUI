@@ -2,12 +2,14 @@ package kyui.loader;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.editor.InspectorButton1;
+import kyui.editor.InspectorColorVarButton;
+import kyui.editor.InspectorRectButton;
 import kyui.element.LinearLayout;
 import kyui.element.LinearList;
 import kyui.element.TextBox;
 import kyui.element.ToggleButton;
 import kyui.util.*;
-import kyui.editor.inspectorItem.*;
 import org.reflections.Reflections;
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -19,6 +21,7 @@ import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -36,7 +39,6 @@ public class ElementLoader {
   public static HashMap<String, InspectorColorVarButton.ColorVariable> vars=new HashMap<>();
   public static LinkedList<LinearList.SelectableButton> variableList=new LinkedList<>();//this is used to change picker! managed by colorVariable.
   public static void loadOnStart(LinearList list) {
-    vars.put("NONE", null);
     elementList=list;
     if (list == null) {
       return;
@@ -108,7 +110,7 @@ public class ElementLoader {
         loadClass(c);
       }
       reflections=new Reflections("kyui.editor.inspectorItem");
-      Set<Class<? extends kyui.editor.inspectorItem.InspectorButton>> set2=reflections.getSubTypesOf(kyui.editor.inspectorItem.InspectorButton.class);//????
+      Set<Class<? extends InspectorButton>> set2=reflections.getSubTypesOf(InspectorButton.class);//????
       for (Class c : set2) {
         loadClass(c);
       }
@@ -238,7 +240,8 @@ public class ElementLoader {
           if (a.attr.type() == Attribute.COLOR) {
             ColorButton e=new ColorButton(name1);
             e.setPressListener(new ColorButton.OpenColorPickerEvent(e));
-            i=new InspectorButton1<Integer, ColorButton>(name, e);//FIX>> this to new class InspectorColorButton + Variable
+            //i=new InspectorButton1<Integer, ColorButton>(name, e);
+            i=new InspectorColorVarButton(name, e, a);
           } else {
             i=new InspectorButton1<Integer, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.INTEGER));
           }
@@ -296,5 +299,16 @@ public class ElementLoader {
         ex.printStackTrace();
       }
     }
+  }
+  public static Element addElement(TreeGraph.Node<Element> node, String name, Class type) {//class extends Element
+    try {
+      Constructor<? extends Element> c=type.getDeclaredConstructor(String.class);
+      c.setAccessible(true);
+      TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
+      return n.content;
+    } catch (Exception ee) {
+      ee.printStackTrace();
+    }
+    return null;
   }
 }

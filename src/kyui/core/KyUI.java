@@ -239,25 +239,25 @@ public class KyUI {
     return new CachingFrame("KyUI:" + count++, new Rect(0, 0, Ref.width, Ref.height));
   }
   protected static void addElement(Element e) {
-    if (!Elements.containsKey(e.Name)) {
-      Elements.put(e.Name, e);
+    if (!Elements.containsKey(e.name)) {
+      Elements.put(e.name, e);
     } else {
-      if (e != Elements.get(e.Name) && !e.Name.equals("KyUI:messenger")) {//messenger always share same name...
-        throw new RuntimeException("[KyUI] try to add existing name. (" + e.Name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.Name).getClass().getTypeName());
+      if (e != Elements.get(e.name) && !e.name.equals("KyUI:messenger")) {//messenger always share same name...
+        throw new RuntimeException("[KyUI] try to add existing name. (" + e.name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.name).getClass().getTypeName());
       }
     }
   }
   public static boolean rename(Element e, String name) {
-    if (e.Name.equals(name)) {
+    if (e.name.equals(name)) {
       return true;
     }
     if (!Elements.containsKey(name)) {
-      Elements.remove(e.Name);
-      e.Name=name;
+      Elements.remove(e.name);
+      e.name=name;
       Elements.put(name, e);
       return true;
     } else {
-      System.err.println("[KyUI] try to rename to existing name. (" + e.Name + " to " + name + ")");
+      System.err.println("[KyUI] try to rename to existing name. (" + e.name + " to " + name + ")");
       return false;
     }
   }

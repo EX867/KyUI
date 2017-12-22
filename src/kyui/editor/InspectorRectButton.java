@@ -1,4 +1,5 @@
-package kyui.editor.inspectorItem;
+package kyui.editor;
+import kyui.element.InspectorButton;
 import kyui.element.TextBox;
 import kyui.event.EventListener;
 import kyui.util.DataTransferable;

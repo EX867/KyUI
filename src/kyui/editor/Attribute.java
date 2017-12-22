@@ -1,7 +1,6 @@
 package kyui.editor;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.editor.inspectorItem.*;
 import kyui.element.ColorButton;
 import kyui.element.LinearList;
 import kyui.element.TextBox;

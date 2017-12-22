@@ -4,18 +4,12 @@ import kyui.element.TreeGraph;
 import kyui.event.TreeNodeAction;
 import kyui.util.Task;
 import kyui.util.Vector2;
-import kyui.util.TaskManager;
 import kyui.util.Rect;
 import kyui.util.ColorExt;
-import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PImage;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
-import javax.swing.*;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,7 +79,7 @@ public class Element implements TreeNodeAction {
     }
   }//reorder is not nessessary to put to task...
   //
-  String Name;//identifier.
+  String name;//identifier.
   //attributes
   @Attribute(setter="setEnabled", getter="isEnabled", layout=Attribute.PARENT)
   private boolean enabled=true;// this parameter controls object's existence.
@@ -122,7 +116,7 @@ public class Element implements TreeNodeAction {
   protected boolean skipRelease=false;
   //
   public Element(String name) {
-    Name=name;
+    this.name=name;
     KyUI.addElement(this);
   }
   //children modify
@@ -150,7 +144,7 @@ public class Element implements TreeNodeAction {
   }
   @Override
   public boolean equals(Object other) {
-    return (other instanceof Element && ((Element)other).Name.equals(Name));
+    return (other instanceof Element && ((Element)other).name.equals(name));
   }
   public void setBgColor(int c) {
     bgColor=c;
@@ -178,7 +172,7 @@ public class Element implements TreeNodeAction {
     KyUI.taskManager.addTask(modifyChildrenTask, null);
   }
   public final String getName() {
-    return Name;
+    return name;
   }
   //
   public void setEnabled(boolean state) {
@@ -347,6 +341,14 @@ public class Element implements TreeNodeAction {
       ret=false;
       trigger=false;
     }
+    if (e.getAction() == MouseEvent.PRESS) {//(2)
+      if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        if (!skipPress) {
+          requestFocus();
+        }
+        invalidate();
+      }
+    }
     int end=Math.min(children.size(), endClip);
     for (int a=Math.max(0, startClip); a < end; a++) {
       Element child=children.get(a);
@@ -366,6 +368,7 @@ public class Element implements TreeNodeAction {
         if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
           if (e.getButton() == KyUI.Ref.LEFT) {
             pressedL=true;
+            System.out.println(getName() + " set pressedL true");
           } else if (e.getButton() == KyUI.Ref.RIGHT) {
             pressedR=true;
           }
@@ -376,14 +379,6 @@ public class Element implements TreeNodeAction {
       }
       if (!skipRelease && KyUI.focus == this && e.getAction() == MouseEvent.RELEASE) {
         releaseFocus();
-      }
-      if (e.getAction() == MouseEvent.PRESS) {//(2)
-        if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-          if (!skipPress) {
-            requestFocus();
-          }
-          invalidate();
-        }
       }
     }
     if (e.getAction() == MouseEvent.RELEASE) {

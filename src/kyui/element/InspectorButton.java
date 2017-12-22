@@ -1,4 +1,4 @@
-package kyui.editor.inspectorItem;
+package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;

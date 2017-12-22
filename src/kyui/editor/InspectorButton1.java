@@ -1,6 +1,7 @@
-package kyui.editor.inspectorItem;
+package kyui.editor;
 import com.sun.istack.internal.Nullable;
 import kyui.core.Element;
+import kyui.element.InspectorButton;
 import kyui.event.EventListener;
 import kyui.util.DataTransferable;
 import kyui.util.TypeChanger;
