@@ -171,10 +171,10 @@ public class LinearLayout extends Element {
         return false;
       }
     }
-    return true;
-  }
-  @Override
-  public boolean mouseEventIntercept(MouseEvent e) {
+    //  return true;
+    //}
+    //@Override
+    //public boolean mouseEventIntercept(MouseEvent e, int index) {
     if (draggable || mode != Behavior.STATIC) {
       if (mode == Behavior.FIXED) {
         setClip();

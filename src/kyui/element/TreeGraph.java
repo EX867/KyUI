@@ -162,10 +162,10 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         return false;
       }
     }
-    return true;
-  }
-  @Override
-  public boolean mouseEventIntercept(MouseEvent e) {//from LinearLayout.
+    //  return true;
+    //}
+    //@Override
+    //public boolean mouseEventIntercept(MouseEvent e) {//from LinearLayout.
     if (e.getAction() == MouseEvent.PRESS) {
       clickOffsetX=offsetX;
       clickOffsetY=offsetY;

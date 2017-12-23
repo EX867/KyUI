@@ -79,6 +79,7 @@ public class Element implements TreeNodeAction {
     }
   }//reorder is not nessessary to put to task...
   //
+  @Attribute(setter="setName", getter="getName")
   String name;//identifier.
   //attributes
   @Attribute(setter="setEnabled", getter="isEnabled", layout=Attribute.PARENT)
@@ -173,6 +174,9 @@ public class Element implements TreeNodeAction {
   }
   public final String getName() {
     return name;
+  }
+  protected final void setName(String newName) {
+    KyUI.rename(this, newName);
   }
   //
   public void setEnabled(boolean state) {
