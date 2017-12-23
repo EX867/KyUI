@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -33,14 +34,16 @@ import java.util.jar.JarFile;
 import kyui.element.*;
 public class ElementLoader {
   static LinearList elementList;
+  static LinearList inspectorList;
   public static ArrayList<Class<? extends Element>> types=new ArrayList<>();
   public static HashMap<Class, AttributeSet> attributes=new HashMap<>();
   static PGraphics imager;
   public static HashMap<String, InspectorColorVarButton.ColorVariable> vars=new HashMap<>();
   public static LinkedList<LinearList.SelectableButton> variableList=new LinkedList<>();//this is used to change picker! managed by colorVariable.
-  public static void loadOnStart(LinearList list) {
-    elementList=list;
-    if (list == null) {
+  public static void loadOnStart(LinearList elementList_, LinearList inspectorList_) {
+    elementList=elementList_;
+    inspectorList=inspectorList_;
+    if (elementList == null || inspectorList == null) {
       return;
     }
     loadInternal();
@@ -224,6 +227,30 @@ public class ElementLoader {
     }
     return new ArrayList<Attribute.Editor>(fields);
   }
+  public static Method getMethod(Class<?> c, String name, Class... paramType) throws Exception {
+    Class originalC=c;
+    while (c != Object.class) {
+      Method[] methodArray=c.getDeclaredMethods();
+      for (Method m : methodArray) {
+        if (m.getName().equals(name) && arrayEquals(paramType, m.getParameterTypes())) {
+          return m;
+        }
+      }
+      c=c.getSuperclass();
+    }
+    return null;
+  }
+  static boolean arrayEquals(Object[] a, Object[] b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (int c=0; c < a.length; c++) {
+      if (!a[c].equals(b[c])) {
+        return false;
+      }
+    }
+    return true;
+  }
   public static class AttributeSet {
     public ArrayList<Attribute.Editor> attrs;
     public ArrayList<InspectorButton> items;
@@ -231,7 +258,7 @@ public class ElementLoader {
       attrs=attrs_;
       items=new ArrayList<>();
       items.ensureCapacity(attrs.size());
-      LinearLayout inspector=KyUI.<LinearList>get2("layout_inspector").listLayout;
+      LinearLayout inspector=inspectorList.listLayout;
       for (Attribute.Editor a : attrs) {
         InspectorButton i=null;
         String name=a.c.getTypeName() + "." + a.field.getName();
@@ -299,13 +326,23 @@ public class ElementLoader {
         ex.printStackTrace();
       }
     }
+    public Attribute.Editor getAttribute(String attrName) {
+      for (Attribute.Editor attr : attrs) {
+        if (attr.field.getName().equals(attrName)) {
+          //if two classes with extend relation has same name attribute, this method returns derived class's attribute.
+          //this makes malfunction in loading/saving layout into xml, so make two classes has no same name attributes!
+          return attr;
+        }
+      }
+      return null;
+    }
   }
-  public static Element addElement(TreeGraph.Node<Element> node, String name, Class type) {//class extends Element
+  public static TreeGraph.Node<Element> addElement(TreeGraph.Node<Element> node, String name, Class type) {//class extends Element
     try {
       Constructor<? extends Element> c=type.getDeclaredConstructor(String.class);
       c.setAccessible(true);
       TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
-      return n.content;
+      return n;
     } catch (Exception ee) {
       ee.printStackTrace();
     }

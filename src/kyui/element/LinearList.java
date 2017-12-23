@@ -227,6 +227,14 @@ public class LinearList extends Element {
     @Override
     public void addedTo(Element e) {
       if (e instanceof LinearLayout) {
+        if (e.parents.size() == 0) {
+          System.out.println("first parent error");//FIX>>
+          return;
+        }
+        if (e.parents.get(0).parents.size() == 0) {
+          System.out.println("second parent error");//FIX>>
+          return;
+        }
         Ref=(LinearList)(e.parents.get(0).parents.get(0));//this works because  LinearList->linkLayout(DivisionLayout)->listLayout(LinearLayout).
         //if user added SelectableButton to other Element directly, there will be error.
       } else {

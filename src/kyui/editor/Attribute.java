@@ -6,6 +6,7 @@ import kyui.element.LinearList;
 import kyui.element.TextBox;
 import kyui.element.TreeGraph;
 import kyui.event.EventListener;
+import kyui.loader.ElementLoader;
 import kyui.util.DataTransferable;
 import processing.event.MouseEvent;
 
@@ -47,7 +48,7 @@ public @interface Attribute {
         getMethod.setAccessible(true);
       }
       if (!attr.setter().isEmpty()) {
-        setMethod=c.getMethod(attr.setter(), field.getType());
+        setMethod=ElementLoader.getMethod(c, attr.setter(), field.getType());
         setMethod.setAccessible(true);
       }
     }

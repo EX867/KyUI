@@ -85,8 +85,8 @@ public class Main extends PApplet {
         ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
         TreeGraph.Node<Element> node=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
         if (node != null) {
-          String name=e.element.getSimpleName() + count + "_" + System.currentTimeMillis();//FIX>>defult valueI
-          Element el=ElementLoader.addElement(node, name, e.element);
+          String name=e.element.getSimpleName() + count + "_" + ((System.currentTimeMillis() / 1000) % 100000);//FIX>>defult valueI
+          Element el=ElementLoader.addElement(node, name, e.element).content;
           if (el != null) {
             el.setPosition(new Rect(200, 200, 400, 400));//TEST(delete)
             layout_tree.localLayout();
@@ -164,7 +164,7 @@ public class Main extends PApplet {
       main_statusDivision.invalidate();
     });
     KyUI.<StatusBar>get2("main_status").text=startText;
-    ElementLoader.loadOnStart(layout_elements);
+    ElementLoader.loadOnStart(layout_elements, layout_inspector);
     ElementLoader.vars.put("NONE", new InspectorColorVarButton.ColorVariable("NONE", 0));
     main_tabs.selectTab(1);
   }

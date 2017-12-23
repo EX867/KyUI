@@ -78,6 +78,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     addChild(root);
     bgColor=KyUI.Ref.color(127);
     selectionColor=0;//KyUI.Ref.color(0, 0, 127);
+    KyUI.taskManager.executeAll();
   }
   public Node addNode(String text, Content content) {
     return root.addNode(text, content);
@@ -156,14 +157,6 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.RELEASE) {
-      if (!dragged && selection != null) {
-        selection.unselect();
-        return false;
-      }
-    }
-    //  return true;
-    //}
     //@Override
     //public boolean mouseEventIntercept(MouseEvent e) {//from LinearLayout.
     if (e.getAction() == MouseEvent.PRESS) {
@@ -191,10 +184,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
           localLayout();
           if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
             dragged=true;
-            /**
-             * @see LinearLayout:204(mouseIntercept:FIX)
-             */
-            //return false;
+            return false;//origin of nested draggable element problem!
           } else {
             offsetX=clickOffsetX;
             offsetY=clickOffsetY;
@@ -202,34 +192,40 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         }
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
+      boolean ret=true;
       if (pressedL) {
         if (selection != null) {
           selectionOffsetX=0;
           selectionOffsetY=0;
           selectionControl=selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl;
           Node n=getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y, selection);
-          if (selectionControl && n != null) {
-            if ((!(selection.content == null && n.content == null)) && (selection.content == null || selection.content.checkNodeToAction(n)) && (n.content == null || n.content.checkNodeAction(selection))) {
-              Node s=selection;
-              selection.unselect();
-              s.parent.removeNode(s);
-              Node result=n.addNode(s);
-              if (result != null && result != n) {
-                s.setDepth(n.depth + 1);
-              }
-              onLayout();
-              invalidate();
-              selectionControl=false;
-              return false;
+          if (selectionControl && n != null && (!(selection.content == null && n.content == null)) && (selection.content == null || selection.content.checkNodeToAction(n)) && (n.content == null || n.content.checkNodeAction(selection))) {
+            Node s=selection;
+            selection.unselect();
+            s.parent.removeNode(s);
+            Node result=n.addNode(s);
+            if (result != null && result != n) {
+              s.setDepth(n.depth + 1);
             }
+            //return false;
+            ret=false;
           }
           onLayout();
           invalidate();
           selectionControl=false;
         } else if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
-          return false;
+          ret=false;
+          //return false;
         }
       }
+      if (e.getAction() == MouseEvent.RELEASE) {
+        if (!dragged && selection != null) {
+          selection.unselect();
+          ret=false;
+          //return false;
+        }
+      }
+      return ret;
     } else if (e.getAction() == MouseEvent.WHEEL) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
         float centerX=(pos.left + pos.right) / 2;
@@ -375,7 +371,12 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       Ref.nodes.remove(node);
     }
     public void delete() {
-      parent.removeNode(this);
+      if (parent == null) {
+        Ref.removeChild(this);
+        Ref.nodes.remove(this);
+      } else {
+        parent.removeNode(this);
+      }
       delete_();
     }
     public void delete_() {
@@ -448,6 +449,8 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         if (Ref.onSelectListener != null) {
           Ref.onSelectListener.onEvent(this);
         }
+        return true;
+      } else if (e.getAction() == MouseEvent.RELEASE) {
         return true;
       }
       return super.mouseEvent(e, index);

@@ -404,7 +404,9 @@ public class KyUI {
     if (e.getAction() == MouseEvent.EXIT) {
       mouseGlobal.set(-1, -1);//make no element contains this.
     }
-    roots.getLast().mouseEvent_(e, roots.size() - 1, true);
+    if (roots.size() > 0) {
+      roots.getLast().mouseEvent_(e, roots.size() - 1, true);
+    }
     //if (dropMessenger != null && e.getAction() == MouseEvent.RELEASE) {
     //}
     //int a=roots.size() - 1;

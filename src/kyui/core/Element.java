@@ -372,7 +372,7 @@ public class Element implements TreeNodeAction {
         if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
           if (e.getButton() == KyUI.Ref.LEFT) {
             pressedL=true;
-            System.out.println(getName() + " set pressedL true");
+            //System.out.println(getName() + " set pressedL true");
           } else if (e.getButton() == KyUI.Ref.RIGHT) {
             pressedR=true;
           }

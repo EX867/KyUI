@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <kyui.element.Button name="button1" bgColor="0xFFFF0000" pos="[(0,0)~(200,200)]">
+
+    </kyui.element.Button>
+</layout>
