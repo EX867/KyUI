@@ -1,6 +1,5 @@
 package kyui.test;
 import kyui.core.KyUI;
-import kyui.element.LinearList;
 import kyui.loader.ElementLoader;
 import kyui.loader.LayoutLoader;
 import processing.core.PApplet;
@@ -15,11 +14,14 @@ public class Test2 extends PApplet {
   }
   public void setup() {
     KyUI.start(this);
-    ElementLoader.loadOnStart(new LinearList("test2-ele"), new LinearList("test2-ins"));
-    LayoutLoader.loadXML(KyUI.get("KyUI:0"), loadXML("TestLayout.xml"));
+    ElementLoader.loadOnStart();
+    LayoutLoader.loadXML(KyUI.get("KyUI:0"), loadXML("test_layout.xml"));
+    //    KyUI.<kyui.element.Button>get2("button1").setPressListener((processing.event.MouseEvent e, int index) -> {
+    //      System.out.println("clicked! " + KyUI.frameCount);
+    //      return false;
+    //    });
   }
   public void draw() {
-    background(0);
     KyUI.render(g);
   }
   @Override

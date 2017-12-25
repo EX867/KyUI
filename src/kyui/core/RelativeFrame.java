@@ -4,7 +4,6 @@ import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-//FIX>> process relative position in more general and correct way...
 public class RelativeFrame extends Element {
   private float clickOffsetX=0;
   private float clickOffsetY=0;

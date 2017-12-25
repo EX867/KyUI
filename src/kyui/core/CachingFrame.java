@@ -52,8 +52,7 @@ public final class CachingFrame extends Element {
     display.dispose();
     display=KyUI.Ref.createGraphics(width, height);
     onLayout();//FIX>> resize layout problem!!!
-    renderFlag=true;
-    render_(null);
+    invalidate();
   }
   public synchronized void renderReal(PGraphics g) {
     g.image(display, display.width / 2, display.height / 2);

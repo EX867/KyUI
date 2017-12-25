@@ -127,7 +127,7 @@ public class TextBox extends TextEdit implements DataTransferable {
     if (str.equals("")) return false;
     if (str.length() > 9) return false;
     if (str.equals("-")) return false;
-    return str.matches("-?\\d*\\.?\\d*");
+    return str.matches("[+-]?([0-9]*[.])?[0-9]+");
   }
   @Override
   public void moveTo(int line) {//do nothing!

@@ -243,7 +243,13 @@ public class KyUI {
       Elements.put(e.name, e);
     } else {
       if (e != Elements.get(e.name) && !e.name.equals("KyUI:messenger")) {//messenger always share same name...
-        throw new RuntimeException("[KyUI] try to add existing name. (" + e.name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.name).getClass().getTypeName());
+        System.err.println("[KyUI] try to add existing name. (" + e.name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.name).getClass().getTypeName());
+        int a=0;
+        while (Elements.containsKey(e.name + a)) {//add number to avoid duplication
+          a++;
+        }
+        e.name=e.name + a;
+        Elements.put(e.name, e);
       }
     }
   }
@@ -304,8 +310,8 @@ public class KyUI {
             }
           }
           KyUI.taskManager.executeAll();
-          for (int a=0; a < roots.size(); a++) {
-            roots.getLast().render_(null);
+          for (CachingFrame root : roots) {
+            root.render_(null);
           }
           roots.getLast().update_();
         }
@@ -314,16 +320,6 @@ public class KyUI {
           Thread.sleep(updater_interval);
         } catch (InterruptedException e) {
         }
-        /*if (pwidth != Ref.width || pheight != Ref.height) {//resizing
-          pwidth=Ref.width;
-          pheight=Ref.height;
-          resize();
-          KyUI.taskManager.executeAll();
-          //try {//resizing is heavy action.
-          //  Thread.sleep(200);//wait 0.2s to not make cpu hot!
-          //} catch (InterruptedException e) {
-          //}
-        }*/
       }
       cacheGraphics.endDraw();
     }
@@ -332,7 +328,7 @@ public class KyUI {
   public static void handleEvent(Event e) {
     EventQueue.addLast(e);
   }
-  static void keyEvent(KeyEvent e) {// FIX >> This code is unstable. test and fix!
+  static void keyEvent(KeyEvent e) {
     if (Ref.key == PApplet.ESC) {
       Ref.key=0; // Fools! don't let them escape!
     }

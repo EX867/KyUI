@@ -1,14 +1,17 @@
 package kyui.element;
+import com.sun.istack.internal.Nullable;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.event.TreeNodeAction;
 import kyui.util.Rect;
+import kyui.util.Task;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Stack;
 public class TreeGraph<Content extends TreeNodeAction> extends Element {//includes scroll.
   Node root;
@@ -321,6 +324,8 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
           addChild(e);
           localLayout();
         }
+      } else {
+        System.err.println(e.getClass().getTypeName() + " can not added to TreeGraph.");
       }
     }
     @Override
@@ -337,6 +342,9 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
       return e instanceof TreeGraph || e instanceof Node;
     }
     public Node addNode(String text, Content content_) {
+      if (Ref == null) {
+        System.err.println(getName());//FIX ref is null
+      }
       Node n=new Node(Ref.getName() + ":" + Ref.count, depth + 1);
       Ref.count++;
       n.text=text;
@@ -381,11 +389,14 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     }
     public void delete_() {
       for (Node n : localNodes) {
-        delete_();
+        n.delete_();
       }
     }
     public Node get(int index) {
       return localNodes.get(index);
+    }
+    public ArrayList<Node> get() {
+      return localNodes;
     }
     @Override
     public void render(PGraphics g) {

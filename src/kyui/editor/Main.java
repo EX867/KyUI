@@ -8,12 +8,15 @@ import kyui.event.DropEventListener;
 import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
 import kyui.loader.ElementLoader;
+import kyui.loader.LayoutLoader;
 import kyui.util.Rect;
 import kyui.core.RelativeFrame;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+import sojamo.drop.DropEvent;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 public class Main extends PApplet {
   public static Element selection=null;//used in layout_tree
@@ -101,14 +104,23 @@ public class Main extends PApplet {
     layout_right.addChild(layout_inspector);
     layout_right.setDirection(Attributes.Direction.VERTICAL);
     ImageToggleButton layout_frame_move=new ImageToggleButton("layout_frame_move", ElementLoader.loadImageResource("move.png"));
-    layout_frame_move.setPressListener(new MouseEventListener() {
-      @Override
-      public boolean onEvent(MouseEvent e, int index) {
-        layout_frame.scroll=!layout_frame_move.value;
-        return false;
-      }
+    layout_frame_move.setPressListener((MouseEvent e, int index) -> {
+      layout_frame.scroll=!layout_frame_move.value;
+      return false;
+    });
+    ImageToggleButton layout_export=new ImageToggleButton("layout_export", ElementLoader.loadImageResource("export.png"));
+    EventListener action_export=(Element e) -> {
+      PrintWriter write=createWriter("layout.xml");
+      write.write(LayoutLoader.saveXML(layout_tree.getRoot()).format(2));
+      write.close();
+      System.out.println("[KyUI] exported as layout.xml in " + KyUI.frameCount);
+    };
+    layout_export.setPressListener((MouseEvent e, int index) -> {
+      action_export.onEvent(null);
+      return false;
     });
     layout_top.addChild(layout_frame_move);
+    layout_top.addChild(layout_export);
     //add all to main_layout
     main_layout.addChild(layout_frame);
     main_layout.addChild(layout_right);
@@ -167,6 +179,12 @@ public class Main extends PApplet {
     ElementLoader.loadOnStart(layout_elements, layout_inspector);
     ElementLoader.vars.put("NONE", new InspectorColorVarButton.ColorVariable("NONE", 0));
     main_tabs.selectTab(1);
+    KyUI.addShortcut(new KyUI.Shortcut("Export", true, false, false, 19, java.awt.event.KeyEvent.VK_S, action_export, false));
+    KyUI.addDragAndDrop(layout_tree, (DropEvent de) -> {
+      String filename=de.file().getAbsolutePath().replace("\\", "/");
+      LayoutLoader.loadXML(layout_frame, loadXML(filename), layout_tree.getRoot());//make root to node!
+      KyUI.changeLayout();
+    });
   }
   @Override
   public void draw() {

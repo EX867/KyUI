@@ -40,6 +40,9 @@ public class ElementLoader {
   static PGraphics imager;
   public static HashMap<String, InspectorColorVarButton.ColorVariable> vars=new HashMap<>();
   public static LinkedList<LinearList.SelectableButton> variableList=new LinkedList<>();//this is used to change picker! managed by colorVariable.
+  public static void loadOnStart() {//program calling this method will probably not an editor.
+    loadOnStart(new LinearList("KyUI:ElementLoader:elementList"), new LinearList("KyUI:ElementLoader:inspectorList"));
+  }
   public static void loadOnStart(LinearList elementList_, LinearList inspectorList_) {
     elementList=elementList_;
     inspectorList=inspectorList_;

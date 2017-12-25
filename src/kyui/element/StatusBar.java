@@ -34,7 +34,7 @@ public class StatusBar extends Button {
     cacheRect.set(pos.left, pos.top, pos.right, pos.top + edgeSize);
     textOffsetX=(int)(-(pos.right - pos.left) / 2 + padding);
     textOffsetY=edgeSize / 4;
-    super.render(g);//FIX
+    super.render(g);
     if (error) {
       g.fill(tabColor2);
     } else {

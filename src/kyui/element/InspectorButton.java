@@ -5,7 +5,6 @@ import kyui.core.KyUI;
 import kyui.element.LinearList;
 import kyui.event.EventListener;
 import processing.core.PGraphics;
-//FIX>>generalize with generic(<GetType,ElementType>)
 public class InspectorButton extends LinearList.SelectableButton {
   //modifiable values
   public float ratio=3.0F;//this is inspection button width by height.

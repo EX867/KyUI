@@ -168,7 +168,7 @@ public class LinearList extends Element {
   public boolean mouseEventIntercept(MouseEvent e) {
     if (e.getAction() == MouseEvent.PRESS) {
       if (pressItem != null) {
-        pressItemOld=pressItem;//FIX>> unstable
+        pressItemOld=pressItem;
       }
       pressItem=null;
     }
