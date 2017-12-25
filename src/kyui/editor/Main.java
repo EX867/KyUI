@@ -89,8 +89,9 @@ public class Main extends PApplet {
         TreeGraph.Node<Element> node=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
         if (node != null) {
           String name=e.element.getSimpleName() + count + "_" + ((System.currentTimeMillis() / 1000) % 100000);//FIX>>defult valueI
-          Element el=ElementLoader.addElement(node, name, e.element).content;
-          if (el != null) {
+          TreeGraph.Node n=ElementLoader.addElement(node, name, e.element);
+          if (n != null) {
+            Element el=(Element)n.content;
             el.setPosition(new Rect(200, 200, 400, 400));//TEST(delete)
             layout_tree.localLayout();
             count++;//FIX>>(2)
@@ -108,7 +109,7 @@ public class Main extends PApplet {
       layout_frame.scroll=!layout_frame_move.value;
       return false;
     });
-    ImageToggleButton layout_export=new ImageToggleButton("layout_export", ElementLoader.loadImageResource("export.png"));
+    ImageButton layout_export=new ImageButton("layout_export", ElementLoader.loadImageResource("export.png"));
     EventListener action_export=(Element e) -> {
       PrintWriter write=createWriter("layout.xml");
       write.write(LayoutLoader.saveXML(layout_tree.getRoot()).format(2));
@@ -119,8 +120,19 @@ public class Main extends PApplet {
       action_export.onEvent(null);
       return false;
     });
+    ImageButton layout_delete=new ImageButton("layout_delete", ElementLoader.loadImageResource("delete.png"));
+    layout_delete.setPressListener((MouseEvent e, int index) -> {
+      if (layout_tree.selection != null) {
+        if (layout_tree.getRoot() != layout_tree.selection) {
+          layout_tree.selection.delete();
+          layout_tree.invalidate();
+        }
+      }
+      return false;
+    });
     layout_top.addChild(layout_frame_move);
     layout_top.addChild(layout_export);
+    layout_top.addChild(layout_delete);
     //add all to main_layout
     main_layout.addChild(layout_frame);
     main_layout.addChild(layout_right);

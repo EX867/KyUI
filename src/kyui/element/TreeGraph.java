@@ -17,7 +17,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
   Node root;
   ArrayList<Node<Content>> nodes;
   EventListener onSelectListener;
-  Node selection;
+  public Node selection;
   //modifiable values
   @Attribute(type=Attribute.COLOR)
   public int selectionColor;
@@ -178,6 +178,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
           selectionControl=(selection.pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || selectionControl);
         }
         if (selection != null && selectionControl) {
+          dragged=true;
           selectionOffsetX=-valueX;//????
           selectionOffsetY=valueY;
           onLayout();
@@ -187,7 +188,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
           localLayout();
           if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
             dragged=true;
-            return false;//origin of nested draggable element problem!
+            //return false;//origin of nested draggable element problem!
           } else {
             offsetX=clickOffsetX;
             offsetY=clickOffsetY;
@@ -217,15 +218,11 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
           invalidate();
           selectionControl=false;
         } else if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
-          ret=false;
-          //return false;
+          return false;
         }
-      }
-      if (e.getAction() == MouseEvent.RELEASE) {
         if (!dragged && selection != null) {
           selection.unselect();
-          ret=false;
-          //return false;
+          return false;
         }
       }
       return ret;
@@ -343,7 +340,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     }
     public Node addNode(String text, Content content_) {
       if (Ref == null) {
-        System.err.println(getName());//FIX ref is null
+        KyUI.taskManager.executeAll();
       }
       Node n=new Node(Ref.getName() + ":" + Ref.count, depth + 1);
       Ref.count++;
@@ -390,6 +387,9 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
     public void delete_() {
       for (Node n : localNodes) {
         n.delete_();
+        KyUI.taskManager.addTask((Object o) -> {
+          removeNode(n);
+        }, null);
       }
     }
     public Node get(int index) {
@@ -462,7 +462,11 @@ public class TreeGraph<Content extends TreeNodeAction> extends Element {//includ
         }
         return true;
       } else if (e.getAction() == MouseEvent.RELEASE) {
-        return true;
+        if (Ref.dragged) {
+          return true;
+        } else {
+          return false;
+        }
       }
       return super.mouseEvent(e, index);
     }
