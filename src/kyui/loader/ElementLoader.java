@@ -21,6 +21,7 @@ import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -33,6 +34,8 @@ import java.util.jar.JarFile;
 
 import kyui.element.*;
 public class ElementLoader {
+  public static boolean isEditor=false;
+  static ArrayList<String> loadedExternals=new ArrayList<>();
   static LinearList elementList;
   static LinearList inspectorList;
   public static ArrayList<Class<? extends Element>> types=new ArrayList<>();
@@ -64,7 +67,7 @@ public class ElementLoader {
       try {
         String line=read.readLine();//line means one path.
         while (line != null) {
-          if (new File(line).isFile()) {
+          if (line.length() != 0 && new File(line).isFile()) {
             loadExternal(line);
           }
           line=read.readLine();
@@ -81,7 +84,22 @@ public class ElementLoader {
       }
     }
   }
+  static void exportExternals() {
+    String externalDataPath=getAppData() + "/externals.txt";
+    PrintWriter write=KyUI.Ref.createWriter(externalDataPath);
+    for (String path : loadedExternals) {
+      write.write(path + "\n");
+    }
+    write.flush();
+    write.close();
+    KyUI.log("ElementLoader - stored external jar data to " + externalDataPath + " successfully!");
+  }
   public static void loadExternal(String path) {//https://stackoverflow.com/questions/11016092/how-to-load-classes-at-runtime-from-a-folder-or-jar
+    KyUI.log("ElementLoader - load start : " + path);
+    if (!loadedExternals.contains(path)) {
+      loadedExternals.add(path);
+      exportExternals();
+    }
     try {
       JarFile jarFile=new JarFile(path);
       Enumeration<JarEntry> e=jarFile.entries();
@@ -89,23 +107,33 @@ public class ElementLoader {
       URLClassLoader cl=URLClassLoader.newInstance(urls);
       while (e.hasMoreElements()) {
         JarEntry je=e.nextElement();
+        KyUI.log("ElementLoader - checking... " + je.getName());
         if (je.isDirectory() || !je.getName().endsWith(".class")) {
           continue;
         }
         String className=je.getName().substring(0, je.getName().length() - 6);// -6 because of .class
-        className=className.replace('/', '.');
+        className=className.replace('/', '.').replace('\\', '.');
         try {
           Class.forName(className);
         } catch (ClassNotFoundException ee) {
           Class c=cl.loadClass(className);
-          if (c.isAssignableFrom(Element.class)) {
+          if (Element.class.isAssignableFrom(c)) {
             loadClass(c);
+          } else {
+            Class cc=c;
+            while (cc != Object.class) {
+              System.out.println(cc.getTypeName());
+              cc=cc.getSuperclass();
+            }
+            KyUI.log("ElementLoader - " + c.getTypeName() + " is not assignable to " + Element.class.getTypeName() + ".");
           }
         }
       }
+      KyUI.log("ElementLoader - " + path + " is successfully loaded!");
     } catch (Exception e) {
       e.printStackTrace();
     }
+    System.out.println();
   }
   public static void loadInternal() {
     try {
@@ -123,9 +151,11 @@ public class ElementLoader {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    System.out.println();
   }
   static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
     if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
+      KyUI.log("ElementLoader - loading... " + c.getTypeName());
       types.add(c);
       elementList.addItem(new ElementImage(c));
       attributes.put(c, new AttributeSet(getAttributeFields(c)));
@@ -140,28 +170,43 @@ public class ElementLoader {
       return System.getProperty("user.home") + "/KyUIEditor";//do not support!!
     }
   }
-  public static PImage loadImageResource(String filename) {
+  public static PImage loadImageResource(String filename) {//check external paths too!
     InputStream input=Element.class.getResourceAsStream("/" + filename);
-    if (input == null) {
+    if (input == null) {//no resources in internal directory.
+      for (String path : loadedExternals) {
+        try {
+          JarFile jarFile=new JarFile(path);
+          InputStream is=jarFile.getInputStream(jarFile.getEntry(filename));
+          if (is != null) {
+            return loadImage(is, filename);
+          }
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
+      }
     } else {
-      System.out.println("[KyUI] image " + filename + " is loaded");
-      byte[] bytes=KyUI.Ref.loadBytes(input);
-      if (bytes == null) {
-      } else {
-        //PApplet has no loadImage function for InputStream.
-        Image awtImage=(new ImageIcon(bytes)).getImage();
-        PImage image=new PImage(awtImage);
-        if (image.pixels != null) {//from PImage.checkAlpha().
-          for (int i=0; i < image.pixels.length; ++i) {
-            if ((image.pixels[i] & -16777216) != -16777216) {
-              image.format=2;
-              break;
-            }
+      return loadImage(input, filename);
+    }
+    return null;
+  }
+  static PImage loadImage(InputStream input, String filename) {
+    byte[] bytes=KyUI.Ref.loadBytes(input);
+    if (bytes == null) {
+    } else {
+      KyUI.log("image " + filename + " is loaded");
+      //PApplet has no loadImage function for InputStream.
+      Image awtImage=(new ImageIcon(bytes)).getImage();
+      PImage image=new PImage(awtImage);
+      if (image.pixels != null) {//from PImage.checkAlpha().
+        for (int i=0; i < image.pixels.length; ++i) {
+          if ((image.pixels[i] & -16777216) != -16777216) {
+            image.format=2;
+            break;
           }
         }
-        image.parent=KyUI.Ref;
-        return image;
       }
+      image.parent=KyUI.Ref;
+      return image;
     }
     return null;
   }
@@ -171,27 +216,29 @@ public class ElementLoader {
     public ElementImage(Class<? extends Element> c) {
       super(c.getTypeName());
       element=c;
-      try {//recommended size of image is 120x120, max is 150x150.
-        String className=c.getTypeName();
-        text=c.getSimpleName();
-        image=loadImageResource(className + ".png");
-        if (image == null) {
-          if (imager == null) {
-            imager=KyUI.Ref.createGraphics(120, 120);
+      String className=c.getTypeName();
+      text=c.getSimpleName();
+      if (ElementLoader.isEditor) {
+        try {//recommended size of image is 120x120, max is 150x150.
+          image=loadImageResource(className + ".png");
+          if (image == null) {
+            if (imager == null) {
+              imager=KyUI.Ref.createGraphics(120, 120);
+            }
+            imager.beginDraw();
+            imager.textFont(KyUI.fontMain);
+            imager.background(127);
+            imager.textSize(20);
+            imager.fill(50);
+            imager.textAlign(PApplet.CENTER, PApplet.CENTER);
+            imager.text(c.getSimpleName(), 0, 0, 120, 120);
+            imager.endDraw();
+            image=imager.copy();
           }
-          imager.beginDraw();
-          imager.textFont(KyUI.fontMain);
-          imager.background(127);
-          imager.textSize(20);
-          imager.fill(50);
-          imager.textAlign(PApplet.CENTER, PApplet.CENTER);
-          imager.text(c.getSimpleName(), 0, 0, 120, 120);
-          imager.endDraw();
-          image=imager.copy();
+        } catch (Exception e) {
+          KyUI.log("class load failed : " + c.getTypeName());
+          e.printStackTrace();
         }
-      } catch (Exception e) {
-        System.out.println("[KyUI] class load failed : " + c.getTypeName());
-        e.printStackTrace();
       }
     }
     @Override
@@ -262,60 +309,63 @@ public class ElementLoader {
       items=new ArrayList<>();
       items.ensureCapacity(attrs.size());
       LinearLayout inspector=inspectorList.listLayout;
-      for (Attribute.Editor a : attrs) {
-        InspectorButton i=null;
-        String name=a.c.getTypeName() + "." + a.field.getName();
-        String name1=name + ":element";
-        if (a.field.getType() == int.class || a.field.getType() == Integer.class) {
-          if (a.attr.type() == Attribute.COLOR) {
-            ColorButton e=new ColorButton(name1);
-            e.setPressListener(new ColorButton.OpenColorPickerEvent(e));
-            //i=new InspectorButton1<Integer, ColorButton>(name, e);
-            i=new InspectorColorVarButton(name, e, a);
-          } else {
-            i=new InspectorButton1<Integer, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.INTEGER));
-          }
-        } else if (a.field.getType() == float.class || a.field.getType() == Float.class) {
-          i=new InspectorButton1<Float, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.FLOAT));
-        } else if (a.field.getType() == boolean.class || a.field.getType() == Boolean.class) {
-          i=new InspectorButton1<Boolean, ToggleButton>(name, new ToggleButton(name1));
-        } else if (a.field.getType() == Rect.class) {
-          i=new InspectorRectButton(name);
-        } else if (a.field.getType() == String.class) {
-          i=new InspectorButton1<String, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.NONE));
-        } else if (a.field.getType() == PImage.class) {
-          i=new InspectorButton1<PImage, ImageDrop>(name, new ImageDrop(name1));
-        } else if (a.field.getType() == PFont.class) {
-          i=new InspectorButton1<PFont, FontDrop>(name, new FontDrop(name1));
-        } else if (a.field.getType().isEnum()) {
-          DropDown dd=new DropDown(name1);
-          Object[] enumConstants=a.field.getType().getEnumConstants();
-          for (Object o : enumConstants) {
-            dd.addItem(o.toString());
-          }
-          i=new InspectorButton1<Enum, DropDown>(name, dd, new TypeChanger<Enum, Integer>() {
-            @Override
-            public Enum changeBtoA(Integer in) {
-              return (Enum)enumConstants[in];
+      if (isEditor) {
+        for (Attribute.Editor a : attrs) {
+          InspectorButton i=null;
+          String name=a.c.getTypeName() + "." + a.field.getName();
+          String name1=name + ":element";
+          if (a.field.getType() == int.class || a.field.getType() == Integer.class) {//FIX>> optimize reuse Element class attributes.
+            if (a.attr.type() == Attribute.COLOR) {
+              ColorButton e=new ColorButton(name1);
+              e.setPressListener(new ColorButton.OpenColorPickerEvent(e));
+              //i=new InspectorButton1<Integer, ColorButton>(name, e);
+              i=new InspectorColorVarButton(name, e, a);
+            } else {
+              i=new InspectorButton1<Integer, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.INTEGER));
             }
-            @Override
-            public Integer changeAtoB(Enum in) {
-              for (int index=0; index < enumConstants.length; index++) {
-                if (enumConstants[index].equals(in)) {
-                  return index;
-                }
+          } else if (a.field.getType() == float.class || a.field.getType() == Float.class) {
+            i=new InspectorButton1<Float, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.FLOAT));
+          } else if (a.field.getType() == boolean.class || a.field.getType() == Boolean.class) {
+            i=new InspectorButton1<Boolean, ToggleButton>(name, new ToggleButton(name1));
+          } else if (a.field.getType() == Rect.class) {
+            i=new InspectorRectButton(name);
+          } else if (a.field.getType() == String.class) {
+            i=new InspectorButton1<String, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.NONE));
+          } else if (a.field.getType() == PImage.class) {
+            i=new InspectorButton1<PImage, ImageDrop>(name, new ImageDrop(name1));
+          } else if (a.field.getType() == PFont.class) {
+            i=new InspectorButton1<PFont, FontDrop>(name, new FontDrop(name1));
+          } else if (a.field.getType().isEnum()) {
+            DropDown dd=new DropDown(name1);
+            Object[] enumConstants=a.field.getType().getEnumConstants();
+            for (Object o : enumConstants) {
+              dd.addItem(o.toString());
+            }
+            dd.text="NONE";
+            i=new InspectorButton1<Enum, DropDown>(name, dd, new TypeChanger<Enum, Integer>() {
+              @Override
+              public Enum changeBtoA(Integer in) {
+                return (Enum)enumConstants[in];
               }
-              return -1;
-            }
-          });
-        } else {
-          System.err.println(a.field.getType().getTypeName() + " is not handled in ElementLoader.");
-          continue;
+              @Override
+              public Integer changeAtoB(Enum in) {
+                for (int index=0; index < enumConstants.length; index++) {
+                  if (enumConstants[index].equals(in)) {
+                    return index;
+                  }
+                }
+                return -1;
+              }
+            });
+          } else {
+            System.err.println(a.field.getType().getTypeName() + " is not handled in ElementLoader.");
+            continue;
+          }
+          i.text=a.field.getName();
+          i.addedTo(inspector);
+          a.setRef((DataTransferable)i);
+          items.add(i);
         }
-        i.text=a.field.getName();
-        i.addedTo(inspector);
-        a.setRef((DataTransferable)i);
-        items.add(i);
       }
     }
     public void setAttribute(Element e) {
@@ -345,6 +395,8 @@ public class ElementLoader {
       Constructor<? extends Element> c=type.getDeclaredConstructor(String.class);
       c.setAccessible(true);
       TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
+      //for if name is changed...
+      n.text=n.content.getName();
       return n;
     } catch (Exception ee) {
       ee.printStackTrace();

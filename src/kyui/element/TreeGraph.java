@@ -1,17 +1,14 @@
 package kyui.element;
-import com.sun.istack.internal.Nullable;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.event.TreeNodeAction;
 import kyui.util.Rect;
-import kyui.util.Task;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Stack;
 public class TreeGraph<Content extends TreeNodeAction> extends Element {//includes scroll.
   Node root;

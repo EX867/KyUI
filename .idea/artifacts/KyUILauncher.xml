@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KyUILauncher">
+    <output-path>$PROJECT_DIR$/</output-path>
+    <root id="archive" name="KyUILauncher.jar">
+      <element id="library" level="module" name="core.jar" module-name="KyUI" />
+      <element id="library" level="project" name="guava-21.0" />
+      <element id="library" level="project" name="javassist-3.21.0-GA" />
+      <element id="library" level="project" name="reflections-0.9.9" />
+      <element id="library" level="project" name="SDrop" />
+      <element id="module-output" name="KyUI" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>

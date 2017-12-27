@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TestExternalElement">
+    <output-path>$PROJECT_DIR$/</output-path>
+    <root id="archive" name="TestExternalElement.jar">
+      <element id="module-output" name="TestExternalElement" />
+    </root>
+  </artifact>
+</component>

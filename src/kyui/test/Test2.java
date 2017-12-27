@@ -5,7 +5,7 @@ import kyui.loader.LayoutLoader;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-public class Test2 extends PApplet {
+class Test2 extends PApplet {
   public static void main(String[] args) {
     PApplet.main("kyui.test.Test2");
   }
@@ -15,7 +15,7 @@ public class Test2 extends PApplet {
   public void setup() {
     KyUI.start(this);
     ElementLoader.loadOnStart();
-    LayoutLoader.loadXML(KyUI.get("KyUI:0"), loadXML("test_layout.xml"));
+    //LayoutLoader.loadXML(KyUI.get("KyUI:0"), loadXML("test_layout.xml"));
     //    KyUI.<kyui.element.Button>get2("button1").setPressListener((processing.event.MouseEvent e, int index) -> {
     //      System.out.println("clicked! " + KyUI.frameCount);
     //      return false;

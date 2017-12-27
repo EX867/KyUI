@@ -10,6 +10,7 @@ import processing.core.PImage;
 import processing.event.MouseEvent;
 
 import java.awt.Color;
+//ADD>>caching sb square!
 public class ColorPicker extends Element {
   private ColorPicker this_=this;
   class ColorModifyListenerRGB implements EventListener {

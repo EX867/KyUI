@@ -1,7 +1,6 @@
 package kyui.element;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
-import kyui.util.DataTransferable;
 import kyui.util.Rect;
 public class IntSlider extends Slider {
   EventListener dataChangeListener;

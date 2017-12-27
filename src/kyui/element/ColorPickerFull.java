@@ -1,7 +1,7 @@
 package kyui.element;
 import kyui.core.Element;
-import kyui.loader.ElementLoader;
 import kyui.event.EventListener;
+import kyui.loader.ElementLoader;
 import kyui.event.MouseEventListener;
 import kyui.util.Rect;
 import processing.event.MouseEvent;

@@ -8,7 +8,6 @@ import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import processing.core.PFont;
 import processing.core.PGraphics;
-import processing.core.PImage;
 import sojamo.drop.DropEvent;
 public class FontDrop extends Element implements DataTransferable<PFont> {
   EventListener dataChangeListener;
@@ -42,7 +41,7 @@ public class FontDrop extends Element implements DataTransferable<PFont> {
       public void onEvent(DropEvent de) {
         String filename=de.file().getAbsolutePath().replace("\\", "/");
         font=KyUI.Ref.createFont(filename, 20);
-        System.out.println("[KyUI] font dropped on " + getName() + ", " + filename);
+        KyUI.log(" font dropped on " + getName() + ", " + filename);
         if (onDropListener != null) {
           onDropListener.onEvent(self);
         }

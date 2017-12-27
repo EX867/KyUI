@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<layout>
-    <kyui.element.Button name="button1" bgColor="0xFF478327" pos="[(0,0)~(200,200)]"/>
-    <kyui.element.Button name="button2" bgColor="0xFF478327" pos="[(200,0)~(400,200)]"/>
-    <kyui.element.Button name="button3" bgColor="0xFF532952" pos="[(400,0)~(600,200)]" text="text changed"/>
-    <kyui.element.Button name="button4" bgColor="0xFF478327" pos="[(0,200)~(200,400)]"/>
-    <kyui.element.Button name="button5" bgColor="0xFF478327" pos="[(200,200)~(400,400)]"/>
-</layout>

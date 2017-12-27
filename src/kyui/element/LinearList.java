@@ -3,16 +3,14 @@ import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.event.EventListener;
 import kyui.event.ItemSelectListener;
 import kyui.event.MouseEventListener;
-import kyui.event.EventListener;
 import kyui.util.Task;
 import kyui.util.ColorExt;
 import kyui.util.Rect;
 import kyui.util.Vector2;
-import processing.core.PFont;
 import processing.core.PGraphics;
-import processing.core.PImage;
 import processing.event.MouseEvent;
 
 import java.util.List;
@@ -238,12 +236,13 @@ public class LinearList extends Element {
         Ref=(LinearList)(e.parents.get(0).parents.get(0));//this works because  LinearList->linkLayout(DivisionLayout)->listLayout(LinearLayout).
         //if user added SelectableButton to other Element directly, there will be error.
       } else {
-        throw new RuntimeException("[KyUI] LinearList : tried to add LinearList.SelectableButton to " + e.getClass().getTypeName());
+        //throw new RuntimeException("[KyUI] LinearList : tried to add LinearList.SelectableButton to " + e.getClass().getTypeName());
       }
     }
     @Override
     public boolean editorCheckTo(Element e) {
-      return e instanceof LinearList;
+      return true;
+      //return e instanceof LinearList || e instanceof DropDown;
     }
     private void init() {
       setPressListener(new ListItemPressListener(this));
@@ -252,10 +251,16 @@ public class LinearList extends Element {
     public void render(PGraphics g) {
       float height=(pos.bottom - pos.top);
       float overlap=height;
-      if (Ref.pos.top > pos.top) {//up overlap
-        overlap=(height - Ref.pos.top + pos.top);
-      } else if (Ref.pos.bottom < pos.bottom) {//down overlap
-        overlap=(height + Ref.pos.bottom - pos.bottom);
+      if (Ref != null) {
+        if (Ref.pos.top > pos.top) {//up overlap
+          overlap=(height - Ref.pos.top + pos.top);
+          textOffsetY=(int)(Ref.pos.top - pos.top) / 2;
+        } else if (Ref.pos.bottom < pos.bottom) {//down overlap
+          overlap=(height + Ref.pos.bottom - pos.bottom);
+          textOffsetY=(int)(Ref.pos.bottom - pos.bottom) / 2;
+        } else {
+          textOffsetY=0;
+        }
       }
       if (bgColor != 0) {
         int c=getDrawBgColor(g);
@@ -266,13 +271,6 @@ public class LinearList extends Element {
         }
         g.fill(c);
         pos.render(g);
-      }
-      if (Ref.pos.top > pos.top) {//up overlap
-        textOffsetY=(int)(Ref.pos.top - pos.top) / 2;
-      } else if (Ref.pos.bottom < pos.bottom) {//down overlap
-        textOffsetY=(int)(Ref.pos.bottom - pos.bottom) / 2;
-      } else {
-        textOffsetY=0;
       }
       drawContent(g, overlap);
     }
@@ -295,8 +293,10 @@ public class LinearList extends Element {
     }
     @Override
     public boolean mouseEvent(MouseEvent e, int index) {
-      if (e.getAction() == MouseEvent.PRESS) {
-        Ref.pressItem=this;
+      if (Ref != null) {
+        if (e.getAction() == MouseEvent.PRESS) {
+          Ref.pressItem=this;
+        }
       }
       return super.mouseEvent(e, index);
     }
@@ -307,14 +307,16 @@ public class LinearList extends Element {
       }
       @Override
       public boolean onEvent(MouseEvent e, int index) {
-        if (Ref.selection != null) {
-          Ref.selection.selected=false;
-          Ref.selection.invalidate();
-        }
-        selected=true;
-        Ref.selection=Ref2;
-        if (Ref.selectListener != null) {
-          Ref.selectListener.onEvent(index);
+        if (Ref != null) {
+          selected=true;
+          if (Ref.selection != null) {
+            Ref.selection.selected=false;
+            Ref.selection.invalidate();
+          }
+          Ref.selection=Ref2;
+          if (Ref.selectListener != null) {
+            Ref.selectListener.onEvent(index);
+          }
         }
         invalidate();
         return false;
@@ -323,7 +325,7 @@ public class LinearList extends Element {
   }
   @Override
   public Vector2 getPreferredSize() {
-    return new Vector2(pos.right - pos.left, listLayout.fixedSize * listLayout.children.size());
+    return new Vector2(pos.right - pos.left, listLayout.fixedSize * listLayout.children.size() + (listLayout.children.size() + 1) * padding + strokeWeight * 2);
   }
   @Override
   public int size() {

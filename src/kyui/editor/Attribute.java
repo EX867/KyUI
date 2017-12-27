@@ -1,14 +1,7 @@
 package kyui.editor;
 import kyui.core.Element;
-import kyui.core.KyUI;
-import kyui.element.ColorButton;
-import kyui.element.LinearList;
-import kyui.element.TextBox;
-import kyui.element.TreeGraph;
-import kyui.event.EventListener;
 import kyui.loader.ElementLoader;
 import kyui.util.DataTransferable;
-import processing.event.MouseEvent;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

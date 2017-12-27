@@ -1,12 +1,10 @@
 package kyui.element;
-import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.util.ColorExt;
 import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import processing.core.PGraphics;
-import processing.event.MouseEvent;
 public class ToggleButton extends Button implements DataTransferable<Boolean> {
   EventListener dataChangeListener;
   @Attribute

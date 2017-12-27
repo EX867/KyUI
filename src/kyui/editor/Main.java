@@ -6,7 +6,6 @@ import kyui.core.Element;
 import kyui.element.*;
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
-import kyui.event.MouseEventListener;
 import kyui.loader.ElementLoader;
 import kyui.loader.LayoutLoader;
 import kyui.util.Rect;
@@ -17,7 +16,6 @@ import processing.event.MouseEvent;
 import sojamo.drop.DropEvent;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 public class Main extends PApplet {
   public static Element selection=null;//used in layout_tree
   public static void main(String[] args) {
@@ -36,6 +34,11 @@ public class Main extends PApplet {
     surface.setTitle(startText);
     frameRate(30);
     KyUI.start(this);
+    ElementLoader.isEditor=true;
+    StatusBar main_status=new StatusBar("main_status");
+    KyUI.logEvent=(String text) -> {
+      main_status.setText(text);
+    };
     DivisionLayout main_statusDivision=new DivisionLayout("main_statusDivision", new Rect(0, 0, width, height));
     main_statusDivision.rotation=Attributes.Rotation.DOWN;
     main_statusDivision.value=40;
@@ -64,19 +67,20 @@ public class Main extends PApplet {
     layout_top.setFixedSize(34);
     layout_top.padding=3;
     layout_tree.getRoot().content=layout_frame;
-    layout_tree.setSelectListener(new EventListener() {
-      @Override
-      public void onEvent(Element e_) {
-        Element e=(Element)((TreeGraph.Node)e_).content;
-        selection=e;
-        ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
-        if (attrs != null) {
-          layout_inspector.setItems((java.util.List)attrs.items);
-          layout_inspector.localLayout();
-          attrs.setAttribute(e);
-        } else {
-          System.out.println("class " + e.getClass().getTypeName() + " returned null.");
-        }
+    layout_tree.setSelectListener((Element e_) -> {
+      Element e=(Element)((TreeGraph.Node)e_).content;
+      if (e == layout_frame) {
+        return;
+      }
+      selection=e;
+      KyUI.log("selected : " + e.getName());
+      ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
+      if (attrs != null) {
+        layout_inspector.setItems((java.util.List)attrs.items);
+        layout_inspector.localLayout();
+        attrs.setAttribute(e);
+      } else {
+        System.out.println("class " + e.getClass().getTypeName() + " returned null.");
       }
     });
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
@@ -114,7 +118,7 @@ public class Main extends PApplet {
       PrintWriter write=createWriter("layout.xml");
       write.write(LayoutLoader.saveXML(layout_tree.getRoot()).format(2));
       write.close();
-      System.out.println("[KyUI] exported as layout.xml in " + KyUI.frameCount);
+      KyUI.log(" exported as layout.xml in " + KyUI.frameCount);
     };
     layout_export.setPressListener((MouseEvent e, int index) -> {
       action_export.onEvent(null);
@@ -124,6 +128,7 @@ public class Main extends PApplet {
     layout_delete.setPressListener((MouseEvent e, int index) -> {
       if (layout_tree.selection != null) {
         if (layout_tree.getRoot() != layout_tree.selection) {
+          KyUI.log(((Element)layout_tree.selection.content).getName() + " is deleted.");
           layout_tree.selection.delete();
           layout_tree.invalidate();
         }
@@ -179,7 +184,7 @@ public class Main extends PApplet {
     main_tabs.addTab(" SHORTCUT  ", main_shortcut);
     //add tabs and status to main
     main_statusDivision.addChild(main_tabs);
-    main_statusDivision.addChild(new StatusBar("main_status"));
+    main_statusDivision.addChild(main_status);
     KyUI.add(main_statusDivision);
     KyUI.changeLayout();
     KyUI.addResizeListener((int w, int h) -> {
@@ -187,16 +192,30 @@ public class Main extends PApplet {
       main_statusDivision.onLayout();
       main_statusDivision.invalidate();
     });
-    KyUI.<StatusBar>get2("main_status").text=startText;
     ElementLoader.loadOnStart(layout_elements, layout_inspector);
     ElementLoader.vars.put("NONE", new InspectorColorVarButton.ColorVariable("NONE", 0));
     main_tabs.selectTab(1);
     KyUI.addShortcut(new KyUI.Shortcut("Export", true, false, false, 19, java.awt.event.KeyEvent.VK_S, action_export, false));
     KyUI.addDragAndDrop(layout_tree, (DropEvent de) -> {
       String filename=de.file().getAbsolutePath().replace("\\", "/");
-      LayoutLoader.loadXML(layout_frame, loadXML(filename), layout_tree.getRoot());//make root to node!
-      KyUI.changeLayout();
+      if (getExtension(filename).equals("xml")) {
+        TreeGraph.Node nodeToAdd=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
+        if (nodeToAdd == null) {
+          nodeToAdd=layout_tree.getRoot();
+        }
+        //no log...
+        LayoutLoader.loadXML((Element)nodeToAdd.content, loadXML(filename), nodeToAdd);//make root to node!
+        KyUI.changeLayout();
+      }
     });
+    KyUI.addDragAndDrop(layout_elements, (DropEvent de) -> {
+      String filename=de.file().getAbsolutePath().replace("\\", "/");
+      if (getExtension(filename).equals("jar")) {
+        ElementLoader.loadExternal(filename);
+        layout_elements.localLayout();
+      }
+    });
+    KyUI.log(startText);
   }
   @Override
   public void draw() {

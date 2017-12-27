@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
@@ -48,14 +49,21 @@ public class KyUI {
         }
         roots.peekLast().renderFlag=true;
       } else {
-        roots.addLast((CachingFrame)data_raw);
-        addElement((Element)data_raw);
+        CachingFrame root=(CachingFrame)data_raw;
+        roots.addLast(root);
+        //if (!root.pos.getSize().equals(new Vector2(Ref.width, Ref.height))) {
+        //  root.resize(Ref.width, Ref.height);
+        //}
+        addElement(root);
+        root.invalidate();
+        //root.localLayout();
       }
     }
   }
   static ModifyLayerTask modifyLayerTask=new ModifyLayerTask();//task for this object.
   static LinkedList<ResizeListener> resizeListeners=new LinkedList<>();
-  //
+  public static Consumer<String> logEvent;
+  //mouse
   public static final int STATE_PRESS=1;
   public static final int STATE_PRESSED=2;
   public static final int STATE_RELEASE=3;
@@ -81,13 +89,14 @@ public class KyUI {
         mouseGlobal.set(de.x() / scaleGlobal, de.y() / scaleGlobal);
         Element target=roots.getLast().checkOverlay(mouseGlobal.x, mouseGlobal.y);//if overlay, setup overlay.
         if (target != null) {
+          KyUI.log("drop target : " + target.getName());
           dropEventsExternal.get(target.getName()).onEvent(de);
         }
       }
     }
   }
   static CheckOverlayTask checkOverlayTask=new CheckOverlayTask();
-  //
+  //key
   public static int KEY_INIT_DELAY=1000;// you can change this valueI.
   public static int KEY_INTERVAL=300;
   public static boolean ctrlPressed=false;
@@ -160,6 +169,9 @@ public class KyUI {
       cp.addComponentListener(new ComponentListener() {
         @Override
         public void componentResized(ComponentEvent e) {
+          if (updater == null) {
+            return;
+          }
           try {
             synchronized (updater) {
               //System.out.println(e.getComponent().getSize().width+" "+e.getComponent().getSize().height);
@@ -243,11 +255,12 @@ public class KyUI {
       Elements.put(e.name, e);
     } else {
       if (e != Elements.get(e.name) && !e.name.equals("KyUI:messenger")) {//messenger always share same name...
-        System.err.println("[KyUI] try to add existing name. (" + e.name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.name).getClass().getTypeName());
+        err("try to add existing name. (" + e.name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.name).getClass().getTypeName());
         int a=0;
         while (Elements.containsKey(e.name + a)) {//add number to avoid duplication
           a++;
         }
+        KyUI.log("renamed new element. name :" + e.name + " -> " + (e.name + a));
         e.name=e.name + a;
         Elements.put(e.name, e);
       }
@@ -263,7 +276,7 @@ public class KyUI {
       Elements.put(name, e);
       return true;
     } else {
-      System.err.println("[KyUI] try to rename to existing name. (" + e.name + " to " + name + ")");
+      err("try to rename to existing name. (" + e.name + " to " + name + ")");
       return false;
     }
   }
@@ -549,5 +562,17 @@ public class KyUI {
   public static void addShortcut(Shortcut shortcut) {
     shortcutsByName.put(shortcut.name, shortcut);
     shortcuts.add(shortcut);
+  }
+  public static void log(String text) {
+    System.out.println("[KyUI] " + text);
+    if (logEvent != null) {
+      logEvent.accept(text);
+    }
+  }
+  public static void err(String text) {
+    System.out.println("[KyUI : " + frameCount + "] " + text);
+    if (logEvent != null) {
+      logEvent.accept(text);
+    }
   }
 }

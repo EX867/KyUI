@@ -2,8 +2,6 @@ package kyui.element;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
-import kyui.element.LinearList;
-import kyui.event.EventListener;
 import processing.core.PGraphics;
 public class InspectorButton extends LinearList.SelectableButton {
   //modifiable values

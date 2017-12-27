@@ -28,7 +28,7 @@ public class Element implements TreeNodeAction {
       if (data_raw instanceof AddChildData) {
         AddChildData data=(AddChildData)data_raw;
         if (parent.children_max <= parent.children.size()) {
-          System.err.println("[KyUI] children.size() already reached max valueI.");
+          KyUI.err("children.size() already reached max valueI.");
           //return;//some classes can behave strange, not refuse them only put error.
         }
         KyUI.addElement(data.element);
@@ -280,19 +280,19 @@ public class Element implements TreeNodeAction {
     return true;
   }
   Element checkOverlay(float x, float y) {
-    Element ret=null;
+    if (!pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      return null;
+    }
     for (Element child : children) {
-      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-        Element ret_=child.checkOverlay(x, y);
-        if (ret_ != null) {
-          return ret_;
-        }
+      Element ret_=child.checkOverlay(x, y);
+      if (ret_ != null) {
+        return ret_;
       }
     }
-    if (ret == null && (KyUI.dropEventsExternal.containsKey(getName()))) {
-      ret=this;
+    if ((KyUI.dropEventsExternal.containsKey(getName()))) {
+      return this;
     }
-    return ret;
+    return null;
   }
   final void keyEvent_(KeyEvent e) {
     for (Element child : children) {
@@ -418,11 +418,11 @@ public class Element implements TreeNodeAction {
   //
   public final void requestFocus() {//make onRequestListener?
     KyUI.focus=this;
-    //System.out.println("[KyUI] " + getName() + " gained focus at " + KyUI.Ref.frameCount);
+    //KyUI.log(" " + getName() + " gained focus at " + KyUI.Ref.frameCount);
   }
   public final void releaseFocus() {
     KyUI.focus=null;
-    //System.out.println("[KyUI] " + getName() + " released focus at " + KyUI.Ref.frameCount);
+    //KyUI.log(" " + getName() + " released focus at " + KyUI.Ref.frameCount);
     invalidate();
   }
   public Vector2 getPreferredSize() {

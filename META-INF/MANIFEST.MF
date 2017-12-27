@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: javassist-3.21.0-GA.jar reflections-0.9.9.jar SDrop.jar gu
+ ava-21.0.jar core.jar
+Main-Class: kyui.editor.Main
+

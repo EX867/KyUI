@@ -23,7 +23,6 @@ public final class CachingFrame extends Element {
   }
   @Override
   public void render(PGraphics g) {
-    //System.out.println(getName() + " rendered in " + KyUI.Ref.frameCount);
     display.beginDraw();
     display.pushMatrix();
     display.scale(KyUI.scaleGlobal);

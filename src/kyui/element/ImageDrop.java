@@ -38,7 +38,7 @@ public class ImageDrop extends Element implements DataTransferable<PImage> {
       public void onEvent(DropEvent de) {
         String filename=de.file().getAbsolutePath().replace("\\", "/");
         image=KyUI.Ref.loadImage(filename);
-        System.out.println("[KyUI] image dropped on " + getName() + ", " + filename);
+        KyUI.log(" image dropped on " + getName() + ", " + filename);
         if (onDropListener != null) {
           onDropListener.onEvent(self);
         }

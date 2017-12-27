@@ -55,6 +55,7 @@ public class LayoutLoader {
     loadXML(root, xml, null);
   }
   public static void loadXML(Element root, @NotNull XML xml, @Nullable TreeGraph.Node treeRoot) {
+    KyUI.log("LayoutLoader - load xml to  : " + root.getName());
     TreeGraph treeGraph=null;//saving in non-editor is unnessesary.
     if (treeRoot == null) {//(if TreeGraph is null, this is not an editor.)
       treeGraph=new TreeGraph("KyUI:LayoutLoader:treeGraph");
@@ -82,15 +83,17 @@ public class LayoutLoader {
           node=ElementLoader.addElement(cur.node, name, type);
           cur.result=(Element)node.content;
           if (cur.result == null) {
-            System.err.println("[KyUI] xml.result is null! element instantiation failed. : " + name);
+            KyUI.err("xml.result is null! element instantiation failed. : " + name);
             queue.removeFirst();
             continue;
           } else {
             String[] attrs=cur.xml.listAttributes();
             ElementLoader.AttributeSet set=ElementLoader.attributes.get(cur.result.getClass());
             for (String attrName : attrs) {
-              Attribute.Editor e=set.getAttribute(attrName);
-              e.setField(cur.result, castFromString(e.field.getType(), cur.xml.getString(attrName)));
+              if (!attrName.equals("name")) {
+                Attribute.Editor e=set.getAttribute(attrName);
+                e.setField(cur.result, castFromString(e.field.getType(), cur.xml.getString(attrName)));
+              }
             }
           }
         } catch (ClassNotFoundException ce) {

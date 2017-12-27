@@ -12,8 +12,10 @@ public class RangeSlider extends Button {
   public Attributes.Direction direction=Attributes.Direction.VERTICAL;
   EventListener adjustListener;
   //
-  float sliderRatio;//valueI of startPoint
-  float sliderLength;
+  @Attribute
+  float sliderRatio=0;//value of startPoint
+  @Attribute
+  float sliderLength;//(<height)
   //modifiable values
   @Attribute(type=Attribute.COLOR)
   public int fgColor;
@@ -71,7 +73,7 @@ public class RangeSlider extends Button {
       g.strokeWeight(strokeWeight);
       g.stroke(fgColor);
     }
-    fill(g,sliderBgColor);
+    fill(g, sliderBgColor);
     pos.render(g);
     if (direction == Attributes.Direction.VERTICAL) {
       float sliderPoint=pos.top + (pos.bottom - pos.top) * sliderRatio;

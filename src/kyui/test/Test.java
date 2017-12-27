@@ -2,15 +2,13 @@ package kyui.test;
 import kyui.core.*;
 import kyui.element.*;
 import kyui.event.DropEventListener;
-import kyui.event.EventListener;
 import kyui.event.ItemSelectListener;
-import kyui.loader.ShortcutLoader;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-public class Test extends PApplet {
+class Test extends PApplet {
   public static void main(String[] args) {
     PApplet.main("kyui.test.Test");
   }
@@ -83,16 +81,16 @@ public class Test extends PApplet {
         System.out.println("dropped " + e.getName() + " to " + f.getName() + " with " + messenger.message);
       }
     });
-    ShortcutLoader.loadXml(new java.io.File("test_shortcut.xml").getAbsolutePath(), false);
-    for (int a=0; a <= 8; a++) {
-      int b=a;
-      ShortcutLoader.attachTo(a + "", new EventListener() {
-        @Override
-        public void onEvent(Element e) {
-          KyUI.<TabLayout>get2("tabs").selectTab(new Integer(b + 1));
-        }
-      });
-    }
+    //ShortcutLoader.loadXml(new java.io.File("test_shortcut.xml").getAbsolutePath(), false);
+    //for (int a=0; a <= 8; a++) {
+    //  int b=a;
+    //  ShortcutLoader.attachTo(a + "", new EventListener() {
+    //    @Override
+    //    public void onEvent(Element e) {
+    //KyUI.<TabLayout>get2("tabs").selectTab(new Integer(b + 1));
+    //    }
+    //  });
+    //}
     // write your other code
     KyUI.changeLayout();
   }

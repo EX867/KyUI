@@ -1,5 +1,4 @@
 package kyui.element;
-import com.sun.istack.internal.Nullable;
 import kyui.core.CachingFrame;
 import kyui.core.Element;
 import kyui.core.KyUI;
@@ -78,6 +77,7 @@ public class ColorButton extends Button implements DataTransferable<Integer> {
           //}
           colorPicker.setPosition(new Rect(0, 0, w, h));
         });
+        colorPicker.setPosition(new Rect(0, 0, colorPickerLayer.display.width, colorPickerLayer.display.height));
       }
       acceptEv.put(c, (Element e) -> {
         c.c=colorPicker.colorPicker.getColor();
