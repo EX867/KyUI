@@ -8,14 +8,18 @@ import kyui.event.DropEventListener;
 import kyui.event.EventListener;
 import kyui.loader.ElementLoader;
 import kyui.loader.LayoutLoader;
+import kyui.loader.ShortcutLoader;
 import kyui.util.Rect;
 import kyui.core.RelativeFrame;
 import processing.core.PApplet;
+import processing.data.XML;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import sojamo.drop.DropEvent;
 
 import java.io.PrintWriter;
+import java.util.function.Function;
+//ADD>>delete function for colorVar and shortcut!!!
 public class Main extends PApplet {
   public static Element selection=null;//used in layout_tree
   public static void main(String[] args) {
@@ -48,7 +52,7 @@ public class Main extends PApplet {
     //create tabs
     DivisionLayout main_layout=new DivisionLayout("main_layout");
     DivisionLayout main_colors=new DivisionLayout("main_colors");
-    DivisionLayout main_shortcut=new DivisionLayout("main_shortcuts");
+    DivisionLayout main_shortcuts=new DivisionLayout("main_shortcuts");
     //set main_layout
     main_layout.rotation=Attributes.Rotation.RIGHT;
     main_layout.value=400;
@@ -114,16 +118,6 @@ public class Main extends PApplet {
       return false;
     });
     ImageButton layout_export=new ImageButton("layout_export", ElementLoader.loadImageResource("export.png"));
-    EventListener action_export=(Element e) -> {
-      PrintWriter write=createWriter("layout.xml");
-      write.write(LayoutLoader.saveXML(layout_tree.getRoot()).format(2));
-      write.close();
-      KyUI.log(" exported as layout.xml in " + KyUI.frameCount);
-    };
-    layout_export.setPressListener((MouseEvent e, int index) -> {
-      action_export.onEvent(null);
-      return false;
-    });
     ImageButton layout_delete=new ImageButton("layout_delete", ElementLoader.loadImageResource("delete.png"));
     layout_delete.setPressListener((MouseEvent e, int index) -> {
       if (layout_tree.selection != null) {
@@ -177,11 +171,29 @@ public class Main extends PApplet {
     main_colors.addChild(colors_list);
     main_colors.addChild(colors_down);
     //set main_shortcuts
-    main_shortcut.rotation=Attributes.Rotation.DOWN;
+    main_shortcuts.rotation=Attributes.Rotation.DOWN;
+    main_shortcuts.value=40;
+    DivisionLayout shortcuts_down=new DivisionLayout("shortcuts_down");
+    shortcuts_down.rotation=Attributes.Rotation.RIGHT;
+    shortcuts_down.value=60;
+    LinearList shortcuts_list=new LinearList("shortcuts_list");
+    Button shortcuts_add=new Button("shortcuts_add");
+    shortcuts_add.text="ADD";
+    shortcuts_add.margin=3;
+    TextBox shortcuts_addItem=new TextBox("colors_addItem");
+    shortcuts_addItem.setNumberOnly(TextBox.NumberType.NONE);
+    shortcuts_add.setPressListener((MouseEvent e, int index) -> {//shortcut list item's text is shortcut name.
+      ShortcutLoader.addShortcut(shortcuts_addItem.getText(), shortcuts_list);
+      return false;
+    });
+    shortcuts_down.addChild(shortcuts_addItem);
+    shortcuts_down.addChild(shortcuts_add);
+    main_shortcuts.addChild(shortcuts_list);
+    main_shortcuts.addChild(shortcuts_down);
     //add tabs to main_tabs
     main_tabs.addTab("  LAYOUT   ", main_layout);
     main_tabs.addTab("  COLORS   ", main_colors);
-    main_tabs.addTab(" SHORTCUT  ", main_shortcut);
+    main_tabs.addTab(" SHORTCUT  ", main_shortcuts);
     //add tabs and status to main
     main_statusDivision.addChild(main_tabs);
     main_statusDivision.addChild(main_status);
@@ -192,10 +204,27 @@ public class Main extends PApplet {
       main_statusDivision.onLayout();
       main_statusDivision.invalidate();
     });
+    //set export event
+    EventListener action_export=(Element e) -> {
+      XML xml=null;
+      if (new java.io.File("layout.xml").isFile()) {
+        xml=loadXML("layout.xml");
+      }
+      PrintWriter write=createWriter("layout.xml");
+      xml=LayoutLoader.saveXML(xml, layout_tree.getRoot());
+      xml=ShortcutLoader.saveXML(xml, (java.util.List)shortcuts_list.listLayout.children);
+      write.write(xml.format(2));
+      write.close();
+      KyUI.log("exported as layout.xml in " + KyUI.frameCount);
+    };
+    layout_export.setPressListener((MouseEvent e, int index) -> {
+      action_export.onEvent(null);
+      return false;
+    });//...
     ElementLoader.loadOnStart(layout_elements, layout_inspector);
     ElementLoader.vars.put("NONE", new InspectorColorVarButton.ColorVariable("NONE", 0));
     main_tabs.selectTab(1);
-    KyUI.addShortcut(new KyUI.Shortcut("Export", true, false, false, 19, java.awt.event.KeyEvent.VK_S, action_export, false));
+    KyUI.addShortcut(new KyUI.Shortcut("Export", true, false, false, 19, java.awt.event.KeyEvent.VK_S, action_export));
     KyUI.addDragAndDrop(layout_tree, (DropEvent de) -> {
       String filename=de.file().getAbsolutePath().replace("\\", "/");
       if (getExtension(filename).equals("xml")) {
@@ -213,6 +242,12 @@ public class Main extends PApplet {
       if (getExtension(filename).equals("jar")) {
         ElementLoader.loadExternal(filename);
         layout_elements.localLayout();
+      }
+    });
+    KyUI.addDragAndDrop(shortcuts_list, (DropEvent de) -> {
+      String filename=de.file().getAbsolutePath().replace("\\", "/");
+      if (getExtension(filename).equals("xml")) {
+        ShortcutLoader.loadXmlEditor(loadXML(filename), shortcuts_list);
       }
     });
     KyUI.log(startText);

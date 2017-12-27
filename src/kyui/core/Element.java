@@ -145,7 +145,12 @@ public class Element implements TreeNodeAction {
   }
   @Override
   public boolean equals(Object other) {
-    return (other instanceof Element && ((Element)other).name.equals(name));
+    if (other instanceof Element) {
+      return ((Element)other).name.equals(name);
+    } else if (other instanceof String) {
+      return other.equals(name);
+    }
+    return false;
   }
   public void setBgColor(int c) {
     bgColor=c;

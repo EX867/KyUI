@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<layout>
-  <kyui.element.Button active="true" bgColor="-13487566" enabled="true" margin="0" name="Button0_57109" padding="10" pos="[(200.0, 200.0)~(400.0, 400.0)]" rotation="UP" text="Button" textColor="-1" textSize="15" visible="true">
-    <kyui.element.Button active="true" bgColor="-13487566" enabled="true" margin="0" name="Button1_57110" padding="10" pos="[(200.0, 200.0)~(400.0, 400.0)]" rotation="UP" text="Button" textColor="-1" textSize="15" visible="true"/>
-  </kyui.element.Button>
-</layout>
+<Data>
+  <shortcut/>
+  <layout>
+    <kyui.element.Button active="true" bgColor="-13487566" enabled="true" margin="0" name="Button0_75188" padding="10" pos="[(200.0, 200.0)~(400.0, 400.0)]" rotation="UP" text="Button" textColor="-1" textSize="15" visible="true">
+      <kyui.element.Button active="true" bgColor="-13487566" enabled="true" margin="0" name="Button1_75190" padding="10" pos="[(200.0, 200.0)~(400.0, 400.0)]" rotation="UP" text="Button" textColor="-1" textSize="15" visible="true"/>
+    </kyui.element.Button>
+  </layout>
+  <shortcut>
+    <shortcut alt="false" ctrl="true" key="1" keyCode="65" shift="false">asdf</shortcut>
+    <shortcut alt="false" ctrl="true" key="19" keyCode="83" shift="false">asdf0</shortcut>
+    <shortcut alt="false" ctrl="true" key="4" keyCode="68" shift="false">asdf1</shortcut>
+    <shortcut alt="false" ctrl="true" key="6" keyCode="70" shift="false">asdf2</shortcut>
+    <shortcut alt="false" ctrl="true" key="4" keyCode="68" shift="true">asdf3</shortcut>
+  </shortcut>
+</Data>

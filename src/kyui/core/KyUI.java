@@ -18,6 +18,7 @@ import kyui.util.Vector2;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
+import processing.data.XML;
 import processing.event.Event;
 import processing.event.MouseEvent;
 import processing.event.KeyEvent;
@@ -424,6 +425,9 @@ public class KyUI {
     //}
     //updater.interrupt();
   }
+  public static int getKeyCount() {
+    return reflectedPressedKeys.size();
+  }
   //
   public static void changeLayout() {
     taskManager.executeAll();
@@ -500,67 +504,94 @@ public class KyUI {
     return dropEvents.get(dropMessenger.start.getName() + "->" + end.getName());
   }
   public static class Shortcut {
+    public Key key;
+    public EventListener event;
+    public String name="nothing";
+    public Shortcut(String name_, boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_, EventListener event_) {
+      name=name_;
+      key=new Key(ctrl_, alt_, shift_, key_, keyCode_);
+    }
+    public Shortcut(String name_, Key key_, EventListener event_) {
+      name=name_;
+      set(key_);
+      event=event_;
+    }
+    public void set(Key key_) {
+      //set(key.ctrl, key.alt, key.shift, key.key, key.keyCode, event);
+      key=key_;
+    }
+    public void set(boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_, EventListener event_) {
+      key.set(ctrl_, alt_, shift_, key_, keyCode_);
+      event=event_;
+    }
+    boolean isPressed(KeyEvent e) {
+      return key.isPressed(e);
+    }
+    @Override
+    public String toString() {
+      return name + "   " + key.toString();
+    }
+    public XML toXML() {
+      if (key == null) {
+        return null;
+      }
+      XML data=new XML("shortcut");
+      data.setString("ctrl", "" + key.ctrl);
+      data.setString("alt", "" + key.alt);
+      data.setString("shift", "" + key.shift);
+      data.setString("key", "" + key.key);
+      data.setString("keyCode", "" + key.keyCode);
+      data.setContent(name);
+      return data;
+    }
+  }
+  public static class Key {
     public boolean ctrl=false;
     public boolean alt=false;
     public boolean shift=false;
     public int key=-1;
     public int keyCode=0;
-    //
-    public EventListener event;
-    public String name="nothing";
-    public boolean custom=false;
-    public Shortcut(String name_, boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_, EventListener event_, boolean custom_) {
-      name=name_;
-      set(ctrl_, alt_, shift_, key_, keyCode_, event_, custom_);
+    public Key(boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_) {
+      set(ctrl_, alt_, shift_, key_, keyCode_);
     }
-    public void set(boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_, EventListener event_, boolean custom_) {
+    public void set(boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_) {
       ctrl=ctrl_;
       alt=alt_;
       shift=shift_;
       key=key_;
       keyCode=keyCode_;
-      event=event_;
-      custom=custom_;
     }
     boolean isPressed(KeyEvent e) {
       return (ctrl == ctrlPressed && alt == altPressed && shift == shiftPressed && e.getKey() == key && e.getKeyCode() == keyCode);
     }
     @Override
     public String toString() {
-      String ret=name + "   [";
+      String ret="[";
       if (ctrl) ret+="Ctrl+";
       if (alt) ret+="Alt+";
       if (shift) ret+="Shift+";
-      //set key.
-      int realKey=key;
-      if (ctrl && (1 <= key && key <= 26)) {
-        realKey=key - 97 + 1;
-      } else if ((!ctrl) && shift && 65 <= key && key <= 90) {
-        realKey=key - 97 + 65;
+      if (key != 0 && (key != PApplet.CODED || (key == PApplet.CODED && keyCode != PApplet.CONTROL && keyCode != PApplet.ALT && keyCode != PApplet.SHIFT))) {
+        //set key.
+        String realKey="" + (char)key;
+        if (key == '\t') ret+="Tab";
+        else if (key == ' ') ret+="Space";
+        else if (key == PApplet.ENTER) ret+="Enter";
+        else if (key == PApplet.BACKSPACE) ret+="Backspace";
+        else if (key == PApplet.DELETE) ret+="Delete";
+        else if (key == PApplet.ESC) ret+="ESC (None)";
+        else if (key == 65535 && keyCode == 54) {// Exception!(really, not needed.)
+          ret+="6";
+        } else if (ctrl || alt || key == PApplet.CODED) {
+          ret+=java.awt.event.KeyEvent.getKeyText(keyCode);
+        } else {
+          ret+=realKey;
+        }
       }
-      if (key == '\t') ret+="Tab";
-      else if (key == ' ') ret+="Space";
-      else if (key == PApplet.ENTER) ret+="Enter";
-      else if (key == PApplet.BACKSPACE) ret+="Backspace";
-      else if (key == PApplet.DELETE) ret+="Delete";
-      else if (key == PApplet.ESC) ret+="ESC (None)";
-      else if (key == PApplet.CODED) {
-        if (keyCode == PApplet.UP) ret+="Up";
-        else if (keyCode == PApplet.DOWN) ret+="Down";
-        else if (keyCode == PApplet.RIGHT) ret+="Right";
-        else if (keyCode == PApplet.LEFT) ret+="Left";
-        else if (java.awt.event.KeyEvent.VK_F1 <= keyCode && keyCode <= java.awt.event.KeyEvent.VK_F12) {
-          ret+="F" + (int)(keyCode - java.awt.event.KeyEvent.VK_F1 + 1);
-        } else ret+=(char)keyCode;
-      } else ret+="" + (char)realKey;
-      return ret;
-    }
-    String toXmlString() {
-      return "<shortcut ctrl=\"" + ctrl + "\" alt=\"" + alt + "\" shift=\"" + shift + "\" key=\"" + key + "\" keycode=\"" + keyCode + "\">" + name + "</shortcut>";
+      return ret + "]";
     }
   }
   public static void addShortcut(Shortcut shortcut) {
-    shortcutsByName.put(shortcut.name, shortcut);
+    shortcutsByName.put(shortcut.name, shortcut);//overwrited.
     shortcuts.add(shortcut);
   }
   public static void log(String text) {

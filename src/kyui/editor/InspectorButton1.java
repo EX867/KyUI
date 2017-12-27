@@ -6,7 +6,7 @@ import kyui.event.EventListener;
 import kyui.util.DataTransferable;
 import kyui.util.TypeChanger;
 public class InspectorButton1<DataType, DataElement extends Element & DataTransferable> extends InspectorButton implements DataTransferable {
-  protected DataTransferable transferable;//A is DataType, B is ElementType
+  public DataTransferable transferable;//A is DataType, B is ElementType
   @Nullable
   protected TypeChanger typeChanger;
   public InspectorButton1(String name) {

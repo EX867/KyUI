@@ -15,16 +15,23 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class LayoutLoader {
-  public static XML saveXML(TreeGraph.Node rootNode) {//export including root. root is not loaded in loadXML.
-    XML startXml=new XML("layout");
+  public static XML saveXML(@Nullable XML startXml, TreeGraph.Node rootNode) {//export including root. root is not loaded in loadXML.
+    if (startXml == null) {
+      startXml=new XML("Data");
+    } else {
+      if (startXml.getChild("layout") != null) {
+        startXml.removeChild(startXml.getChild("layout"));
+      }
+    }
+    XML layout=startXml.addChild("layout");
     LinkedList<ElementSaveData> queue=new LinkedList<>();
-    ElementSaveData root=new ElementSaveData(null, startXml, rootNode);
+    ElementSaveData root=new ElementSaveData(null, layout, rootNode);
     queue.add(root);
     while (queue.size() > 0) {
       ElementSaveData cur=queue.getFirst();
       //
       //create and set xml using node.content
-      XML xml=startXml;//added item will store in here
+      XML xml=layout;//added item will store in here
       if (cur.parent != null) {//not root
         try {
           XML base=cur.xml;
@@ -55,6 +62,11 @@ public class LayoutLoader {
     loadXML(root, xml, null);
   }
   public static void loadXML(Element root, @NotNull XML xml, @Nullable TreeGraph.Node treeRoot) {
+    if (xml.getChild("layout") == null) {
+      KyUI.err("LayoutLoader - failed to load layout xml : xml has no layout section.");
+      return;
+    }
+    xml=xml.getChild("layout");
     KyUI.log("LayoutLoader - load xml to  : " + root.getName());
     TreeGraph treeGraph=null;//saving in non-editor is unnessesary.
     if (treeRoot == null) {//(if TreeGraph is null, this is not an editor.)
@@ -181,10 +193,15 @@ public class LayoutLoader {
     }
   }
 /*
-<Data>//xml
-  <kyui.element.Button
-    bgColor=0xFF323232(10진)>
-  </>
+<Data>
+  <layout>//xml
+    <kyui.element.Button
+      bgColor=0xFF323232(10진)>
+    </>
+  </layout>
+  <shortcut>
+    <...>
+  </shortcut>
 </Data>
  */
 }

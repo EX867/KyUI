@@ -15,7 +15,7 @@ public class Button extends Element {
   @Attribute(type=Attribute.COLOR)
   public int textColor;
   @Attribute
-  public int textSize;
+  public int textSize=15;
   @Attribute
   public String text="Button";
   @Attribute(layout=Attribute.SELF)
@@ -35,7 +35,6 @@ public class Button extends Element {
   private void init() {
     bgColor=KyUI.Ref.color(50);
     textColor=KyUI.Ref.color(255);
-    textSize=15;
     padding=10;
   }
   public void setPressListener(MouseEventListener el) {
