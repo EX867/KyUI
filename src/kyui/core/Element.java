@@ -90,7 +90,7 @@ public class Element implements TreeNodeAction {
   private boolean active=true;// this parameter controls object control (use inputs)
   @Attribute(setter="setPosition", layout=Attribute.NONE)//setPosition includes layout.
   public Rect pos=new Rect(0, 0, 0, 0);
-  public Description description;//ADD>>implement this!
+  Description description;
   @Attribute(type=Attribute.COLOR, setter="setBgColor")
   public int bgColor=0;
   @Attribute(layout=Attribute.PARENT)
@@ -202,6 +202,13 @@ public class Element implements TreeNodeAction {
   public boolean isActive() {
     return active;
   }
+  public void setDescription(String text) {
+    if (description == null) {
+      description=new Description(this, text);
+    } else {
+      description.text=text;
+    }
+  }
   //
   public final void update_() {
     for (int a=0; a < children.size(); a++) {
@@ -284,17 +291,32 @@ public class Element implements TreeNodeAction {
     }
     return true;
   }
-  Element checkOverlay(float x, float y) {
+  Element checkOverlayDrop(float x, float y) {
     if (!pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
       return null;
     }
     for (Element child : children) {
-      Element ret_=child.checkOverlay(x, y);
+      Element ret_=child.checkOverlayDrop(x, y);
       if (ret_ != null) {
         return ret_;
       }
     }
     if ((KyUI.dropEventsExternal.containsKey(getName()))) {
+      return this;
+    }
+    return null;
+  }
+  Element checkOverlayDescription(float x, float y) {
+    if (!pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      return null;
+    }
+    for (Element child : children) {
+      Element ret_=child.checkOverlayDescription(x, y);
+      if (ret_ != null) {
+        return ret_;
+      }
+    }
+    if (description != null) {
       return this;
     }
     return null;

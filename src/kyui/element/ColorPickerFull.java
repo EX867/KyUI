@@ -6,7 +6,7 @@ import kyui.event.MouseEventListener;
 import kyui.util.Rect;
 import processing.event.MouseEvent;
 public class ColorPickerFull extends Element {
-  ColorPicker colorPicker;
+  public ColorPicker colorPicker;
   TextBox[] values=new TextBox[7];
   ColorButton[] recentButtons=new ColorButton[10];
   ImageButton acceptButton;
@@ -88,5 +88,9 @@ public class ColorPickerFull extends Element {
     if (acceptButton != null) {//FIX>>strange...
       acceptButton.setPosition(new Rect(startX + 390 * scale, startY + 10 * scale, startX + 450 * scale, startY + 70 * scale));
     }
+  }
+  public void setColorRGB(int c) {
+    colorPicker.setColorRGB(c);
+    recentButtons[0].c=c;
   }
 }

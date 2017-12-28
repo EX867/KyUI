@@ -1,4 +1,5 @@
 package kyui.element;
+import com.sun.istack.internal.Nullable;
 import kyui.core.CachingFrame;
 import kyui.core.Element;
 import kyui.core.KyUI;
@@ -53,11 +54,15 @@ public class ColorButton extends Button implements DataTransferable<Integer> {
   public static class OpenColorPickerEvent implements MouseEventListener {
     //really, you can use this event listener in other ColorButtons too...
     static CachingFrame colorPickerLayer;//one colorPicker shares many OpenColorPickerE
-    static ColorPickerFull colorPicker;
+    public static ColorPickerFull colorPicker;
     static HashMap<ColorButton, EventListener> acceptEv;
     static ColorButton last;//not works in nested situation(colorbutton is in colorpicker)
+    MouseEventListener onPressListener;
     ColorButton c;
-    public OpenColorPickerEvent(ColorButton c_) {//add this object to colorbutton.
+    public OpenColorPickerEvent(ColorButton c_) {
+      this(c_, null);
+    }
+    public OpenColorPickerEvent(ColorButton c_, @Nullable MouseEventListener onPressListener) {//add this object to colorbutton.
       c=c_;
       if (colorPickerLayer == null) {
         acceptEv=new HashMap<ColorButton, EventListener>(100);
@@ -85,12 +90,15 @@ public class ColorButton extends Button implements DataTransferable<Integer> {
           c.dataChangeListener.onEvent(c);
         }
       });
-      c.setPressListener(this);//not nessessary.
+      c.setPressListener(this);
     }
     @Override
     public boolean onEvent(MouseEvent e, int index) {
       last=c;
-      c.c=colorPicker.colorPicker.getColor();
+      if (onPressListener != null) {
+        onPressListener.onEvent(e, index);
+      }
+      colorPicker.setColorRGB(c.c);
       KyUI.addLayer(colorPickerLayer);
       return false;
     }

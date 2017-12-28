@@ -74,6 +74,8 @@ public class Main extends PApplet {
     layout_tree.setSelectListener((Element e_) -> {
       Element e=(Element)((TreeGraph.Node)e_).content;
       if (e == layout_frame) {
+        layout_inspector.setItems(new java.util.ArrayList<>());
+        layout_inspector.localLayout();
         return;
       }
       selection=e;
@@ -113,6 +115,7 @@ public class Main extends PApplet {
     layout_right.addChild(layout_inspector);
     layout_right.setDirection(Attributes.Direction.VERTICAL);
     ImageToggleButton layout_frame_move=new ImageToggleButton("layout_frame_move", ElementLoader.loadImageResource("move.png"));
+    layout_frame_move.setDescription("toggle preview screen mouse drag");
     layout_frame_move.setPressListener((MouseEvent e, int index) -> {
       layout_frame.scroll=!layout_frame_move.value;
       return false;
@@ -147,22 +150,18 @@ public class Main extends PApplet {
     colors_add.margin=3;
     TextBox colors_addVar=new TextBox("colors_addVar");
     colors_addVar.setNumberOnly(TextBox.NumberType.NONE);
+    colors_addVar.setTextChangeListener((Element e) -> {
+      String text=colors_addVar.getText();
+      if (text.equals("NONE") || ElementLoader.vars.containsKey(text)) {//show error first if same name exists.
+        colors_addVar.error=true;
+      } else {
+        colors_addVar.error=false;
+      }
+    });
     colors_add.setPressListener((MouseEvent e, int index) -> {
       String text=colors_addVar.getText();
-      if (!colors_addVar.error && !text.isEmpty() && !ElementLoader.vars.containsKey(text)) {
-        ElementLoader.vars.put(text, new InspectorColorVarButton.ColorVariable(text, 0xFF000000));//default value=black.
-        ColorButton cb=new ColorButton("variableValue:" + text);
-        cb.setPressListener(new ColorButton.OpenColorPickerEvent(cb));
-        InspectorButton1 b=new InspectorButton1<String, ColorButton>("variable:" + text, cb);
-        b.text=text;
-        b.setDataChangeListener((Element el) -> {
-          InspectorColorVarButton.ColorVariable var=ElementLoader.vars.get(text);
-          var.value=cb.c;
-          for (InspectorColorVarButton.ColorVariable.Reference ref : var.references) {
-            ref.attr.setField(ref.el, cb.c);
-          }
-        });
-        colors_list.addItem(b);
+      if (!colors_addVar.error) {
+        InspectorColorVarButton.addVar(text, colors_list);
       }
       return false;
     });
@@ -191,9 +190,9 @@ public class Main extends PApplet {
     main_shortcuts.addChild(shortcuts_list);
     main_shortcuts.addChild(shortcuts_down);
     //add tabs to main_tabs
-    main_tabs.addTab("  LAYOUT   ", main_layout);
-    main_tabs.addTab("  COLORS   ", main_colors);
-    main_tabs.addTab(" SHORTCUT  ", main_shortcuts);
+    main_tabs.addTab("LAYOUT ", main_layout);
+    main_tabs.addTab("COLORS ", main_colors);
+    main_tabs.addTab("SHORTCUT", main_shortcuts);
     //add tabs and status to main
     main_statusDivision.addChild(main_tabs);
     main_statusDivision.addChild(main_status);
@@ -212,7 +211,7 @@ public class Main extends PApplet {
       }
       PrintWriter write=createWriter("layout.xml");
       xml=LayoutLoader.saveXML(xml, layout_tree.getRoot());
-      xml=ShortcutLoader.saveXML(xml, (java.util.List)shortcuts_list.listLayout.children);
+      xml=ShortcutLoader.saveXML(xml, shortcuts_list);
       write.write(xml.format(2));
       write.close();
       KyUI.log("exported as layout.xml in " + KyUI.frameCount);
@@ -233,7 +232,7 @@ public class Main extends PApplet {
           nodeToAdd=layout_tree.getRoot();
         }
         //no log...
-        LayoutLoader.loadXML((Element)nodeToAdd.content, loadXML(filename), nodeToAdd);//make root to node!
+        LayoutLoader.loadXML((Element)nodeToAdd.content, loadXML(filename), nodeToAdd, colors_list);//make root to node!
         KyUI.changeLayout();
       }
     });

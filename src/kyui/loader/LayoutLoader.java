@@ -4,6 +4,9 @@ import com.sun.istack.internal.Nullable;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.editor.InspectorButton1;
+import kyui.editor.InspectorColorVarButton;
+import kyui.element.LinearList;
 import kyui.element.TreeGraph;
 import kyui.util.Rect;
 import processing.core.PFont;
@@ -15,15 +18,32 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class LayoutLoader {
+  static LinearList colorsList;//ElementLoader.variableList???!!?!
   public static XML saveXML(@Nullable XML startXml, TreeGraph.Node rootNode) {//export including root. root is not loaded in loadXML.
     if (startXml == null) {
       startXml=new XML("Data");
     } else {
-      if (startXml.getChild("layout") != null) {
-        startXml.removeChild(startXml.getChild("layout"));
+      if (startXml.getChildren("layout").length != 0) {
+        XML[] olds=startXml.getChildren("layout");
+        for (XML old : olds) {
+          startXml.removeChild(old);
+        }
+      }
+      if (startXml.getChildren("color").length != 0) {
+        XML[] olds=startXml.getChildren("color");
+        for (XML old : olds) {
+          startXml.removeChild(old);
+        }
       }
     }
     XML layout=startXml.addChild("layout");
+    XML color=startXml.addChild("color");
+    for (LinearList.SelectableButton v : ElementLoader.variableList) {//use text...
+      if (!v.text.equals("NONE")) {
+        XML colorChild=color.addChild(v.text);
+        colorChild.setContent(Long.toString((long)ElementLoader.vars.get(v.text).value));
+      }
+    }
     LinkedList<ElementSaveData> queue=new LinkedList<>();
     ElementSaveData root=new ElementSaveData(null, layout, rootNode);
     queue.add(root);
@@ -41,7 +61,16 @@ public class LayoutLoader {
           ElementLoader.AttributeSet set=ElementLoader.attributes.get(cur.node.content.getClass());
           java.util.List<Attribute.Editor> attrs=set.attrs;
           for (Attribute.Editor attr : attrs) {
-            xml.setString(attr.field.getName(), attr.getField((Element)cur.node.content).toString());
+            if ((attr.field.getType() == Integer.class || attr.field.getType() == int.class) && attr.attr.type() == Attribute.COLOR) {
+              InspectorColorVarButton.ColorVariable v=ElementLoader.varsReverse.get(new InspectorColorVarButton.Reference(attr, (Element)cur.node.content));
+              if (v == null || v.name.equals("NONE")) {
+                xml.setString(attr.field.getName(), attr.getField((Element)cur.node.content).toString());
+              } else {
+                xml.setString(attr.field.getName(), v.name);
+              }
+            } else {
+              xml.setString(attr.field.getName(), attr.getField((Element)cur.node.content).toString());
+            }
           }
         } catch (Exception e) {
           e.printStackTrace();
@@ -59,14 +88,44 @@ public class LayoutLoader {
     return startXml;
   }
   public static void loadXML(Element root, XML xml) {
-    loadXML(root, xml, null);
+    loadXML(root, xml, null, null);
   }
-  public static void loadXML(Element root, @NotNull XML xml, @Nullable TreeGraph.Node treeRoot) {
+  public static void loadXML(Element root, @NotNull XML xml, @Nullable TreeGraph.Node treeRoot, @Nullable LinearList colorsList_) {
     if (xml.getChild("layout") == null) {
       KyUI.err("LayoutLoader - failed to load layout xml : xml has no layout section.");
       return;
     }
+    if (colorsList_ == null && colorsList == null) {
+      colorsList=new LinearList("KyUI:LayoutLoader:colorsList");
+    } else if (colorsList_ == null) {
+      colorsList_=colorsList;
+    } else {
+      colorsList=colorsList_;
+    }
+    XML color=xml.getChild("color");//if null, all variable name colors will set to default.
     xml=xml.getChild("layout");
+    if (color != null) {//load color.
+      XML[] colors=color.getChildren();
+      for (XML item : colors) {
+        if (!item.getName().equals("#text")) {
+          if (InspectorColorVarButton.addVar(item.getName(), colorsList)) {
+            KyUI.taskManager.executeAll();
+            int val=(int)castFromString(int.class, item.getContent());
+            ElementLoader.vars.get(item.getName()).value=val;
+            if (colorsList != null) {
+              java.util.List<Element> list=colorsList.getItems();
+              for (Element el : list) {
+                if (((LinearList.SelectableButton)el).text.equals(item.getName())) {
+                  ((InspectorButton1)el).set(val);
+                }
+              }
+            }
+          } else {
+            //not overwrite existing value!!!
+          }
+        }
+      }
+    }
     KyUI.log("LayoutLoader - load xml to  : " + root.getName());
     TreeGraph treeGraph=null;//saving in non-editor is unnessesary.
     if (treeRoot == null) {//(if TreeGraph is null, this is not an editor.)
@@ -86,7 +145,7 @@ public class LayoutLoader {
       if (cur.result == null) {
         String name="";
         if (!cur.xml.hasAttribute("name")) {
-          name=System.nanoTime() + "";//use nanotime because two loops can be fater than 1mx!
+          name=System.nanoTime() + "";//use nanotime because two loops can be fater than 1ms!
         } else {
           name=cur.xml.getString("name");
         }
@@ -102,9 +161,19 @@ public class LayoutLoader {
             String[] attrs=cur.xml.listAttributes();
             ElementLoader.AttributeSet set=ElementLoader.attributes.get(cur.result.getClass());
             for (String attrName : attrs) {
-              if (!attrName.equals("name")) {
+              if (!attrName.equals("name") && cur.xml.hasAttribute(attrName)) {
                 Attribute.Editor e=set.getAttribute(attrName);
-                e.setField(cur.result, castFromString(e.field.getType(), cur.xml.getString(attrName)));
+                if ((e.field.getType() == Integer.class || e.field.getType() == int.class) && e.attr.type() == Attribute.COLOR && color != null) {
+                  InspectorColorVarButton.ColorVariable v=ElementLoader.vars.get(cur.xml.getString(attrName));
+                  if (v != null) {
+                    e.setField(cur.result, v.value);
+                    v.addReference(e, cur.result);
+                  } else {
+                    e.setField(cur.result, castFromString(e.field.getType(), cur.xml.getString(attrName)));
+                  }
+                } else {
+                  e.setField(cur.result, castFromString(e.field.getType(), cur.xml.getString(attrName)));
+                }
               }
             }
           }
@@ -199,6 +268,9 @@ public class LayoutLoader {
       bgColor=0xFF323232(10진)>
     </>
   </layout>
+  <color>
+    <VarName>0xFF323232</VarName>
+  </color>
   <shortcut>
     <...>
   </shortcut>

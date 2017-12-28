@@ -33,6 +33,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import kyui.element.*;
+import processing.event.MouseEvent;
 public class ElementLoader {
   public static boolean isEditor=false;
   static ArrayList<String> loadedExternals=new ArrayList<>();
@@ -41,7 +42,8 @@ public class ElementLoader {
   public static ArrayList<Class<? extends Element>> types=new ArrayList<>();
   public static HashMap<Class, AttributeSet> attributes=new HashMap<>();
   static PGraphics imager;
-  public static HashMap<String, InspectorColorVarButton.ColorVariable> vars=new HashMap<>();
+  public static HashMap<String, InspectorColorVarButton.ColorVariable> vars=new HashMap<>(1000);
+  public static HashMap<InspectorColorVarButton.Reference, InspectorColorVarButton.ColorVariable> varsReverse=new HashMap<>(1000);
   public static LinkedList<LinearList.SelectableButton> variableList=new LinkedList<>();//this is used to change picker! managed by colorVariable.
   public static void loadOnStart() {//program calling this method will probably not an editor.
     loadOnStart(new LinearList("KyUI:ElementLoader:elementList"), new LinearList("KyUI:ElementLoader:inspectorList"));
@@ -317,7 +319,8 @@ public class ElementLoader {
           if (a.field.getType() == int.class || a.field.getType() == Integer.class) {//FIX>> optimize reuse Element class attributes.
             if (a.attr.type() == Attribute.COLOR) {
               ColorButton e=new ColorButton(name1);
-              e.setPressListener(new ColorButton.OpenColorPickerEvent(e));
+              ColorButton.OpenColorPickerEvent event=new ColorButton.OpenColorPickerEvent(e);
+              e.setPressListener(event);
               //i=new InspectorButton1<Integer, ColorButton>(name, e);
               i=new InspectorColorVarButton(name, e, a);
             } else {
@@ -373,6 +376,14 @@ public class ElementLoader {
         for (Attribute.Editor a : attrs) {
           if (a.ref != null) {
             ((DataTransferable)a.ref).set(a.getField(e));
+            if ((a.field.getType() == Integer.class || a.field.getType() == int.class) && a.attr.type() == Attribute.COLOR) {
+              InspectorColorVarButton.ColorVariable v=ElementLoader.varsReverse.get(new InspectorColorVarButton.Reference(a, e));
+              if (v == null || v.name.equals("NONE")) {
+                ((InspectorColorVarButton)a.ref).vars.text="NONE";
+              } else {
+                ((InspectorColorVarButton)a.ref).vars.text=v.name;
+              }
+            }
           }
         }
       } catch (Exception ex) {

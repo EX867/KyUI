@@ -30,7 +30,7 @@ public class ShortcutLoader {
     XML[] data=xml.getChildren("shortcut");
     for (XML d : data) {
       if (!shortcuts_list.getItems().contains("KyUI:shortcut:" + d.getContent())) {
-        addShortcut(d.getName(), shortcuts_list);
+        addShortcut(d.getContent(), shortcuts_list);
       }
     }
   }
@@ -43,16 +43,20 @@ public class ShortcutLoader {
   private static boolean b(String in) {
     return in.equals("true");
   }
-  public static XML saveXML(@Nullable XML startXml, List<InspectorButton1<KyUI.Key, KeyCatcher>> list) {
+  public static XML saveXML(@Nullable XML startXml, LinearList list) {
     if (startXml == null) {
       startXml=new XML("Data");
     } else {
-      if (startXml.getChild("shortut") != null) {
-        startXml.removeChild(startXml.getChild("shortcut"));
+      if (startXml.getChildren("shortcut").length != 0) {
+        XML[] olds=startXml.getChildren("shortcut");
+        for (XML old : olds) {
+          startXml.removeChild(old);
+        }
       }
     }
     XML shortcut=startXml.addChild("shortcut");
-    for (InspectorButton1 ib : list) {
+    for (kyui.core.Element ib_ : list.getItems()) {
+      InspectorButton1 ib=(InspectorButton1)ib_;
       KyUI.Shortcut sc=new KyUI.Shortcut(ib.text, (KyUI.Key)ib.transferable.get(), null);
       shortcut.addChild(sc.toXML());
     }

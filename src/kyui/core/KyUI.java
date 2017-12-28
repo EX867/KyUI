@@ -27,6 +27,7 @@ import sojamo.drop.*;
 //ADD>>optimize mouseEvent and rendering chain!! especially clipping...
 //ADD>>search elements in editor (later)
 //ADD>>drag and drop overlay !!!**
+//FIX>>refactor loaders!!! generalize colorVariable to value.
 public class KyUI {
   //
   public static PApplet Ref;
@@ -70,7 +71,8 @@ public class KyUI {
   public static final int STATE_RELEASE=3;
   public static final int STATE_RELEASED=4;
   public static int mouseState=STATE_RELEASED;//no multi touch
-  public static int mouseTime=0;// this parameter indicates the time after mouse clicked.
+  public static int mouseClickAfterTime=0;
+  static long mouseEventTime=Long.MAX_VALUE;//this is last mouse event's time.
   public static Vector2 mouseClick=new Vector2();// this parameter stores mouse click position.
   public static Vector2 mouseGlobal=new Vector2();// this parameter stores global mouse position.(scaled)
   public static final int GESTURE_THRESHOLD=13;
@@ -88,7 +90,7 @@ public class KyUI {
       if (data_ instanceof DropEvent) {
         DropEvent de=(DropEvent)data_;
         mouseGlobal.set(de.x() / scaleGlobal, de.y() / scaleGlobal);
-        Element target=roots.getLast().checkOverlay(mouseGlobal.x, mouseGlobal.y);//if overlay, setup overlay.
+        Element target=roots.getLast().checkOverlayDrop(mouseGlobal.x, mouseGlobal.y);//if overlay, setup overlay.
         if (target != null) {
           KyUI.log("drop target : " + target.getName());
           dropEventsExternal.get(target.getName()).onEvent(de);
@@ -104,7 +106,7 @@ public class KyUI {
   public static boolean shiftPressed=false;
   public static boolean altPressed=false;
   public static boolean keyState=false;
-  public static long keyTime=0;
+  public static long keyEventTime=0;
   public static boolean keyInit=false;// this used on textEdit and etc...
   protected static List<Long> reflectedPressedKeys;
   // shortcuts
@@ -125,6 +127,11 @@ public class KyUI {
   public static PFont fontText;//set manually! (2)
   public static int INF=987654321;
   private static Rect clipRect=new Rect();
+  static int DESCRIPTION_THRESHOLD=500;
+  static CachingFrame descriptionLayer;
+  static Description currentDescription=null;
+  static boolean canShowDescription=true;
+  static Description descriptionDefault;
   //thread
   public static Thread updater;
   public static int updater_interval;
@@ -203,6 +210,9 @@ public class KyUI {
     fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").getAbsolutePath(), 20);
     cacheGraphics=KyUI.Ref.createGraphics(10, 10);//small graphics...used for some functions
     dropLayer=new CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
+    descriptionLayer=new CachingFrame("KyUI:descriptionLayer", new Rect(0, 0, Ref.width, Ref.height));
+    descriptionDefault=new Description("KyUI:description:start");
+    descriptionLayer.addChild(descriptionDefault);
     if (roots.size() == 0)
       addLayer(getNewLayer());
     try {
@@ -227,6 +237,8 @@ public class KyUI {
       root.pos.set(0, 0, w, h);
       root.resize(w, h);
     }
+    descriptionLayer.pos.set(0, 0, w, h);
+    descriptionLayer.resize(w, h);
     for (ResizeListener resizeListener : resizeListeners) {
       resizeListener.onEvent(w, h);
     }
@@ -256,7 +268,7 @@ public class KyUI {
       Elements.put(e.name, e);
     } else {
       if (e != Elements.get(e.name) && !e.name.equals("KyUI:messenger")) {//messenger always share same name...
-        err("try to add existing name. (" + e.name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.name).getClass().getTypeName());
+        KyUI.err("try to add existing name. (" + e.name + ") type : " + e.getClass().getTypeName() + ", exists : " + Elements.get(e.name).getClass().getTypeName());
         int a=0;
         while (Elements.containsKey(e.name + a)) {//add number to avoid duplication
           a++;
@@ -304,6 +316,7 @@ public class KyUI {
       for (CachingFrame root : roots) {
         root.renderReal(g);//render all...
       }
+      descriptionLayer.renderReal(g);
     }
     drawEnd=System.currentTimeMillis();
     drawInterval=drawEnd - drawStart;
@@ -324,8 +337,26 @@ public class KyUI {
             }
           }
           KyUI.taskManager.executeAll();
+          //rendering
           for (CachingFrame root : roots) {
             root.render_(null);
+          }
+          //description
+          if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
+            Element el=roots.getLast().checkOverlayDescription(mouseGlobal.x, mouseGlobal.y);
+            if (el != null) {
+              currentDescription=el.description;
+              descriptionLayer.children.set(0, currentDescription);
+              currentDescription.invalidate();
+              currentDescription.onShow();
+              descriptionLayer.render_(null);
+            }
+            canShowDescription=false;
+          } else if (currentDescription != null && System.currentTimeMillis() - mouseEventTime < DESCRIPTION_THRESHOLD) {
+            descriptionLayer.children.set(0, descriptionDefault);
+            descriptionLayer.clear();
+            descriptionLayer.render_(null);
+            currentDescription=null;
           }
           roots.getLast().update_();
         }
@@ -371,7 +402,7 @@ public class KyUI {
       roots.getLast().keyTyped_((KeyEvent)e);
       keyInit=false;
       keyState=true;
-      keyTime=System.currentTimeMillis();
+      keyEventTime=System.currentTimeMillis();
     } else {
       if (!keyState) {
         roots.getLast().keyTyped_((KeyEvent)e);
@@ -379,22 +410,22 @@ public class KyUI {
       }
     }
     if (keyInit) {
-      if (System.currentTimeMillis() - keyTime > KEY_INTERVAL) {
+      if (System.currentTimeMillis() - keyEventTime > KEY_INTERVAL) {
         keyState=false;
-        keyTime=System.currentTimeMillis();
+        keyEventTime=System.currentTimeMillis();
       }
     } else {
-      if (System.currentTimeMillis() - keyTime > KEY_INIT_DELAY) {
+      if (System.currentTimeMillis() - keyEventTime > KEY_INIT_DELAY) {
         keyInit=true;
         keyState=false;
-        keyTime=System.currentTimeMillis();
+        keyEventTime=System.currentTimeMillis();
       }
     }
     if (e.getAction() == KeyEvent.RELEASE) {
       if (reflectedPressedKeys.isEmpty()) {
         keyState=false;
         keyInit=false;
-        keyTime=0;
+        keyEventTime=0;
       }
     }
     //updater.interrupt();
@@ -417,12 +448,12 @@ public class KyUI {
     if (roots.size() > 0) {
       roots.getLast().mouseEvent_(e, roots.size() - 1, true);
     }
-    //if (dropMessenger != null && e.getAction() == MouseEvent.RELEASE) {
-    //}
-    //int a=roots.size() - 1;
-    //while (a >= 0 && roots.get(a).mouseEvent_(e, a)) {
-    //  a--;
-    //}
+    if (e.getAction() == MouseEvent.MOVE) {
+      canShowDescription=true;
+    } else {
+      canShowDescription=false;
+    }
+    mouseEventTime=System.currentTimeMillis();
     //updater.interrupt();
   }
   public static int getKeyCount() {
@@ -464,9 +495,6 @@ public class KyUI {
         g.clip(last.left, last.top, last.right, last.bottom);
       }
     }
-  }
-  public static void test(PGraphics g) {
-    clipRect.render(g);
   }
   public static void transform(float x, float y) {//transforms clipArea and mouseEvent
     transform.addLast(new Vector2(x, y).addAssign(transform.getLast()));

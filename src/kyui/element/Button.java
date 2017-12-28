@@ -62,7 +62,7 @@ public class Button extends Element {
   }
   protected void drawContent(PGraphics g, int textC) {
     g.fill(textC);
-    g.textSize(Math.max(1,textSize));
+    g.textSize(Math.max(1, textSize));
     g.pushMatrix();
     g.translate((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
     for (int a=1; a <= rotation.ordinal(); a++) {
@@ -109,10 +109,12 @@ public class Button extends Element {
   }
   @Override
   public Vector2 getPreferredSize() {
+    KyUI.cacheGraphics.textFont(KyUI.fontMain);
+    KyUI.cacheGraphics.textSize(textSize);
     if (rotation == Attributes.Rotation.UP || rotation == Attributes.Rotation.DOWN) {
-      return new Vector2(KyUI.Ref.textWidth(text) + padding * 2, textSize + padding * 2);
+      return new Vector2(KyUI.cacheGraphics.textWidth(text) + padding * 2, textSize + padding * 2);
     } else {
-      return new Vector2(textSize + padding * 2, KyUI.Ref.textWidth(text) + padding * 2);
+      return new Vector2(textSize + padding * 2, KyUI.cacheGraphics.textWidth(text) + padding * 2);
     }
   }
 }
