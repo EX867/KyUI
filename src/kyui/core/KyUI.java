@@ -347,7 +347,7 @@ public class KyUI {
             if (el != null) {
               currentDescription=el.description;
               descriptionLayer.children.set(0, currentDescription);
-              currentDescription.invalidate();
+              descriptionLayer.invalidate();
               currentDescription.onShow();
               descriptionLayer.render_(null);
             }
@@ -355,7 +355,6 @@ public class KyUI {
           } else if (currentDescription != null && System.currentTimeMillis() - mouseEventTime < DESCRIPTION_THRESHOLD) {
             descriptionLayer.children.set(0, descriptionDefault);
             descriptionLayer.clear();
-            descriptionLayer.render_(null);
             currentDescription=null;
           }
           roots.getLast().update_();

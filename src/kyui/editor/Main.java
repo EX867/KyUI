@@ -121,6 +121,7 @@ public class Main extends PApplet {
       return false;
     });
     ImageButton layout_export=new ImageButton("layout_export", ElementLoader.loadImageResource("export.png"));
+    layout_export.setDescription("[Ctrl+S] export current state to xml");
     ImageButton layout_delete=new ImageButton("layout_delete", ElementLoader.loadImageResource("delete.png"));
     layout_delete.setPressListener((MouseEvent e, int index) -> {
       if (layout_tree.selection != null) {
@@ -132,6 +133,7 @@ public class Main extends PApplet {
       }
       return false;
     });
+    layout_delete.setDescription("delete selected element and its children");
     layout_top.addChild(layout_frame_move);
     layout_top.addChild(layout_export);
     layout_top.addChild(layout_delete);
@@ -223,7 +225,7 @@ public class Main extends PApplet {
     ElementLoader.loadOnStart(layout_elements, layout_inspector);
     ElementLoader.vars.put("NONE", new InspectorColorVarButton.ColorVariable("NONE", 0));
     main_tabs.selectTab(1);
-    KyUI.addShortcut(new KyUI.Shortcut("Export", true, false, false, 19, java.awt.event.KeyEvent.VK_S, action_export));
+    KyUI.addShortcut(new KyUI.Shortcut("Export", true, false, false, 19, 83, action_export));
     KyUI.addDragAndDrop(layout_tree, (DropEvent de) -> {
       String filename=de.file().getAbsolutePath().replace("\\", "/");
       if (getExtension(filename).equals("xml")) {

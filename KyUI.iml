@@ -16,7 +16,7 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="core.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/library/core.jar!/" />
@@ -25,9 +25,9 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="SDrop" level="project" />
-    <orderEntry type="library" name="reflections-0.9.9" level="project" />
-    <orderEntry type="library" name="guava-21.0" level="project" />
-    <orderEntry type="library" name="javassist-3.21.0-GA" level="project" />
+    <orderEntry type="library" exported="" name="SDrop" level="project" />
+    <orderEntry type="library" exported="" name="reflections-0.9.9" level="project" />
+    <orderEntry type="library" exported="" name="guava-21.0" level="project" />
+    <orderEntry type="library" exported="" name="javassist-3.21.0-GA" level="project" />
   </component>
 </module>

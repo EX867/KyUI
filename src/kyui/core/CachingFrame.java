@@ -1,6 +1,4 @@
 package kyui.core;
-import kyui.core.Element;
-import kyui.core.KyUI;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -17,7 +15,7 @@ public final class CachingFrame extends Element {
     boolean a=renderFlag || invalidated;
     if (a) render(null);//???
     renderChildren(display);
-    if (a) overlay(null);
+    if (a) renderAfter(null);
     renderFlag=false;
     invalidated=false;
   }
@@ -40,7 +38,7 @@ public final class CachingFrame extends Element {
     return super.checkInvalid(rect);
   }
   @Override
-  public void overlay(PGraphics g) {
+  public void renderAfter(PGraphics g) {
     display.popMatrix();
     display.endDraw();
   }

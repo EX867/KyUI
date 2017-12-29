@@ -234,7 +234,7 @@ public class Element implements TreeNodeAction {
     }
     renderChildren(g);
     if (renderFlag_) {
-      overlay(g);
+      renderAfter(g);
     }
     if (clipping) {
       removeClip(g);
@@ -262,7 +262,7 @@ public class Element implements TreeNodeAction {
   public void fill(PGraphics g, int c) {//overloading has many problem...
     ColorExt.fill(g, c);
   }
-  public void overlay(PGraphics g) {//override this!
+  public void renderAfter(PGraphics g) {//override this!
   }
   public void clipRect(PGraphics g) {//override this!
     if (clipRect == null) {

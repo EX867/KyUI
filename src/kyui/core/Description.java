@@ -16,6 +16,12 @@ public class Description extends Element {
     Vector2 size=getPreferredSize();
     float hWidth=size.x / 2;
     e.pos.set(centerX - hWidth, parent.pos.bottom, centerX + hWidth, parent.pos.bottom + size.y);
+    if (e.pos.right > KyUI.Ref.width) {
+      e.pos.translate(e.pos.right - KyUI.Ref.width, 0);
+    }
+    if (e.pos.left < 0) {
+      e.pos.translate(e.pos.left, 0);
+    }
   };
   Description(String name) {//used in KyUI
     super(name);
@@ -40,7 +46,6 @@ public class Description extends Element {
     super.render(g);
     g.fill(0);
     g.textSize(Math.max(1, textSize));
-    System.out.println("draw text " + getName() + " in " + pos);
     g.text(text, (pos.right + pos.left) / 2, (pos.top + pos.bottom) / 2);
   }
   @Override
