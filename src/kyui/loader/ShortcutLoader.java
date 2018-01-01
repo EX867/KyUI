@@ -18,7 +18,7 @@ public class ShortcutLoader {
     xml=xml.getChild("shortcut");
     XML[] data=xml.getChildren("shortcut");
     for (XML d : data) {
-      KyUI.addShortcut(new KyUI.Shortcut(d.getContent(), b(d.getString("ctrl")), b(d.getString("alt")), b(d.getString("shift")), d.getInt("key"), d.getInt("keycode"), null));
+      KyUI.addShortcut(new KyUI.Shortcut(d.getContent(), b(d.getString("ctrl")), b(d.getString("alt")), b(d.getString("shift")), d.getInt("key"), d.getInt("keyCode"), null));
     }
   }
   public static void loadXmlEditor(XML xml, LinearList shortcuts_list) {
@@ -30,7 +30,9 @@ public class ShortcutLoader {
     XML[] data=xml.getChildren("shortcut");
     for (XML d : data) {
       if (!shortcuts_list.getItems().contains("KyUI:shortcut:" + d.getContent())) {
-        addShortcut(d.getContent(), shortcuts_list);
+        InspectorButton1 ib=addShortcut(d.getContent(), shortcuts_list);
+        KyUI.Key key;
+        ib.set(key=new KyUI.Key(b(d.getString("ctrl")), b(d.getString("alt")), b(d.getString("shift")), d.getInt("key"), d.getInt("keyCode")));
       }
     }
   }
@@ -63,7 +65,6 @@ public class ShortcutLoader {
     return startXml;
   }
   public static InspectorButton1 addShortcut(String name, LinearList shortcuts_list) {
-    System.out.println(name);//FIX FIX FIX FIX FIX
     KeyCatcher catcher=new KeyCatcher("KyUI:" + name);
     InspectorButton1 ib=new InspectorButton1<KyUI.Key, KeyCatcher>("KyUI:shortcut:" + name, catcher);
     ib.ratio=6;

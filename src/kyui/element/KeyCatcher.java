@@ -82,6 +82,7 @@ public class KeyCatcher extends Element implements DataTransferable<KyUI.Key> {
   @Override
   public void set(KyUI.Key value) {
     key=value;
+    text=key.toString();
   }
   @Override
   public void setDataChangeListener(EventListener event) {
