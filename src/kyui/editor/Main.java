@@ -34,10 +34,10 @@ public class Main extends PApplet {
   public void setup() {
     surface.setResizable(true);
     surface.setLocation(0, 0);
-    surface.setIcon(loadImage("data/editor.png"));
     surface.setTitle(startText);
     frameRate(30);
     KyUI.start(this);
+    surface.setIcon(ElementLoader.loadImageResource("editor.png"));
     ElementLoader.isEditor=true;
     StatusBar main_status=new StatusBar("main_status");
     KyUI.logEvent=(String text) -> {

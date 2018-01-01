@@ -17,7 +17,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 import javax.swing.ImageIcon;
-import java.awt.Image;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -196,6 +196,25 @@ public class ElementLoader {
     }
     return null;
   }
+  public static PFont loadFontResource(String filename, int size) {
+    InputStream input=Element.class.getResourceAsStream("/" + filename);
+    if (input == null) {//no resources in internal directory.
+      for (String path : loadedExternals) {
+        try {
+          JarFile jarFile=new JarFile(path);
+          InputStream is=jarFile.getInputStream(jarFile.getEntry(filename));
+          if (is != null) {
+            return loadFont(is, filename, size);
+          }
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
+      }
+    } else {
+      return loadFont(input, filename, size);
+    }
+    return null;
+  }
   static PImage loadImage(InputStream input, String filename) {
     byte[] bytes=KyUI.Ref.loadBytes(input);
     if (bytes == null) {
@@ -214,6 +233,16 @@ public class ElementLoader {
       }
       image.parent=KyUI.Ref;
       return image;
+    }
+    return null;
+  }
+  static PFont loadFont(InputStream input, String filename, int size) {
+    try {
+      Font baseFont=Font.createFont(Font.TRUETYPE_FONT, input);
+      KyUI.log("font " + filename + " is loaded");
+      return new PFont(baseFont.deriveFont(size * KyUI.Ref.pixelDensity), true, (char[])null, input != null, KyUI.Ref.pixelDensity);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     return null;
   }

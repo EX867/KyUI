@@ -11,6 +11,7 @@ import kyui.event.DropEventListener;
 import kyui.event.EventListener;
 import kyui.event.FileDropEventListener;
 import kyui.event.ResizeListener;
+import kyui.loader.ElementLoader;
 import kyui.util.Task;
 import kyui.util.TaskManager;
 import kyui.util.Rect;
@@ -33,6 +34,7 @@ public class KyUI {
   public static PApplet Ref;
   private static boolean ready=false;
   private static boolean end=false;
+  public static boolean externalLog=false;
   // object control
   protected static final HashMap<String, Element> Elements=new HashMap<String, Element>();
   protected static LinkedList<CachingFrame> roots=new LinkedList<CachingFrame>();//no support multi window.
@@ -210,8 +212,8 @@ public class KyUI {
     pwidth=Ref.width;
     pheight=Ref.height;
     //other things
-    fontMain=KyUI.Ref.createFont(new java.io.File("data/SourceCodePro-Bold.ttf").getAbsolutePath(), 20);
-    fontText=KyUI.Ref.createFont(new java.io.File("data/The160.ttf").getAbsolutePath(), 20);
+    fontMain=ElementLoader.loadFontResource("SourceCodePro-Bold.ttf", 20);
+    fontText=ElementLoader.loadFontResource("The160.ttf", 20);
     cacheGraphics=KyUI.Ref.createGraphics(10, 10);//small graphics...used for some functions
     dropLayer=new CachingFrame("KyUI:dropLayer", new Rect(0, 0, Ref.width, Ref.height));
     descriptionLayer=new CachingFrame("KyUI:descriptionLayer", new Rect(0, 0, Ref.width, Ref.height));
@@ -627,16 +629,31 @@ public class KyUI {
     shortcutsByName.put(shortcut.name, shortcut);//overwrited.
     shortcuts.add(shortcut);
   }
+  static java.io.PrintWriter write;
   public static void log(String text) {
     System.out.println("[KyUI] " + text);
     if (logEvent != null) {
       logEvent.accept(text);
     }
+    if (externalLog) {
+      if (write == null) {
+        write=Ref.createWriter("log.txt");
+      }
+      write.write("[out] " + text + "\n");
+      write.flush();
+    }
   }
   public static void err(String text) {
-    System.out.println("[KyUI : " + frameCount + "] " + text);
+    System.err.println("[KyUI : " + frameCount + "] " + text);
     if (logEvent != null) {
       logEvent.accept(text);
+    }
+    if (externalLog) {
+      if (write == null) {
+        write=Ref.createWriter("log.txt");
+      }
+      write.write("[err] " + text + "\n");
+      write.flush();
     }
   }
 }

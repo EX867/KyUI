@@ -7,16 +7,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2ab9e1f1-fed2-4c1f-820c-dff50cb87f17" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/artifacts/KyUI.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/artifacts/KyUILauncher.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/META-INF/MANIFEST.MF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/MainLauncher.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Automation/build.xml" afterPath="$PROJECT_DIR$/Automation/build.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/core/KyUI.java" afterPath="$PROJECT_DIR$/src/kyui/core/KyUI.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/editor/Main.java" afterPath="$PROJECT_DIR$/src/kyui/editor/Main.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/loader/ElementLoader.java" afterPath="$PROJECT_DIR$/src/kyui/loader/ElementLoader.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/loader/LayoutLoader.java" afterPath="$PROJECT_DIR$/src/kyui/loader/LayoutLoader.java" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -31,24 +26,36 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/kyui/editor/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1523">
-              <caret line="145" column="50" lean-forward="true" selection-start-line="145" selection-start-column="50" selection-end-line="145" selection-end-column="50" />
+            <state relative-caret-position="212">
+              <caret line="27" column="11" lean-forward="true" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1287#1344#0" expanded="false" />
-                <element signature="e#2917#3573#0" expanded="false" />
-                <element signature="class#3736:4626" expanded="false" />
-                <element signature="e#5543#5889#0" expanded="false" />
-                <element signature="e#6758#7027#0" expanded="false" />
-                <element signature="e#7062#7262#0" expanded="false" />
-                <element signature="e#8020#8200#0" expanded="false" />
-                <element signature="e#8768#8918#0" expanded="false" />
-                <element signature="e#8976#9400#0" expanded="false" />
-                <element signature="e#9437#9528#0" expanded="false" />
-                <element signature="e#9851#10358#0" expanded="false" />
-                <element signature="e#10402#10640#0" expanded="false" />
-                <element signature="e#10683#10909#0" expanded="false" />
+                <element signature="e#1304#1361#0" expanded="false" />
+                <element signature="e#2934#3590#0" expanded="false" />
+                <element signature="class#3753:4643" expanded="false" />
+                <element signature="e#5560#5906#0" expanded="false" />
+                <element signature="e#6775#7044#0" expanded="false" />
+                <element signature="e#7079#7279#0" expanded="false" />
+                <element signature="e#8037#8217#0" expanded="false" />
+                <element signature="e#8785#8935#0" expanded="false" />
+                <element signature="e#9454#9545#0" expanded="false" />
+                <element signature="e#9868#10375#0" expanded="false" />
+                <element signature="e#10419#10657#0" expanded="false" />
+                <element signature="e#10700#10926#0" expanded="false" />
                 <element signature="method#handleMouseEvent#0;class#Main#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Automation/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="414">
+              <caret line="33" column="43" lean-forward="false" selection-start-line="33" selection-start-column="43" selection-end-line="33" selection-end-column="43" />
+              <folding>
+                <element signature="n#classpath#1;n#javac#0;n#target#0;n#project#0;n#!!top" expanded="false" />
+                <element signature="n#target#1;n#project#0;n#!!top" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -68,8 +75,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>System.err.println(&quot;[KyUI</find>
-      <find>System.err.println(&quot;[KyUI]</find>
       <find>focus</find>
       <find>skip</find>
       <find>equals</find>
@@ -98,6 +103,8 @@
       <find>external</find>
       <find>System.</find>
       <find>System.out.println</find>
+      <find>create</find>
+      <find>loadImage</find>
     </findStrings>
     <replaceStrings>
       <replace>lines()</replace>
@@ -192,11 +199,11 @@
         <option value="$PROJECT_DIR$/kyui.xml" />
         <option value="$PROJECT_DIR$/src/kyui/loader/LayoutLoader.java" />
         <option value="$PROJECT_DIR$/build.xml" />
-        <option value="$PROJECT_DIR$/src/kyui/editor/Main.java" />
-        <option value="$PROJECT_DIR$/src/kyui/core/KyUI.java" />
-        <option value="$PROJECT_DIR$/Automation/build.xml" />
         <option value="$PROJECT_DIR$/.idea/workspace.xml" />
+        <option value="$PROJECT_DIR$/Automation/build.xml" />
+        <option value="$PROJECT_DIR$/src/kyui/core/KyUI.java" />
         <option value="$PROJECT_DIR$/src/kyui/loader/ElementLoader.java" />
+        <option value="$PROJECT_DIR$/src/kyui/editor/Main.java" />
       </list>
     </option>
   </component>
@@ -276,6 +283,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -291,11 +300,6 @@
             <path>
               <item name="KyUI" type="b2602c69:ProjectViewProjectNode" />
               <item name="KyUI" type="462c0819:PsiDirectoryNode" />
-              <item name="library" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="KyUI" type="b2602c69:ProjectViewProjectNode" />
-              <item name="KyUI" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -306,15 +310,27 @@
             </path>
             <path>
               <item name="KyUI" type="b2602c69:ProjectViewProjectNode" />
+              <item name="KyUI" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="kyui" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="KyUI" type="b2602c69:ProjectViewProjectNode" />
+              <item name="KyUI" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="kyui" type="462c0819:PsiDirectoryNode" />
+              <item name="loader" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="KyUI" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -546,11 +562,13 @@
       <workItem from="1514465439621" duration="1209000" />
       <workItem from="1514518518568" duration="9119000" />
       <workItem from="1514783100898" duration="7657000" />
+      <workItem from="1514791117106" duration="890000" />
+      <workItem from="1514792082517" duration="2566000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="541770000" />
+    <option name="totallyTimeSpent" value="545226000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -601,13 +619,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/kyui/core/RelativeFrame.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="6" column="13" lean-forward="false" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/util/TypeChanger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
@@ -747,7 +758,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
           <caret line="24" column="18" lean-forward="true" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -811,7 +821,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
           <caret line="209" column="5" lean-forward="true" selection-start-line="209" selection-start-column="5" selection-end-line="210" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -819,7 +828,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="504">
           <caret line="37" column="14" lean-forward="false" selection-start-line="37" selection-start-column="14" selection-end-line="37" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -827,7 +835,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="477">
           <caret line="32" column="36" lean-forward="false" selection-start-line="32" selection-start-column="36" selection-end-line="32" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -835,7 +842,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-697">
           <caret line="14" column="47" lean-forward="true" selection-start-line="14" selection-start-column="47" selection-end-line="14" selection-end-column="47" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -843,9 +849,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="347">
           <caret line="47" column="38" lean-forward="false" selection-start-line="47" selection-start-column="38" selection-end-line="47" selection-end-column="38" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -856,43 +859,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MainLauncher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="1" column="27" lean-forward="false" selection-start-line="1" selection-start-column="27" selection-end-line="1" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kyui.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="3" column="47" lean-forward="true" selection-start-line="3" selection-start-column="47" selection-end-line="3" selection-end-column="47" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MainLauncher.java" />
+    <entry file="file://$PROJECT_DIR$/kyui.properties" />
     <entry file="file://$PROJECT_DIR$/Automation/build.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="318">
           <caret line="242" column="62" lean-forward="true" selection-start-line="242" selection-start-column="62" selection-end-line="242" selection-end-column="62" />
-          <folding />
+          <folding>
+            <element signature="n#classpath#1;n#javac#0;n#target#0;n#project#0;n#!!top" expanded="false" />
+            <element signature="n#target#1;n#project#0;n#!!top" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/META-INF/MANIFEST.MF">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="1" column="24" lean-forward="true" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/META-INF/MANIFEST.MF" />
     <entry file="file://$PROJECT_DIR$/src/kyui/element/FontDrop.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="972">
           <caret line="65" column="16" lean-forward="false" selection-start-line="65" selection-start-column="16" selection-end-line="65" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -900,10 +884,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-51">
           <caret line="199" column="5" lean-forward="true" selection-start-line="199" selection-start-column="5" selection-end-line="199" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#saveXML#0;class#LayoutLoader#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -911,37 +891,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1098">
           <caret line="71" column="31" lean-forward="true" selection-start-line="71" selection-start-column="31" selection-end-line="71" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/library/core.jar!/processing/core/PApplet.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-13">
-          <caret line="944" column="29" lean-forward="false" selection-start-line="944" selection-start-column="13" selection-end-line="944" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/core/KyUI.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="116">
-          <caret line="544" column="19" lean-forward="false" selection-start-line="544" selection-start-column="19" selection-end-line="544" selection-end-column="19" />
-          <folding>
-            <element signature="class#CheckOverlayTask#0;class#KyUI#0" expanded="false" />
-            <element signature="class#6900:7736" expanded="false" />
-            <element signature="class#7773:8605" expanded="false" />
-            <element signature="class#Updater#0;class#KyUI#0" expanded="false" />
-            <element signature="method#mouseEvent#0;class#KyUI#0" expanded="false" />
-            <element signature="e#20150#20151#0" expanded="true" />
-            <element signature="e#20207#20208#0" expanded="true" />
-            <element signature="method#set#1;class#Shortcut#0;class#KyUI#0" expanded="false" />
-            <element signature="e#21226#21227#0" expanded="true" />
-            <element signature="e#21263#21264#0" expanded="true" />
-            <element signature="class#Key#0;class#KyUI#0" expanded="false" />
-            <element signature="method#set#0;class#Key#0;class#KyUI#0" expanded="false" />
-            <element signature="method#toString#0;class#Key#0;class#KyUI#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -949,7 +898,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="12" column="39" lean-forward="true" selection-start-line="12" selection-start-column="39" selection-end-line="12" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -957,7 +905,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="81">
           <caret line="72" column="49" lean-forward="true" selection-start-line="72" selection-start-column="49" selection-end-line="72" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -965,53 +912,79 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-8431">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/library/core.jar!/processing/core/PGraphics.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="1815" column="24" lean-forward="true" selection-start-line="1815" selection-start-column="24" selection-end-line="1815" selection-end-column="24" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/library/core.jar!/processing/core/PApplet.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="310">
+          <caret line="2417" column="57" lean-forward="false" selection-start-line="2417" selection-start-column="57" selection-end-line="2417" selection-end-column="57" />
+          <folding>
+            <element signature="e#65009#65010#0" expanded="true" />
+            <element signature="e#65073#65074#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/core/KyUI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="201">
+          <caret line="213" column="18" lean-forward="true" selection-start-line="213" selection-start-column="18" selection-end-line="213" selection-end-column="18" />
+          <folding>
+            <element signature="class#7850:8682" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/loader/ElementLoader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1465">
-          <caret line="142" column="15" lean-forward="false" selection-start-line="142" selection-start-column="15" selection-end-line="142" selection-end-column="15" />
+        <state relative-caret-position="338">
+          <caret line="179" column="32" lean-forward="false" selection-start-line="179" selection-start-column="23" selection-end-line="179" selection-end-column="32" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#exportExternals#0;class#ElementLoader#0" expanded="false" />
-            <marker date="1514790718145" expanded="false" signature="9730:9737" ph="&lt;~&gt;" />
-            <marker date="1514790718145" expanded="false" signature="9986:9999" ph=" { " />
-            <marker date="1514790718145" expanded="false" signature="10044:10054" ph=" }" />
-            <marker date="1514790718145" expanded="false" signature="13696:13715" ph=" { " />
-            <marker date="1514790718145" expanded="false" signature="13746:13762" ph=" }" />
+            <element signature="method#loadImageResource#0;class#ElementLoader#0" expanded="false" />
+            <element signature="method#loadFontResource#0;class#ElementLoader#0" expanded="false" />
+            <element signature="method#loadImage#0;class#ElementLoader#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Automation/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="353">
-          <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="414">
+          <caret line="33" column="43" lean-forward="false" selection-start-line="33" selection-start-column="43" selection-end-line="33" selection-end-column="43" />
+          <folding>
+            <element signature="n#classpath#1;n#javac#0;n#target#0;n#project#0;n#!!top" expanded="false" />
+            <element signature="n#target#1;n#project#0;n#!!top" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/editor/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1523">
-          <caret line="145" column="50" lean-forward="true" selection-start-line="145" selection-start-column="50" selection-end-line="145" selection-end-column="50" />
+        <state relative-caret-position="212">
+          <caret line="27" column="11" lean-forward="true" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1287#1344#0" expanded="false" />
-            <element signature="e#2917#3573#0" expanded="false" />
-            <element signature="class#3736:4626" expanded="false" />
-            <element signature="e#5543#5889#0" expanded="false" />
-            <element signature="e#6758#7027#0" expanded="false" />
-            <element signature="e#7062#7262#0" expanded="false" />
-            <element signature="e#8020#8200#0" expanded="false" />
-            <element signature="e#8768#8918#0" expanded="false" />
-            <element signature="e#8976#9400#0" expanded="false" />
-            <element signature="e#9437#9528#0" expanded="false" />
-            <element signature="e#9851#10358#0" expanded="false" />
-            <element signature="e#10402#10640#0" expanded="false" />
-            <element signature="e#10683#10909#0" expanded="false" />
+            <element signature="e#1304#1361#0" expanded="false" />
+            <element signature="e#2934#3590#0" expanded="false" />
+            <element signature="class#3753:4643" expanded="false" />
+            <element signature="e#5560#5906#0" expanded="false" />
+            <element signature="e#6775#7044#0" expanded="false" />
+            <element signature="e#7079#7279#0" expanded="false" />
+            <element signature="e#8037#8217#0" expanded="false" />
+            <element signature="e#8785#8935#0" expanded="false" />
+            <element signature="e#9454#9545#0" expanded="false" />
+            <element signature="e#9868#10375#0" expanded="false" />
+            <element signature="e#10419#10657#0" expanded="false" />
+            <element signature="e#10700#10926#0" expanded="false" />
             <element signature="method#handleMouseEvent#0;class#Main#0" expanded="false" />
           </folding>
         </state>

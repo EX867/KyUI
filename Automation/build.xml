@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project default="build_jar" name="Create JAR-file">
 
     <!-- Configuration -->
@@ -29,7 +29,7 @@
     <target name="launcher" depends="compile" description="Build the launchable JAR">
 
         <!-- With included source files -->
-        <jar destfile="../KyUILauncher.jar" duplicate="add">
+        <jar destfile="../KyUILauncher.jar">
             <manifest>
                 <attribute name="Main-Class" value="kyui.editor.Main"/>
                 <attribute name="Implementation-Version" value="${version}-${DSTAMP}"/>
@@ -41,19 +41,20 @@
             <!-- Compiled files -->
             <fileset dir="../bin"/>
             <!-- include source files -->
-            <fileset dir="../src">
-                <include name="**/*.java"/>
-            </fileset>
+            <!--<fileset dir="../src">-->
+            <!--<include name="**/*.java"/>-->
+            <!--</fileset>-->
             <fileset dir="../data"/>
             <zipgroupfileset dir="../library" includes="*.jar"/>
         </jar>
+        <delete dir="../bin"/>
     </target>
 
     <!--normal jar-->
     <target name="build_jar" depends="compile" description="Build the JAR">
 
         <!-- With included source files -->
-        <jar destfile="../KyUI.jar" duplicate="add">
+        <jar destfile="../KyUI.jar">
             <manifest>
                 <attribute name="Main-Class" value="kyui.editor.Main"/>
                 <attribute name="Class-Path" value="guava-21.0.jar"/>
@@ -63,13 +64,7 @@
                 <attribute name="Created-By" value="${built_by}"/>
                 <attribute name="Built-Date" value="${TODAY}"/>
             </manifest>
-
-            <!-- Compiled files -->
             <fileset dir="../bin"/>
-            <!-- include source files -->
-            <fileset dir="../src">
-                <include name="**/*.java"/>
-            </fileset>
             <fileset dir="../data"/>
             <zipgroupfileset dir="../library" includes="javassist-3.21.0-GA.jar"/>
             <zipgroupfileset dir="../library" includes="reflections-0.9.9.jar"/>
