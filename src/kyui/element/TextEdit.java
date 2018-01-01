@@ -64,16 +64,22 @@ public class TextEdit extends Element {//no sliderX for now...
   int cursorFrame=0;
   public TextEdit(String name) {
     super(name);
+    content=new EditorString();
     init();
   }
   public TextEdit(String name, Rect pos_) {
     super(name);
+    content=new EditorString();
     pos=pos_;
+    init();
+  }
+  public TextEdit(String name, EditorString content_) {
+    super(name);
+    content=content_;
     init();
   }
   private void init() {
     clipping=true;
-    content=new EditorString();
     filters=new ArrayList<Filter>();
     padding=8;
     bgColor=50;
