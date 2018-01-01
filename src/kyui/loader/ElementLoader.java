@@ -69,7 +69,7 @@ public class ElementLoader {
       try {
         String line=read.readLine();//line means one path.
         while (line != null) {
-          if (line.length() != 0 && new File(line).isFile()) {
+          if (line.length() != 0) {
             loadExternal(line);
           }
           line=read.readLine();
@@ -78,6 +78,7 @@ public class ElementLoader {
         e.printStackTrace();
       }
     } else {
+      KyUI.log("ElementLoader - create path file");
       paths.getParentFile().mkdirs();
       try {
         paths.createNewFile();
@@ -98,6 +99,10 @@ public class ElementLoader {
   }
   public static void loadExternal(String path) {//https://stackoverflow.com/questions/11016092/how-to-load-classes-at-runtime-from-a-folder-or-jar
     KyUI.log("ElementLoader - load start : " + path);
+    if (!new File(path).isFile()) {
+      KyUI.err("ElementLoader : load failed : " + path + " : file not exists!");
+      return;
+    }
     if (!loadedExternals.contains(path)) {
       loadedExternals.add(path);
       exportExternals();
@@ -124,7 +129,7 @@ public class ElementLoader {
           } else {
             Class cc=c;
             while (cc != Object.class) {
-              System.out.println(cc.getTypeName());
+              KyUI.log(c.getTypeName());
               cc=cc.getSuperclass();
             }
             KyUI.log("ElementLoader - " + c.getTypeName() + " is not assignable to " + Element.class.getTypeName() + ".");
@@ -135,7 +140,7 @@ public class ElementLoader {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    System.out.println();
+    KyUI.log("");
   }
   public static void loadInternal() {
     try {
@@ -153,7 +158,7 @@ public class ElementLoader {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    System.out.println();
+    KyUI.log("");
   }
   static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
     if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
@@ -361,7 +366,7 @@ public class ElementLoader {
               }
             });
           } else {
-            System.err.println(a.field.getType().getTypeName() + " is not handled in ElementLoader.");
+            KyUI.err(a.field.getType().getTypeName() + " is not handled in ElementLoader.");
             continue;
           }
           i.text=a.field.getName();

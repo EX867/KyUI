@@ -265,7 +265,7 @@ public class LayoutLoader {
 <Data>
   <layout>//xml
     <kyui.element.Button
-      bgColor=0xFF323232(10진)>
+      bgColor=0xFF323232(10)>
     </>
   </layout>
   <color>

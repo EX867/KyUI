@@ -256,6 +256,8 @@ public class Main extends PApplet {
   @Override
   public void draw() {
     KyUI.render(g);
+    mouseX=(int)(KyUI.mouseGlobal.x * KyUI.scaleGlobal);
+    mouseY=(int)(KyUI.mouseGlobal.y * KyUI.scaleGlobal);
     strokeWeight(1);
     noFill();
     ellipse(mouseX, mouseY, 20, 20);

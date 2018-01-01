@@ -1,9 +1,7 @@
 bin
-src/asdf
 library/guava-21.0.jar
 KyUI.jar
 KyUILauncher.jar
-core.jar
 TestExternalElement.jar
 TestExternalElement/bin
 layout.xml

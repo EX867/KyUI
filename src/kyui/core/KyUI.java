@@ -150,8 +150,12 @@ public class KyUI {
   public static void start(PApplet ref, int rate) {
     if (ready) return;// this makes setup() only called once.
     Ref=ref;
-    //SDrop set
     try {
+      //      //keyRepeat
+      //      Field f=Ref.getClass().getDeclaredField("keyRepeatEnabled");
+      //      f.setAccessible(true);//Very important, this allows the setting to work.
+      //      f.set(Ref, false);
+      //canvas
       Field f=Ref.getSurface().getClass().getDeclaredField("canvas");
       f.setAccessible(true);//Very important, this allows the setting to work.
       java.awt.Component cp=(java.awt.Canvas)f.get(Ref.getSurface());
@@ -387,7 +391,8 @@ public class KyUI {
         else if (e.getKeyCode() == PApplet.ALT) altPressed=false;
       }
     }
-    if (e.getAction() == KeyEvent.PRESS) {
+    Long hash=(long)e.getKeyCode() << 16 | (long)e.getKey();
+    if (e.getAction() == MouseEvent.PRESS) {//FIX>>meke only key Press executed once!!
       for (Shortcut shortcut : shortcuts) {
         if (shortcut.isPressed(e)) {
           if (shortcut.event != null) {
@@ -537,6 +542,7 @@ public class KyUI {
     public Shortcut(String name_, boolean ctrl_, boolean alt_, boolean shift_, int key_, int keyCode_, EventListener event_) {
       name=name_;
       key=new Key(ctrl_, alt_, shift_, key_, keyCode_);
+      event=event_;
     }
     public Shortcut(String name_, Key key_, EventListener event_) {
       name=name_;
