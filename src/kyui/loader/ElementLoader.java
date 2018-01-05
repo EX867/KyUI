@@ -160,7 +160,7 @@ public class ElementLoader {
     }
     KyUI.log("");
   }
-  static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
+  public static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
     if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
       KyUI.log("ElementLoader - loading... " + c.getTypeName());
       types.add(c);
