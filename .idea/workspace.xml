@@ -7,7 +7,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2ab9e1f1-fed2-4c1f-820c-dff50cb87f17" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/editor/Main.java" afterPath="$PROJECT_DIR$/src/kyui/editor/Main.java" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/" />
@@ -23,22 +22,22 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/kyui/editor/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="326">
-              <caret line="257" column="5" lean-forward="false" selection-start-line="257" selection-start-column="5" selection-end-line="257" selection-end-column="5" />
+            <state relative-caret-position="191">
+              <caret line="23" column="15" lean-forward="false" selection-start-line="23" selection-start-column="15" selection-end-line="23" selection-end-column="15" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1349#1406#0" expanded="false" />
-                <element signature="e#2979#3635#0" expanded="false" />
-                <element signature="class#3798:4688" expanded="false" />
-                <element signature="e#5605#5951#0" expanded="false" />
-                <element signature="e#6820#7089#0" expanded="false" />
-                <element signature="e#7124#7324#0" expanded="false" />
-                <element signature="e#8082#8262#0" expanded="false" />
-                <element signature="e#8830#8980#0" expanded="false" />
-                <element signature="e#9499#9590#0" expanded="false" />
-                <element signature="e#9913#10420#0" expanded="false" />
-                <element signature="e#10464#10702#0" expanded="false" />
-                <element signature="e#10745#10971#0" expanded="false" />
+                <element signature="e#1356#1413#0" expanded="false" />
+                <element signature="e#2986#3642#0" expanded="false" />
+                <element signature="class#3805:4695" expanded="false" />
+                <element signature="e#5612#5958#0" expanded="false" />
+                <element signature="e#6827#7096#0" expanded="false" />
+                <element signature="e#7131#7331#0" expanded="false" />
+                <element signature="e#8089#8269#0" expanded="false" />
+                <element signature="e#8837#8987#0" expanded="false" />
+                <element signature="e#9506#9597#0" expanded="false" />
+                <element signature="e#9920#10427#0" expanded="false" />
+                <element signature="e#10471#10709#0" expanded="false" />
+                <element signature="e#10752#10978#0" expanded="false" />
                 <element signature="method#handleMouseEvent#0;class#Main#0" expanded="false" />
               </folding>
             </state>
@@ -80,7 +79,7 @@
       <file leaf-file-name="ElementLoader.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/kyui/loader/ElementLoader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="134">
+            <state relative-caret-position="1026">
               <caret line="151" column="7" lean-forward="false" selection-start-line="151" selection-start-column="7" selection-end-line="151" selection-end-column="7" />
               <folding>
                 <element signature="method#exportExternals#0;class#ElementLoader#0" expanded="false" />
@@ -93,7 +92,7 @@
       <file leaf-file-name="KeyCatcher.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/kyui/element/KeyCatcher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1350">
+            <state relative-caret-position="1386">
               <caret line="84" column="24" lean-forward="false" selection-start-line="84" selection-start-column="24" selection-end-line="84" selection-end-column="24" />
               <folding>
                 <element signature="e#2396#2397#0" expanded="true" />
@@ -338,7 +337,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -400,6 +398,7 @@
       </pane>
       <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -643,11 +642,12 @@
       <workItem from="1515135131392" duration="19000" />
       <workItem from="1515138543056" duration="95000" />
       <workItem from="1515138930273" duration="92000" />
+      <workItem from="1515139094702" duration="21000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="547160000" />
+    <option name="totallyTimeSpent" value="547181000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -983,7 +983,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/element/KeyCatcher.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1350">
+        <state relative-caret-position="1386">
           <caret line="84" column="24" lean-forward="false" selection-start-line="84" selection-start-column="24" selection-end-line="84" selection-end-column="24" />
           <folding>
             <element signature="e#2396#2397#0" expanded="true" />
@@ -1037,7 +1037,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/loader/ElementLoader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="134">
+        <state relative-caret-position="1026">
           <caret line="151" column="7" lean-forward="false" selection-start-line="151" selection-start-column="7" selection-end-line="151" selection-end-column="7" />
           <folding>
             <element signature="method#exportExternals#0;class#ElementLoader#0" expanded="false" />
@@ -1048,22 +1048,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/editor/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="257" column="5" lean-forward="false" selection-start-line="257" selection-start-column="5" selection-end-line="257" selection-end-column="5" />
+        <state relative-caret-position="191">
+          <caret line="23" column="15" lean-forward="false" selection-start-line="23" selection-start-column="15" selection-end-line="23" selection-end-column="15" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1349#1406#0" expanded="false" />
-            <element signature="e#2979#3635#0" expanded="false" />
-            <element signature="class#3798:4688" expanded="false" />
-            <element signature="e#5605#5951#0" expanded="false" />
-            <element signature="e#6820#7089#0" expanded="false" />
-            <element signature="e#7124#7324#0" expanded="false" />
-            <element signature="e#8082#8262#0" expanded="false" />
-            <element signature="e#8830#8980#0" expanded="false" />
-            <element signature="e#9499#9590#0" expanded="false" />
-            <element signature="e#9913#10420#0" expanded="false" />
-            <element signature="e#10464#10702#0" expanded="false" />
-            <element signature="e#10745#10971#0" expanded="false" />
+            <element signature="e#1356#1413#0" expanded="false" />
+            <element signature="e#2986#3642#0" expanded="false" />
+            <element signature="class#3805:4695" expanded="false" />
+            <element signature="e#5612#5958#0" expanded="false" />
+            <element signature="e#6827#7096#0" expanded="false" />
+            <element signature="e#7131#7331#0" expanded="false" />
+            <element signature="e#8089#8269#0" expanded="false" />
+            <element signature="e#8837#8987#0" expanded="false" />
+            <element signature="e#9506#9597#0" expanded="false" />
+            <element signature="e#9920#10427#0" expanded="false" />
+            <element signature="e#10471#10709#0" expanded="false" />
+            <element signature="e#10752#10978#0" expanded="false" />
             <element signature="method#handleMouseEvent#0;class#Main#0" expanded="false" />
           </folding>
         </state>

@@ -21,7 +21,7 @@ import java.io.PrintWriter;
 import java.util.function.Function;
 //ADD>>delete function for colorVar and shortcut!!!
 public class Main extends PApplet {
-  public Runnable editorSetupFinishListener;
+  public static Runnable editorSetupFinishListener;
   public static Element selection=null;//used in layout_tree
   public static void main(String[] args) {
     PApplet.main("kyui.editor.Main");
