@@ -14,6 +14,7 @@ public class RelativeFrame extends Element {
   @Attribute
   public boolean scroll=true;
   Vector2 oldMouseValue=new Vector2();
+  Vector2 oldClickValue=new Vector2();
   public RelativeFrame(String name) {
     super(name);
     clipping=true;
@@ -74,13 +75,16 @@ public class RelativeFrame extends Element {
       }
     }
     KyUI.mouseGlobal.set(KyUI.mouseGlobal.x + offsetX, KyUI.mouseGlobal.y + offsetY);
+    KyUI.mouseClick.set(KyUI.mouseClick.x + offsetX, KyUI.mouseClick.y + offsetY);
     return true;
   }
   @Override
   synchronized boolean mouseEvent_(MouseEvent e, int index, boolean trigger) {
     oldMouseValue.set(KyUI.mouseGlobal);
+    oldClickValue.set(KyUI.mouseClick);
     boolean ret=super.mouseEvent_(e, index, trigger);
     KyUI.mouseGlobal.set(oldMouseValue);
+    KyUI.mouseClick.set(oldClickValue);
     return ret;
   }
   //offset 0 is root in center.
