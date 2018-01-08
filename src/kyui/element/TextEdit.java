@@ -143,7 +143,7 @@ public class TextEdit extends Element {//no sliderX for now...
     }
     return true;
   }
-  void adjustCursor() {
+  protected void adjustCursor() {
     content.setCursorLine(Math.max(Math.min(offsetToLine(offset - padding + KyUI.mouseGlobal.y - pos.top), content.lines() - 1), 0));
     PGraphics cg=KyUI.cacheGraphics;
     cg.textFont(textFont);
@@ -269,7 +269,7 @@ public class TextEdit extends Element {//no sliderX for now...
     slider.setLength(getTotalSize(), pos.bottom - pos.top);
     slider.setOffset(getTotalSize(), offset);
   }
-  int getTotalSize() {
+  protected int getTotalSize() {
     return (content.lines() + blankLines) * textSize + padding * 2;
   }
   public void insert(int point_, int line_, String text) {
@@ -298,10 +298,10 @@ public class TextEdit extends Element {//no sliderX for now...
     }
     updateSlider();
   }
-  void moveToCursor() {
+  public void moveToCursor() {
     moveTo(content.line);
   }
-  int offsetToLine(float offset_) {
+  protected int offsetToLine(float offset_) {
     return (int)offset_ / Math.max(1, textSize);
   }
   @Override
