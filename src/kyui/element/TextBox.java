@@ -167,36 +167,36 @@ public class TextBox extends TextEdit implements DataTransferable {
     if (!title.equals("")) {
       g.textSize(Math.max(1, textSize * 3 / 4));
       g.fill(fgColor);
-      offset=(textSize / 3);
+      offsetY=(textSize / 3);
       g.text(title + "/ ", pos.left + textSize / 2, pos.top + textSize * 3 / 4);
     } else {
-      offset=0;
+      offsetY=0;
     }
     g.textSize(Math.max(1, textSize));
     if (content.hasSelection()) {
       g.fill(selectionColor);
       String selectionPart=content.getSelectionPart(0);
       float selectionBefore=g.textWidth(content.getSelectionPartBefore(0));
-      g.rect(pos.left + selectionBefore + lineNumSize + padding, centerY - textSize / 2 + offset, pos.left + selectionBefore + g.textWidth(selectionPart) + lineNumSize + padding, centerY + textSize / 2 + offset);
+      g.rect(pos.left + selectionBefore + lineNumSize + padding, centerY - textSize / 2 + offsetY, pos.left + selectionBefore + g.textWidth(selectionPart) + lineNumSize + padding, centerY + textSize / 2 + offsetY);
     }
     //g.textFont(textFont);
     if (content.empty()) {
       g.fill(ColorExt.brighter(textColor, -60));
-      g.text(hint, pos.left + padding, centerY + offset);
+      g.text(hint, pos.left + padding, centerY + offsetY);
     } else {
       g.fill(textColor);
-      g.text(content.getLine(0), pos.left + padding, centerY + offset);
+      g.text(content.getLine(0), pos.left + padding, centerY + offsetY);
     }
     if (KyUI.focus == this) {
       if (cursorOn) {
         float cursorOffsetX=g.textWidth("|") / 2;
         String line=content.getLine(content.line);
-        g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + padding - cursorOffsetX, centerY + offset - 3);
+        g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + padding - cursorOffsetX, centerY + offsetY - 3);
       }
     }
     if (!rightText.isEmpty()) {
       g.textAlign(PApplet.RIGHT, PApplet.CENTER);
-      g.text(rightText, pos.right - textSize, centerY + offset);
+      g.text(rightText, pos.right - textSize, centerY + offsetY);
     }
     //g.textFont(KyUI.fontMain);
     g.noStroke();

@@ -58,7 +58,8 @@ public class TextEdit extends Element {//no sliderX for now...
   //temp values
   protected int clickLine=0;
   protected int clickPoint=0;
-  protected float offset=0;
+  protected float offsetY=0;
+  protected float offsetX=0;
   protected Rect cacheRect=new Rect();
   protected boolean cursorOn=true;
   protected int cursorFrame=0;
@@ -129,12 +130,12 @@ public class TextEdit extends Element {//no sliderX for now...
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
       if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
-        offset+=e.getCount() * KyUI.WHEEL_COUNT;
-        if (offset > textSize * (content.lines() + blankLines) + pos.top - pos.bottom) {
-          offset=textSize * (content.lines() + blankLines) + pos.top - pos.bottom;
+        offsetY+=e.getCount() * KyUI.WHEEL_COUNT;
+        if (offsetY > textSize * (content.lines() + blankLines) + pos.top - pos.bottom) {
+          offsetY=textSize * (content.lines() + blankLines) + pos.top - pos.bottom;
         }
-        if (offset < 0) {
-          offset=0;
+        if (offsetY < 0) {
+          offsetY=0;
         }
         updateSlider();
         invalidate();
@@ -144,7 +145,7 @@ public class TextEdit extends Element {//no sliderX for now...
     return true;
   }
   protected void adjustCursor() {
-    content.setCursorLine(Math.max(Math.min(offsetToLine(offset - padding + KyUI.mouseGlobal.y - pos.top), content.lines() - 1), 0));
+    content.setCursorLine(Math.max(Math.min(offsetToLine(offsetY - padding + KyUI.mouseGlobal.y - pos.top), content.lines() - 1), 0));
     PGraphics cg=KyUI.cacheGraphics;
     cg.textFont(textFont);
     cg.textSize(Math.max(1, textSize));//just using function...
@@ -178,6 +179,10 @@ public class TextEdit extends Element {//no sliderX for now...
       content.setCursorPoint(point);
     }
     cg.textFont(KyUI.fontMain);
+  }
+  @Override
+  public void onLayout() {
+    updateSlider();
   }
   @Override
   public void keyTyped(KeyEvent e) {
@@ -267,7 +272,16 @@ public class TextEdit extends Element {//no sliderX for now...
   public void updateSlider() {
     if (slider == null) return;
     slider.setLength(getTotalSize(), pos.bottom - pos.top);
-    slider.setOffset(getTotalSize(), offset);
+    slider.setOffset(getTotalSize(), offsetY);
+    slider.invalidate();
+  }
+  public void setSlider(RangeSlider slider_) {
+    slider=slider_;
+    updateSlider();
+    slider.setAdjustListener((Element e) -> {
+      offsetY=slider.getOffset(getTotalSize());
+      invalidate();
+    });
   }
   protected int getTotalSize() {
     return (content.lines() + blankLines) * textSize + padding * 2;
@@ -286,15 +300,15 @@ public class TextEdit extends Element {//no sliderX for now...
     this.onTextChangeListener=onTextChangeListener;
   }
   public void moveTo(int line) {
-    int start=offsetToLine(offset - padding);
-    int end=offsetToLine(offset + pos.bottom - pos.top - padding);
+    int start=offsetToLine(offsetY - padding);
+    int end=offsetToLine(offsetY + pos.bottom - pos.top - padding);
     if (line <= start) {
-      offset=textSize * line;
+      offsetY=textSize * line;
     } else if (line >= end) {
-      offset=textSize * (line + 2) - pos.bottom + pos.top;
+      offsetY=textSize * (line + 2) - pos.bottom + pos.top;
     }
-    if (offset < 0) {
-      offset=0;
+    if (offsetY < 0) {
+      offsetY=0;
     }
     updateSlider();
   }
@@ -308,8 +322,8 @@ public class TextEdit extends Element {//no sliderX for now...
   public void update() {
     if (KyUI.focus == this && KyUI.mouseState == KyUI.STATE_PRESSED) {
       if (pressedL) {
-        int start=offsetToLine(offset - padding);
-        int end=offsetToLine(offset + pos.bottom - pos.top - padding);
+        int start=offsetToLine(offsetY - padding);
+        int end=offsetToLine(offsetY + pos.bottom - pos.top - padding);
         adjustCursor();
         if (content.line >= end) {
           content.setCursorLine(end);
@@ -350,8 +364,8 @@ public class TextEdit extends Element {//no sliderX for now...
     g.textSize(Math.max(1, textSize));
     g.textLeading(textSize / 2);
     //iterate lines
-    int start=offsetToLine(offset - padding);
-    int end=offsetToLine(offset + pos.bottom - pos.top - padding);
+    int start=offsetToLine(offsetY - padding);
+    int end=offsetToLine(offsetY + pos.bottom - pos.top - padding);
     g.fill(selectionColor);
     if (content.hasSelection()) {
       for (int a=Math.max(0, start - 1); a < content.lines() && a < end + 1; a++) {
@@ -360,10 +374,10 @@ public class TextEdit extends Element {//no sliderX for now...
         if (!selectionPart.isEmpty()) {
           if (selectionPart.charAt(selectionPart.length() - 1) == '\n') {
             selectionPart=selectionPart.substring(0, selectionPart.length() - 1);
-            g.rect(pos.left + g.textWidth(content.getSelectionPartBefore(a)) + lineNumSize + padding, pos.top + a * textSize - offset + padding, pos.right - padding, pos.top + (a + 1) * textSize - offset + padding);
+            g.rect(pos.left + g.textWidth(content.getSelectionPartBefore(a)) + lineNumSize + padding, pos.top + a * textSize - offsetY + padding, pos.right - padding, pos.top + (a + 1) * textSize - offsetY + padding);
           } else {
             float selectionBefore=g.textWidth(content.getSelectionPartBefore(a));
-            g.rect(pos.left + selectionBefore + lineNumSize + padding, pos.top + a * textSize - offset + padding, pos.left + selectionBefore + g.textWidth(selectionPart) + lineNumSize + padding, pos.top + (a + 1) * textSize - offset + padding);
+            g.rect(pos.left + selectionBefore + lineNumSize + padding, pos.top + a * textSize - offsetY + padding, pos.left + selectionBefore + g.textWidth(selectionPart) + lineNumSize + padding, pos.top + (a + 1) * textSize - offsetY + padding);
           }
         }
       }
@@ -371,7 +385,7 @@ public class TextEdit extends Element {//no sliderX for now...
     g.fill(textColor);
     for (int a=Math.max(0, start - 1); a < content.lines() && a < end + 1; a++) {
       String line=content.getLine(a);
-      g.text(line, pos.left + lineNumSize + padding, pos.top + (a + 0.5F) * textSize - offset + padding);
+      g.text(line, pos.left + lineNumSize + padding, pos.top + (a + 0.5F) * textSize - offsetY + padding);
     }
     //draw text (no comment in normal textEditor implementation
     if (KyUI.focus == this) {
@@ -379,7 +393,9 @@ public class TextEdit extends Element {//no sliderX for now...
         if (start <= content.line && content.line <= end) {
           float cursorOffsetX=g.textWidth("|") / 2;
           String line=content.getLine(content.line);
-          g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + lineNumSize + padding - cursorOffsetX, pos.top + (content.line + 0.5F) * textSize - offset + padding);
+          if (line.length() >= content.point) {//?????????????????
+            g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + lineNumSize + padding - cursorOffsetX, pos.top + (content.line + 0.5F) * textSize - offsetY + padding);
+          }
         }
       }
     }
@@ -393,7 +409,7 @@ public class TextEdit extends Element {//no sliderX for now...
       } else {
         g.fill(ColorExt.brighter(lineNumColor, -150));
       }
-      g.text(a + "", pos.left + lineNumSize - padding, pos.top + (a + 0.5F) * textSize - offset + padding);
+      g.text(a + "", pos.left + lineNumSize - padding, pos.top + (a + 0.5F) * textSize - offsetY + padding);
     }
     g.textAlign(KyUI.Ref.CENTER, KyUI.Ref.CENTER);
   }

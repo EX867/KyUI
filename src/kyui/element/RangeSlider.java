@@ -43,6 +43,9 @@ public class RangeSlider extends Button {
     bgColor=50;
   }
   public void setOffset(float totalSize, float offset) {
+    if (offset > totalSize) {
+      totalSize=offset;
+    }
     if (totalSize == 0) sliderRatio=0;
     else sliderRatio=(float)offset / totalSize;
   }
