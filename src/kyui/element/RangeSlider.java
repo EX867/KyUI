@@ -95,32 +95,29 @@ public class RangeSlider extends Button {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.PRESS) {
-      clickRatio=sliderRatio;
+    if (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG)) {
+      requestFocus();
+      float value=0;
+      float size=getSize();
+      if (direction == Attributes.Direction.HORIZONTAL) {
+        value=(KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left - sliderLength / 2);
+        //value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
+      } else if (direction == Attributes.Direction.VERTICAL) {
+        value=(KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top - sliderLength / 2);
+        //value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
+      }
+      if (size == 0) {
+        sliderRatio=0;
+      } else {
+        sliderRatio=value / size;
+        //sliderRatio=clickRatio + (value / size);
+        sliderRatio=Math.min(Math.max(sliderRatio, 0), (size - sliderLength) / size);
+      }
+      if (adjustListener != null) {
+        adjustListener.onEvent(this);
+      }
       invalidate();
       return false;
-    } else if (e.getAction() == MouseEvent.DRAG) {
-      if (pressedL) {
-        requestFocus();
-        float value=0;
-        float size=getSize();
-        if (direction == Attributes.Direction.HORIZONTAL) {
-          value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
-        } else if (direction == Attributes.Direction.VERTICAL) {
-          value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
-        }
-        if (size == 0) {
-          sliderRatio=0;
-        } else {
-          sliderRatio=clickRatio + (value / size);
-          sliderRatio=Math.min(Math.max(sliderRatio, 0), (size - sliderLength) / size);
-        }
-        if (adjustListener != null) {
-          adjustListener.onEvent(this);
-        }
-        invalidate();
-        return false;
-      }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       if (pressedL) {
         invalidate();
