@@ -18,8 +18,8 @@ public class TextEdit extends Element {//no sliderX for now...
   private String text;//no use...! just meaning for string type one attribute...
   protected EditorString content;//real valueI for text.
   protected EventListener onTextChangeListener;
-  ArrayList<Filter> filters;
-  class Filter {
+  public ArrayList<Filter> filters;
+  public class Filter {
     String filter;
     public boolean condition=true;
     public Filter(String filter_) {//filter is regex.
@@ -56,12 +56,12 @@ public class TextEdit extends Element {//no sliderX for now...
   @Attribute(type=Attribute.COLOR)
   public int selectionColor;
   //temp values
-  int clickLine=0;
-  int clickPoint=0;
-  float offset=0;
-  Rect cacheRect=new Rect();
+  protected int clickLine=0;
+  protected int clickPoint=0;
+  protected float offset=0;
+  protected Rect cacheRect=new Rect();
   protected boolean cursorOn=true;
-  int cursorFrame=0;
+  protected int cursorFrame=0;
   public TextEdit(String name) {
     super(name);
     content=new EditorString();
