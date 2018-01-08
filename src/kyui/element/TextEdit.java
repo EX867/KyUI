@@ -63,6 +63,7 @@ public class TextEdit extends Element {//no sliderX for now...
   protected Rect cacheRect=new Rect();
   protected boolean cursorOn=true;
   protected int cursorFrame=0;
+  protected char pkey=0;
   public TextEdit(String name) {
     super(name);
     content=new EditorString();
@@ -184,6 +185,13 @@ public class TextEdit extends Element {//no sliderX for now...
   public void onLayout() {
     updateSlider();
   }
+  public void recordHistory() {
+    //override this
+  }
+  public boolean isRecordPoint(char c) {
+    return c == ' ' || c == '\n';
+    //override this
+  }
   @Override
   public void keyTyped(KeyEvent e) {
     if (KyUI.focus == this) {
@@ -222,21 +230,31 @@ public class TextEdit extends Element {//no sliderX for now...
       if (e.getKey() == KyUI.Ref.BACKSPACE) {
         if (content.hasSelection()) {
           content.deleteSelection();
+          recordHistory();
         } else {
-          content.deleteBefore(KyUI.ctrlPressed);
+          String delete=content.deleteBefore(KyUI.ctrlPressed);
+          if (KyUI.ctrlPressed || pkey == 'a' || (delete.length() > 0 && isRecordPoint(delete.charAt(0)))) {
+            recordHistory();
+          }
         }
         moveToCursor();
         mouseEventPassed();
         textChange();
+        pkey='\b';
       } else if (e.getKey() == KyUI.Ref.DELETE) {
         if (content.hasSelection()) {
           content.deleteSelection();
+          recordHistory();
         } else {
-          content.deleteAfter(KyUI.ctrlPressed);
+          String delete=content.deleteAfter(KyUI.ctrlPressed);
+          if (KyUI.ctrlPressed || pkey == 'a' || (delete.length() > 0 && isRecordPoint(delete.charAt(0)))) {
+            recordHistory();
+          }
         }
         moveToCursor();
         mouseEventPassed();
         textChange();
+        pkey=KyUI.Ref.DELETE;
       } else if (text) {//and then text things.
         if (e.getKey() == '\n') {
           if (content.hasSelection()) {
@@ -256,7 +274,12 @@ public class TextEdit extends Element {//no sliderX for now...
         }
         mouseEventPassed();
         textChange();
+        if (pkey == '\b' || pkey == KyUI.Ref.DELETE || isRecordPoint(e.getKey())) {
+          recordHistory();
+        }
+        pkey='a';//...
       }
+      //pkey=e.getKey();
     }
   }
   protected void textChange() {

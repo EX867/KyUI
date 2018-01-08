@@ -95,51 +95,61 @@ public class EditorString {//editorString is based on line.
     setLine(startLine, getLine(startLine) + endText);
     maxpoint=point;
   }
-  public void deleteBefore(boolean word) {//if word, ctrl. - fix needed
-    maxpoint=point;
-    if ((point == 0 && line == 0) || empty()) return;
+  public String deleteBefore(boolean word) {//if word, ctrl. - fix needed
+    String ret="";
+    if ((point == 0 && line == 0) || empty()) return "";
     if (point == 0) {
-      if (line == 0) return;
+      if (line == 0) return "";
       cursorLeft(false, false);
       setLine(line, getLine(line) + getLine(line + 1));
       deleteLine(line + 1);
+      return "\n";
     } else if (word) {
       boolean isSpace=false;
       String before=getLine(line);
+      StringBuilder sb=new StringBuilder();
       if (isSpaceChar(getLine(line).charAt(point - 1))) isSpace=true;
       while (getLine(line).length() > 0 && point > 0) {
         if (((isSpace && isSpaceChar(getLine(line).charAt(point - 1)) == false)) || (!isSpace && isSpaceChar(getLine(line).charAt(point - 1)))) break;
-        l.set(line, getLine(line).substring(0, point - 1) + getLine(line).substring(Math.min(point, getLine(line).length()), getLine(line).length()));
+        sb.append(getLine(line).charAt(point - 1));
+        setLine(line, getLine(line).substring(0, point - 1) + getLine(line).substring(Math.min(point, getLine(line).length()), getLine(line).length()));
         point--;
       }
+      ret=sb.reverse().toString();
     } else {
       String before=getLine(line);
-      l.set(line, getLine(line).substring(0, point - 1) + getLine(line).substring(point, getLine(line).length()));
+      ret="" + l.get(line).charAt(point - 1);
+      setLine(line, getLine(line).substring(0, point - 1) + getLine(line).substring(point, getLine(line).length()));
       cursorLeft(false, false);
-      maxpoint=point;
     }
     maxpoint=point;
+    return ret;
   }
-  public void deleteAfter(boolean word) {// - fix needed
-    maxpoint=point;
-    if (empty()) return;
+  public String deleteAfter(boolean word) {// - fix needed
+    String ret="";
+    if (empty()) return "";
     if (point == getLine(line).length()) {
-      if (line == lines() - 1) return;
+      if (line == lines() - 1) return "";
       setLine(line, getLine(line) + getLine(line + 1));
       deleteLine(line + 1);
+      return "\n";
     } else if (word) {
       boolean isSpace=false;
       String before=getLine(line);
+      StringBuilder sb=new StringBuilder();
       if (isSpaceChar(getLine(line).charAt(point))) isSpace=true;
       while (getLine(line).length() > 0 && point < getLine(line).length()) {
         if (((isSpace && isSpaceChar(getLine(line).charAt(point)) == false)) || (!isSpace && isSpaceChar(getLine(line).charAt(point)))) break;
-        l.set(line, getLine(line).substring(0, point) + getLine(line).substring(Math.min(point + 1, getLine(line).length()), getLine(line).length()));
+        sb.append(getLine(line).charAt(point));
+        setLine(line, getLine(line).substring(0, point) + getLine(line).substring(Math.min(point + 1, getLine(line).length()), getLine(line).length()));
       }
     } else {
       String before=getLine(line);
-      l.set(line, getLine(line).substring(0, point) + getLine(line).substring(Math.min(point + 1, getLine(line).length()), getLine(line).length()));
+      ret="" + l.get(line).charAt(point);
+      setLine(line, getLine(line).substring(0, point) + getLine(line).substring(Math.min(point + 1, getLine(line).length()), getLine(line).length()));
     }
     maxpoint=point;
+    return ret;
   }
   public void setText(String text) {
     clear();
