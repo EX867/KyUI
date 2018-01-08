@@ -7,15 +7,15 @@ import kyui.util.Rect;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class RangeSlider extends Button {
-  int strokeWeight=4;
+  protected int strokeWeight=4;
   @Attribute
   public Attributes.Direction direction=Attributes.Direction.VERTICAL;
   EventListener adjustListener;
   //
   @Attribute
-  float sliderRatio=0;//value of startPoint
+  protected float sliderRatio=0;//value of startPoint
   @Attribute
-  float sliderLength;//(<height)
+  protected float sliderLength;//(<height)
   //modifiable values
   @Attribute(type=Attribute.COLOR)
   public int fgColor;
