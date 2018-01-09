@@ -47,6 +47,18 @@ public class TabLayout extends Element {
   //temp vars
   private int count=0;
   private Rect cacheRect=new Rect(0, 0, 0, 0);
+  //dummy field(?)
+  @Attribute(setter="setContentLayoutName", getter="getContentLayoutName", layout=Attribute.SELF)
+  String contentLayoutName;
+  void setContentLayoutName(String name) {
+    Element val=KyUI.get(name);
+    if (val != null && val instanceof FrameLayout) {
+      attachExternalFrame((FrameLayout)val);
+    }
+  }
+  String getContentLayoutName() {
+    return contentLayout.getName();
+  }
   public TabLayout(String name) {
     super(name);
     init();
@@ -75,6 +87,18 @@ public class TabLayout extends Element {
     contentLayout.bgColor=KyUI.Ref.color(127);
     tabColor1=KyUI.Ref.color(10, 40, 200);
     tabColor2=KyUI.Ref.color(30, 30, 95);
+  }
+  public void attachExternalFrame(FrameLayout frame) {//this can used when only frame has same children count with contentLayout (say 0!)
+    if (frame.children.size() != contentLayout.children.size()) {
+      throw new RuntimeException("[KyUI] attached frameLayout's count is not same with contentLayout's count.");
+    }
+    if (frame == linkLayout.children.get(1)) {
+      contentLayout=frame;
+      contentLayout.setEnabled(true);
+    } else {
+      contentLayout.setEnabled(false);
+      contentLayout=frame;
+    }
   }
   public void addTab(String text, Element content) {
     addTab(KyUI.INF, text, content);

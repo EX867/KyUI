@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import kyui.event.DropEventListener;
@@ -12,10 +13,7 @@ import kyui.event.EventListener;
 import kyui.event.FileDropEventListener;
 import kyui.event.ResizeListener;
 import kyui.loader.ElementLoader;
-import kyui.util.Task;
-import kyui.util.TaskManager;
-import kyui.util.Rect;
-import kyui.util.Vector2;
+import kyui.util.*;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
@@ -38,6 +36,7 @@ public class KyUI {
   // object control
   protected static final HashMap<String, Element> Elements=new HashMap<String, Element>();
   protected static LinkedList<CachingFrame> roots=new LinkedList<CachingFrame>();//no support multi window.
+  public static LinkedList<ImageElement> imageElements=new LinkedList<>();
   public static Element focus=null;
   // events
   public static LinkedList<Event> EventQueue=new LinkedList<Event>();//items popped from update thread.
@@ -270,6 +269,9 @@ public class KyUI {
     return new CachingFrame("KyUI:" + count++, new Rect(0, 0, Ref.width, Ref.height));
   }
   protected static void addElement(Element e) {
+    if (e instanceof ImageElement) {
+      imageElements.addLast((ImageElement)e);
+    }
     if (!Elements.containsKey(e.name)) {
       Elements.put(e.name, e);
     } else {
@@ -300,7 +302,10 @@ public class KyUI {
     }
   }
   public static void removeElement(String name) {
-    Elements.remove(name);
+    Element e=Elements.remove(name);
+    if (e != null && e instanceof ImageElement) {
+      imageElements.remove(e);
+    }
   }
   public static void add(Element object) {
     taskManager.executeAll();//because this need latest state.
