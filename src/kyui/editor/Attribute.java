@@ -37,7 +37,7 @@ public @interface Attribute {
       field=field_;//get field, and set information.
       field.setAccessible(true);//if...just if...
       if (!attr.getter().isEmpty()) {
-        getMethod=c.getMethod(attr.getter());
+        getMethod=ElementLoader.getMethod(c, attr.getter());
         getMethod.setAccessible(true);
       }
       if (!attr.setter().isEmpty()) {
