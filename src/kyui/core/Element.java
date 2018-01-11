@@ -79,7 +79,7 @@ public class Element implements TreeNodeAction {
     }
   }//reorder is not nessessary to put to task...
   //
-  @Attribute(setter="setName", getter="getName")
+  @Attribute(setter="setName", getter="getName", type=Attribute.NAME)
   String name;//identifier.
   //attributes
   @Attribute(setter="setEnabled", getter="isEnabled", layout=Attribute.PARENT)

@@ -22,6 +22,7 @@ import java.util.function.Function;
 //ADD>>delete function for colorVar and shortcut!!!
 public class Main extends PApplet {
   public static Runnable editorSetupFinishListener;
+  public static TreeGraph.Node selectionNode=null;
   public static Element selection=null;//used in layout_tree
   public static void main(String[] args) {
     PApplet.main("kyui.editor.Main");
@@ -40,39 +41,40 @@ public class Main extends PApplet {
     KyUI.start(this);
     surface.setIcon(ElementLoader.loadImageResource("editor.png"));
     ElementLoader.isEditor=true;
-    StatusBar main_status=new StatusBar("main_status");
+    StatusBar main_status=new StatusBar("kyui_main_status");
     KyUI.logEvent=(String text) -> {
       main_status.setText(text);
     };
-    DivisionLayout main_statusDivision=new DivisionLayout("main_statusDivision", new Rect(0, 0, width, height));
+    DivisionLayout main_statusDivision=new DivisionLayout("kyui_main_statusDivision", new Rect(0, 0, width, height));
     main_statusDivision.rotation=Attributes.Rotation.DOWN;
     main_statusDivision.value=40;
-    TabLayout main_tabs=new TabLayout("main_tabs");
+    TabLayout main_tabs=new TabLayout("kyui_main_tabs");
     main_tabs.setRotation(Attributes.Rotation.LEFT);
     main_tabs.setTabSize(40);
     //create tabs
-    DivisionLayout main_layout=new DivisionLayout("main_layout");
-    DivisionLayout main_colors=new DivisionLayout("main_colors");
-    DivisionLayout main_shortcuts=new DivisionLayout("main_shortcuts");
+    DivisionLayout main_layout=new DivisionLayout("kyui_main_layout");
+    DivisionLayout main_colors=new DivisionLayout("kyui_main_colors");
+    DivisionLayout main_shortcuts=new DivisionLayout("kyui_main_shortcuts");
     //set main_layout
     main_layout.rotation=Attributes.Rotation.RIGHT;
     main_layout.value=400;
-    RelativeFrame layout_frame=new RelativeFrame("layout_frame");
-    LinearLayout layout_right=new LinearLayout("layout_right");
+    RelativeFrame layout_frame=new RelativeFrame("kyui_layout_frame");
+    LinearLayout layout_right=new LinearLayout("kyui_layout_right");
     layout_right.setMode(LinearLayout.Behavior.LEAVE);
     layout_right.bgColor=color(50);
     layout_right.padding=3;
     //set layout_right
-    LinearLayout layout_top=new LinearLayout("layout_top", new Rect(0, 0, 400, 40));
-    TreeGraph<Element> layout_tree=new TreeGraph<Element>("layout_Tree", new Rect(0, 0, 400, 400), "[root]");
-    LinearList layout_elements=new LinearList("layout_elements", new Rect(0, 0, 400, 150));//will add images to this
-    LinearList layout_inspector=new LinearList("layout_inspector", new Rect(0, 0, 400, 350));
+    LinearLayout layout_top=new LinearLayout("kyui_layout_top", new Rect(0, 0, 400, 40));
+    TreeGraph<Element> layout_tree=new TreeGraph<Element>("kyui_layout_Tree", new Rect(0, 0, 400, 400), "[root]");
+    LinearList layout_elements=new LinearList("kyui_layout_elements", new Rect(0, 0, 400, 150));//will add images to this
+    LinearList layout_inspector=new LinearList("kyui_layout_inspector", new Rect(0, 0, 400, 350));
     layout_top.bgColor=color(127);
     layout_top.setMode(LinearLayout.Behavior.FIXED);
     layout_top.setFixedSize(34);
     layout_top.padding=3;
     layout_tree.getRoot().content=layout_frame;
     layout_tree.setSelectListener((Element e_) -> {
+      selectionNode=(TreeGraph.Node)e_;
       Element e=(Element)((TreeGraph.Node)e_).content;
       if (e == layout_frame) {
         layout_inspector.setItems(new java.util.ArrayList<>());
@@ -115,15 +117,15 @@ public class Main extends PApplet {
     layout_right.addChild(layout_elements);
     layout_right.addChild(layout_inspector);
     layout_right.setDirection(Attributes.Direction.VERTICAL);
-    ImageToggleButton layout_frame_move=new ImageToggleButton("layout_frame_move", ElementLoader.loadImageResource("move.png"));
+    ImageToggleButton layout_frame_move=new ImageToggleButton("kyui_layout_frame_move", ElementLoader.loadImageResource("move.png"));
     layout_frame_move.setDescription("toggle preview screen mouse drag");
     layout_frame_move.setPressListener((MouseEvent e, int index) -> {
       layout_frame.scroll=!layout_frame_move.value;
       return false;
     });
-    ImageButton layout_export=new ImageButton("layout_export", ElementLoader.loadImageResource("export.png"));
+    ImageButton layout_export=new ImageButton("kyui_layout_export", ElementLoader.loadImageResource("export.png"));
     layout_export.setDescription("[Ctrl+S] export current state to xml");
-    ImageButton layout_delete=new ImageButton("layout_delete", ElementLoader.loadImageResource("delete.png"));
+    ImageButton layout_delete=new ImageButton("kyui_layout_delete", ElementLoader.loadImageResource("delete.png"));
     layout_delete.setPressListener((MouseEvent e, int index) -> {
       if (layout_tree.selection != null) {
         if (layout_tree.getRoot() != layout_tree.selection) {
@@ -144,14 +146,14 @@ public class Main extends PApplet {
     //set main_colors
     main_colors.rotation=Attributes.Rotation.DOWN;
     main_colors.value=40;
-    DivisionLayout colors_down=new DivisionLayout("colors_down");
+    DivisionLayout colors_down=new DivisionLayout("kyui_colors_down");
     colors_down.rotation=Attributes.Rotation.RIGHT;
     colors_down.value=60;
-    LinearList colors_list=new LinearList("colors_list");
-    Button colors_add=new Button("colors_add");
+    LinearList colors_list=new LinearList("kyui_colors_list");
+    Button colors_add=new Button("kyui_colors_add");
     colors_add.text="ADD";
     colors_add.margin=3;
-    TextBox colors_addVar=new TextBox("colors_addVar");
+    TextBox colors_addVar=new TextBox("kyui_colors_addVar");
     colors_addVar.setNumberOnly(TextBox.NumberType.NONE);
     colors_addVar.setTextChangeListener((Element e) -> {
       String text=colors_addVar.getText();
@@ -175,14 +177,14 @@ public class Main extends PApplet {
     //set main_shortcuts
     main_shortcuts.rotation=Attributes.Rotation.DOWN;
     main_shortcuts.value=40;
-    DivisionLayout shortcuts_down=new DivisionLayout("shortcuts_down");
+    DivisionLayout shortcuts_down=new DivisionLayout("kyui_shortcuts_down");
     shortcuts_down.rotation=Attributes.Rotation.RIGHT;
     shortcuts_down.value=60;
-    LinearList shortcuts_list=new LinearList("shortcuts_list");
-    Button shortcuts_add=new Button("shortcuts_add");
+    LinearList shortcuts_list=new LinearList("kyui_shortcuts_list");
+    Button shortcuts_add=new Button("kyui_shortcuts_add");
     shortcuts_add.text="ADD";
     shortcuts_add.margin=3;
-    TextBox shortcuts_addItem=new TextBox("colors_addItem");
+    TextBox shortcuts_addItem=new TextBox("kyui_colors_addItem");
     shortcuts_addItem.setNumberOnly(TextBox.NumberType.NONE);
     shortcuts_add.setPressListener((MouseEvent e, int index) -> {//shortcut list item's text is shortcut name.
       ShortcutLoader.addShortcut(shortcuts_addItem.getText(), shortcuts_list);

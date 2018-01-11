@@ -19,6 +19,7 @@ public @interface Attribute {
   //type param
   public int NORMAL=0;
   public int COLOR=1;//should be integer.(if not,ignored)
+  public int NAME=2;
   String setter() default "";//if setterName=="", set valueI directly.
   String getter() default "";//same.
   int layout() default NONE;
@@ -77,6 +78,10 @@ public @interface Attribute {
       ref=ref_;
       ref.setDataChangeListener((Element e) -> {
         setField(Main.selection, ref.get());
+        if (attr.type() == Attribute.NAME) {
+          Main.selectionNode.text=(String)ref.get();
+          Main.selectionNode.invalidate();
+        }
       });
     }
   }
