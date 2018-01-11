@@ -296,9 +296,11 @@ public class Element implements TreeNodeAction {
       return null;
     }
     for (Element child : children) {
-      Element ret_=child.checkOverlayDrop(x, y);
-      if (ret_ != null) {
-        return ret_;
+      if (child.isEnabled()) {
+        Element ret_=child.checkOverlayDrop(x, y);
+        if (ret_ != null) {
+          return ret_;
+        }
       }
     }
     if ((KyUI.dropEventsExternal.containsKey(getName()))) {
@@ -311,9 +313,11 @@ public class Element implements TreeNodeAction {
       return null;
     }
     for (Element child : children) {
-      Element ret_=child.checkOverlayDescription(x, y);
-      if (ret_ != null) {
-        return ret_;
+      if (child.isEnabled()) {
+        Element ret_=child.checkOverlayDescription(x, y);
+        if (ret_ != null) {
+          return ret_;
+        }
       }
     }
     if (description != null) {
@@ -344,7 +348,7 @@ public class Element implements TreeNodeAction {
   void addClipPos() {
     clipPosRect.set(pos);
     if (clipPos.size() > 0) {
-      clipRect=Rect.getIntersection(pos, clipPos.getLast().translate(KyUI.transform.getLast().x, KyUI.transform.getLast().y), clipPosRect);
+      clipRect=Rect.getIntersection(pos, clipPos.getLast(), clipPosRect);
     }
     clipPos.addLast(clipPosRect);
   }
@@ -355,7 +359,8 @@ public class Element implements TreeNodeAction {
   }
   boolean mouseEvent_(MouseEvent e, int index, boolean trigger) {
     addClipPos();
-    if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+    boolean contains=clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
+    if (contains) {
       if (!entered) {
         entered=true;
         mouseEntered(e, index);
@@ -373,7 +378,7 @@ public class Element implements TreeNodeAction {
       trigger=false;
     }
     if (e.getAction() == MouseEvent.PRESS) {//(2)
-      if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      if (contains) {
         if (!skipPress) {
           requestFocus();
         }
@@ -396,7 +401,7 @@ public class Element implements TreeNodeAction {
     }
     if (trigger) {
       if (e.getAction() == MouseEvent.PRESS) {//(1)
-        if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+        if (contains) {
           if (e.getButton() == KyUI.Ref.LEFT) {
             pressedL=true;
             //System.out.println(getName() + " set pressedL true");
@@ -413,7 +418,7 @@ public class Element implements TreeNodeAction {
       }
     }
     if (e.getAction() == MouseEvent.RELEASE) {
-      if (clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) && enabled) {//??
+      if (contains && enabled) {//??
         KyUI.dropEnd(this, e, index);
         if (trigger) invalidate();
       }

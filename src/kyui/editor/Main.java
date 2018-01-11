@@ -24,6 +24,8 @@ public class Main extends PApplet {
   public static Runnable editorSetupFinishListener;
   public static TreeGraph.Node selectionNode=null;
   public static Element selection=null;//used in layout_tree
+  //public static float mousextest=0;
+  //public static float mouseytest=0;
   public static void main(String[] args) {
     PApplet.main("kyui.editor.Main");
   }
@@ -273,6 +275,13 @@ public class Main extends PApplet {
     strokeWeight(5);
     line(mouseX, mouseY, pmouseX, pmouseY);
     text(frameRate, mouseX + 10, mouseY + 12);
+    //
+    //    strokeWeight(1);
+    //    noFill();
+    //    ellipse(mousextest, mouseytest, 20, 20);
+    //    fill(0);
+    //    line(0, mouseytest, width, mouseytest);
+    //    line(mousextest, 0, mousextest, height);
   }
   @Override
   protected void handleKeyEvent(KeyEvent e) {

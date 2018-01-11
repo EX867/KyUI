@@ -507,7 +507,7 @@ public class KyUI {
       }
     }
   }
-  public static void transform(float x, float y) {//transforms clipArea and mouseEvent
+  public static void transform(float x, float y) {//transforms clipArea and mouseEvent(no mouseEvent...)
     transform.addLast(new Vector2(x, y).addAssign(transform.getLast()));
   }
   public static void restore() {

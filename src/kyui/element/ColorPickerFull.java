@@ -1,5 +1,6 @@
 package kyui.element;
 import kyui.core.Element;
+import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.loader.ElementLoader;
 import kyui.event.MouseEventListener;
@@ -10,6 +11,22 @@ public class ColorPickerFull extends Element {
   TextBox[] values=new TextBox[7];
   ColorButton[] recentButtons=new ColorButton[10];
   ImageButton acceptButton;
+  @Attribute(setter="setEnableAlpha", getter="getEnableAlpha")
+  boolean enableAlpha;
+  @Attribute(setter="setEnableX", getter="getEnableX")
+  boolean enableX;
+  void setEnableAlpha(boolean v) {
+    values[6].setEnabled(v);
+  }
+  boolean getEnableAlpha() {
+    return values[6].isEnabled();
+  }
+  void setEnableX(boolean v) {
+    acceptButton.setEnabled(v);
+  }
+  boolean getEnableX() {
+    return acceptButton.isEnabled();
+  }
   public ColorPickerFull(String name) {
     super(name);
     init();

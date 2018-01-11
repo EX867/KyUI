@@ -21,6 +21,8 @@ public class LinearLayout extends Element {
   protected Attributes.Direction direction=Attributes.Direction.HORIZONTAL;
   @Attribute(setter="setFixedSize")//setFixedSize includes layout.
   protected int fixedSize;
+  @Attribute(layout=Attribute.SELF)
+  protected int intervalSize=0;
   //temp vars
   private float clickOffset=0;
   private float childrenSize=0;
@@ -28,6 +30,7 @@ public class LinearLayout extends Element {
   private Rect cacheRect=new Rect();
   @Attribute
   public boolean draggable=false;
+  protected int starts=0;//so...this is a tweak for tabLayout...
   public LinearLayout(String name_) {
     super(name_);
     init();
@@ -88,7 +91,8 @@ public class LinearLayout extends Element {
   public void onLayout() {
     childrenSize=0;
     int count=0;
-    for (Element e : children) {
+    for (int a=starts; a < children.size(); a++) {
+      Element e=children.get(a);
       if (e.isEnabled()) {
         count++;
       }
@@ -98,23 +102,23 @@ public class LinearLayout extends Element {
     if (mode == Behavior.FIXED) {
       int end=Math.min(children.size(), endClip);
       float first=padding;
-      childrenSize=Math.max(0, startClip - 1) * (fixedSize + padding);
+      childrenSize=Math.max(starts, startClip - 1) * (fixedSize + padding);
       if (direction == Attributes.Direction.HORIZONTAL) {
-        for (int a=Math.max(0, startClip - 1); a < end; a++) {
+        for (int a=Math.max(starts, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
             e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding + e.margin, pos.left - offset + childrenSize + fixedSize + first, pos.bottom - padding - e.margin));
           }
-          childrenSize+=fixedSize + first + padding;
+          childrenSize+=fixedSize + first + padding + intervalSize;
           first=0;
         }
       } else if (direction == Attributes.Direction.VERTICAL) {
-        for (int a=Math.max(0, startClip - 1); a < end; a++) {
+        for (int a=Math.max(starts, startClip - 1); a < end; a++) {
           Element e=children.get(a);
           if (e.isEnabled()) {
             e.setPosition(new Rect(pos.left + padding + e.margin, pos.top - offset + childrenSize + first, pos.right - padding - e.margin, pos.top - offset + childrenSize + fixedSize + first));
           }
-          childrenSize+=fixedSize + first + padding;
+          childrenSize+=fixedSize + first + padding + intervalSize;
           first=0;
         }
       }
@@ -122,8 +126,12 @@ public class LinearLayout extends Element {
     } else {
       float first=padding;
       if (direction == Attributes.Direction.HORIZONTAL) {
-        float width=(float)(pos.right - pos.left) / count;
-        for (Element e : children) {
+        float width=(float)(pos.right - pos.left + intervalSize) / count - intervalSize;
+        if (width < 0) {
+          width=0;
+        }
+        for (int a=starts; a < children.size(); a++) {
+          Element e=children.get(a);
           if (e.isEnabled()) {
             if (mode == Behavior.DYNAMIC) {
               width=e.getPreferredSize().x;
@@ -131,13 +139,14 @@ public class LinearLayout extends Element {
               width=e.pos.right - e.pos.left;//unstable, but don't fix
             }
             e.setPosition(new Rect(pos.left - offset + childrenSize + first, pos.top + padding + e.margin, pos.left - offset + childrenSize + width + first, pos.bottom - padding - e.margin));
-            childrenSize+=width + first + padding;
+            childrenSize+=width + first + padding + intervalSize;
             first=0;
           }
         }
       } else if (direction == Attributes.Direction.VERTICAL) {
         float height=(float)(pos.bottom - pos.top) / count;
-        for (Element e : children) {
+        for (int a=starts; a < children.size(); a++) {
+          Element e=children.get(a);
           if (e.isEnabled()) {
             if (mode == Behavior.DYNAMIC) {
               height=e.getPreferredSize().y;
@@ -145,11 +154,14 @@ public class LinearLayout extends Element {
               height=e.pos.bottom - e.pos.top;
             }
             e.setPosition(new Rect(pos.left + padding + e.margin, pos.top - offset + childrenSize + first, pos.right - padding - e.margin, pos.top - offset + childrenSize + height + first));
-            childrenSize+=height + first + padding;
+            childrenSize+=height + first + padding + intervalSize;
             first=0;
           }
         }
       }
+    }
+    if (children.size() != 0) {
+      childrenSize-=intervalSize;
     }
   }
   @Override

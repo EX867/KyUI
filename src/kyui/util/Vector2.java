@@ -1,8 +1,6 @@
 package kyui.util;
 public class Vector2 {
-  /**
-   * This class not offers setter&&getter for each fields.
-   */
+  public static Vector2 identity=new Vector2();
   public float x;
   public float y;
   public Vector2() {

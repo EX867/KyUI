@@ -31,6 +31,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import kyui.element.*;
 import processing.event.MouseEvent;
@@ -127,11 +128,6 @@ public class ElementLoader {
           if (Element.class.isAssignableFrom(c)) {
             loadClass(c);
           } else {
-            Class cc=c;
-            while (cc != Object.class) {
-              KyUI.log(c.getTypeName());
-              cc=cc.getSuperclass();
-            }
             KyUI.log("ElementLoader - " + c.getTypeName() + " is not assignable to " + Element.class.getTypeName() + ".");
           }
         }
@@ -183,9 +179,12 @@ public class ElementLoader {
       for (String path : loadedExternals) {
         try {
           JarFile jarFile=new JarFile(path);
-          InputStream is=jarFile.getInputStream(jarFile.getEntry(filename));
-          if (is != null) {
-            return loadImage(is, filename);
+          ZipEntry entry=jarFile.getEntry(filename);
+          if (entry != null) {
+            InputStream is=jarFile.getInputStream(entry);
+            if (is != null) {
+              return loadImage(is, filename);
+            }
           }
         } catch (Exception ex) {
           ex.printStackTrace();
@@ -202,9 +201,12 @@ public class ElementLoader {
       for (String path : loadedExternals) {
         try {
           JarFile jarFile=new JarFile(path);
-          InputStream is=jarFile.getInputStream(jarFile.getEntry(filename));
-          if (is != null) {
-            return loadFont(is, filename, size);
+          ZipEntry entry=jarFile.getEntry(filename);
+          if (entry != null) {
+            InputStream is=jarFile.getInputStream(entry);
+            if (is != null) {
+              return loadFont(is, filename, size);
+            }
           }
         } catch (Exception ex) {
           ex.printStackTrace();

@@ -74,8 +74,11 @@ public class RelativeFrame extends Element {
         }
       }
     }
+    clipPos.getLast().getTranslated(offsetX, offsetY);
     KyUI.mouseGlobal.set(KyUI.mouseGlobal.x + offsetX, KyUI.mouseGlobal.y + offsetY);
     KyUI.mouseClick.set(KyUI.mouseClick.x + offsetX, KyUI.mouseClick.y + offsetY);
+    //    kyui.editor.Main.mousextest=(int)KyUI.mouseGlobal.x;
+    //    kyui.editor.Main.mouseytest=(int)KyUI.mouseGlobal.y;
     return true;
   }
   @Override
