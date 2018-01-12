@@ -45,9 +45,9 @@ public class TabLayout extends Element {
   @Attribute(layout=Attribute.SELF)
   public boolean enableX=false;
   @Attribute(setter="setTextSize")
-  protected int textSize;
+  protected int textSize=15;
   @Attribute(setter="setTextColor", type=Attribute.COLOR)
-  protected int textColor;
+  protected int textColor=0xFFFFFFFF;
   @Attribute(setter="setTabBgColor", type=Attribute.COLOR)
   protected int tabBgColor;
   //tabLayout attributes
@@ -94,6 +94,7 @@ public class TabLayout extends Element {
     addChild(linkLayout);
     tabs=tabLayout.children;
     contents=contentLayout.children;
+    tabBgColor=KyUI.Ref.color(50);
     addTab(0, "", new Element(getName() + ":default"));
     selectTab(0);//0 means no tab selected.
     //localLayout();
@@ -103,9 +104,6 @@ public class TabLayout extends Element {
     tabColor2=KyUI.Ref.color(30, 30, 95);
     KyUI.taskManager.executeAll();
     TabButton t=(TabButton)tabLayout.children.get(0);
-    textSize=t.textSize;
-    textColor=t.textColor;
-    tabBgColor=t.bgColor;
     fixedSize=tabLayout.fixedSize;
   }
   public void attachExternalFrame(FrameLayout frame) {//this can used when only frame has same children count with contentLayout (say 0!)
@@ -132,6 +130,9 @@ public class TabLayout extends Element {
     btn.edgeColor=tabColor2;
     btn.rotation=buttonRotation;
     btn.edgeRotation=buttonEdgeRotation;
+    btn.textSize=textSize;
+    btn.textColor=textColor;
+    btn.bgColor=tabBgColor;
     if (count == 0) {
       btn.setEnabled(false);
     }

@@ -102,7 +102,7 @@ public class LinearLayout extends Element {
     if (mode == Behavior.FIXED) {
       int end=Math.min(children.size(), endClip);
       float first=padding;
-      childrenSize=Math.max(starts, startClip - 1) * (fixedSize + padding);
+      childrenSize=(Math.max(starts, startClip - 1) - starts) * (fixedSize + padding);
       if (direction == Attributes.Direction.HORIZONTAL) {
         for (int a=Math.max(starts, startClip - 1); a < end; a++) {
           Element e=children.get(a);
