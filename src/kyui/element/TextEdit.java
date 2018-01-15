@@ -54,6 +54,8 @@ public class TextEdit extends Element {//no sliderX for now...
   @Attribute(type=Attribute.COLOR)
   public int textColor;
   @Attribute(type=Attribute.COLOR)
+  public int hintColor;
+  @Attribute(type=Attribute.COLOR)
   public int selectionColor;
   //temp values
   protected int clickLine=0;
@@ -89,6 +91,7 @@ public class TextEdit extends Element {//no sliderX for now...
     selectionColor=KyUI.Ref.color(50, 50, 205);
     lineNumBgColor=ColorExt.brighter(bgColor, -10);
     lineNumColor=KyUI.Ref.color(255);
+    hintColor=KyUI.Ref.color(200, 140);
     lineNumSize=textSize * 2 + padding * 2;
     textFont=KyUI.fontText;
   }
@@ -405,15 +408,21 @@ public class TextEdit extends Element {//no sliderX for now...
         }
       }
     }
-    g.fill(textColor);
-    for (int a=Math.max(0, start - 1); a < content.lines() && a < end + 1; a++) {
-      String line=content.getLine(a);
-      g.text(line, pos.left + lineNumSize + padding, pos.top + (a + 0.5F) * textSize - offsetY + padding);
+    if (content.empty()) {
+      g.fill(hintColor);
+      g.text(hint, pos.left + lineNumSize + padding, pos.top + 0.5F * textSize - offsetY + padding);
+    } else {
+      g.fill(textColor);
+      for (int a=Math.max(0, start - 1); a < content.lines() && a < end + 1; a++) {
+        String line=content.getLine(a);
+        g.text(line, pos.left + lineNumSize + padding, pos.top + (a + 0.5F) * textSize - offsetY + padding);
+      }
     }
     //draw text (no comment in normal textEditor implementation
     if (KyUI.focus == this) {
       if (cursorOn) {
         if (start <= content.line && content.line <= end) {
+          g.fill(textColor);
           float cursorOffsetX=g.textWidth("|") / 2;
           String line=content.getLine(content.line);
           if (line.length() >= content.point) {//?????????????????

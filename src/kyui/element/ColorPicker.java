@@ -77,12 +77,12 @@ public class ColorPicker extends Element {
     pos=pos_;
     padding=6;
     bgColor=KyUI.Ref.color(127);
-    createColorImage();
+    createColorImage(bgColor);
   }
   @Override
   public void setBgColor(int c) {
     super.setBgColor(c);
-    createColorImage();
+    createColorImage(c);
   }
   public void setAdjustListener(EventListener e) {
     onAdjust=e;
@@ -92,7 +92,7 @@ public class ColorPicker extends Element {
     Vector2 size=new Vector2(pos.right - pos.left, pos.bottom - pos.top);
     super.setPosition(rect);
     if (size.x != (rect.right - rect.left) || size.y != (rect.bottom - rect.top)) {
-      createColorImage();
+      createColorImage(bgColor);
     }
   }
   @Override
@@ -144,7 +144,7 @@ public class ColorPicker extends Element {
   @Override
   public void render(PGraphics g) {
     if (colorImage == null) {
-      createColorImage();
+      createColorImage(bgColor);
       if (colorImage == null) {
         return;
       }
@@ -219,8 +219,12 @@ public class ColorPicker extends Element {
   public void setColorRGB(int c) {
     selectedRGB=c;
     updateColorRGB();
-    selectedHSB=KyUI.Ref.color(KyUI.Ref.hue(selectedRGB), KyUI.Ref.saturation(selectedRGB), KyUI.Ref.brightness(selectedRGB));
+    selectedHSB=KyUI.Ref.color(KyUI.Ref.hue(selectedRGB), KyUI.Ref.saturation(selectedRGB), KyUI.Ref.brightness(selectedRGB), KyUI.Ref.alpha(selectedRGB));
     updateColorHSB();
+  }
+  public void setColorRGBA(int c) {
+    setColorRGB(c);
+    updateColorA();
   }
   void updateColorFromRGB() {
     if (red == null) return;//only compare once...
@@ -252,8 +256,12 @@ public class ColorPicker extends Element {
     saturation.setText("" + (int)KyUI.Ref.green(selectedHSB));
     brightness.setText("" + (int)KyUI.Ref.blue(selectedHSB));
   }
+  void updateColorA() {
+    if (alpha == null) return;
+    alpha.setText("" + (int)KyUI.Ref.alpha(selectedHSB));
+  }
   //void updateColorA(){ } - no need.
-  private void createColorImage() {
+  void createColorImage(int c) {
     float width=Math.min((pos.right - pos.left), (pos.bottom - pos.top));
     if (width <= 0) return;
     colorImage=KyUI.Ref.createGraphics((int)width, (int)width);
@@ -263,7 +271,7 @@ public class ColorPicker extends Element {
     colorImage.rectMode(PApplet.RADIUS);
     colorImage.translate(width / 2, width / 2);
     colorImage.noStroke();
-    colorImage.fill(bgColor, KyUI.Ref.alpha(bgColor));
+    colorImage.fill(c, KyUI.Ref.alpha(c));
     colorImage.ellipse(0, 0, width * 5 / 12 + 7, width * 5 / 12 + 7);
     int a=0;
     while (a < 255) {
@@ -276,7 +284,7 @@ public class ColorPicker extends Element {
     colorImage.strokeWeight(1);
     colorImage.noFill();
     colorImage.ellipse(0, 0, width * 5 / 12, width * 5 / 12);
-    colorImage.fill(KyUI.Ref.red(bgColor), KyUI.Ref.green(bgColor), KyUI.Ref.blue(bgColor), 255);
+    colorImage.fill(KyUI.Ref.red(c), KyUI.Ref.green(c), KyUI.Ref.blue(c), 255);
     colorImage.ellipse(0, 0, width / 4, width / 4);
     colorImage.endDraw();
   }

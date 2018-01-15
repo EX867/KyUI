@@ -61,15 +61,16 @@ public class LayoutLoader {
           ElementLoader.AttributeSet set=ElementLoader.attributes.get(cur.node.content.getClass());
           java.util.List<Attribute.Editor> attrs=set.attrs;
           for (Attribute.Editor attr : attrs) {
+            Element e=(Element)cur.node.content;
             if ((attr.field.getType() == Integer.class || attr.field.getType() == int.class) && attr.attr.type() == Attribute.COLOR) {
               InspectorColorVarButton.ColorVariable v=ElementLoader.varsReverse.get(new InspectorColorVarButton.Reference(attr, (Element)cur.node.content));
               if (v == null || v.name.equals("NONE")) {
-                xml.setString(attr.field.getName(), attr.getField((Element)cur.node.content).toString());
+                xml.setString(attr.field.getName(), attr.getField(e).toString());
               } else {
                 xml.setString(attr.field.getName(), v.name);
               }
             } else {
-              xml.setString(attr.field.getName(), attr.getField((Element)cur.node.content).toString());
+              xml.setString(attr.field.getName(), attr.getField(e).toString());
             }
           }
         } catch (Exception e) {
@@ -149,39 +150,43 @@ public class LayoutLoader {
         } else {
           name=cur.xml.getString("name");
         }
-        try {
-          Class type=Class.forName(cur.xml.getName());
-          node=ElementLoader.addElement(cur.node, name, type);
-          cur.result=(Element)node.content;
-          if (cur.result == null) {
-            KyUI.err("xml.result is null! element instantiation failed. : " + name);
-            queue.removeFirst();
-            continue;
-          } else {
-            String[] attrs=cur.xml.listAttributes();
-            ElementLoader.AttributeSet set=ElementLoader.attributes.get(cur.result.getClass());
-            for (String attrName : attrs) {
-              if (!attrName.equals("name") && cur.xml.hasAttribute(attrName)) {
-                Attribute.Editor e=set.getAttribute(attrName);
-                if ((e.field.getType() == Integer.class || e.field.getType() == int.class) && e.attr.type() == Attribute.COLOR && color != null) {
-                  InspectorColorVarButton.ColorVariable v=ElementLoader.vars.get(cur.xml.getString(attrName));
-                  if (v != null) {
-                    e.setField(cur.result, v.value);
-                    v.addReference(e, cur.result);
-                  } else {
-                    e.setField(cur.result, castFromString(e.field.getType(), cur.xml.getString(attrName)));
-                  }
+        //        try {
+        //Class type=Class.forName(cur.xml.getName());
+        Class type=ElementLoader.classes.get(cur.xml.getName());
+        node=ElementLoader.addElement(cur.node, name, type);
+        cur.result=(Element)node.content;
+        if (cur.result == null) {
+          KyUI.err("xml.result is null! element instantiation failed. : " + name);
+          queue.removeFirst();
+          continue;
+        } else {
+          String[] attrs=cur.xml.listAttributes();
+          ElementLoader.AttributeSet set=ElementLoader.attributes.get(cur.result.getClass());
+          for (String attrName : attrs) {
+            if (!attrName.equals("name") && cur.xml.hasAttribute(attrName)) {
+              Attribute.Editor e=set.getAttribute(attrName);
+              if ((e.field.getType() == Integer.class || e.field.getType() == int.class) && e.attr.type() == Attribute.COLOR && color != null) {
+                InspectorColorVarButton.ColorVariable v=ElementLoader.vars.get(cur.xml.getString(attrName));
+                if (v != null) {
+                  e.setField(cur.result, v.value);
+                  v.addReference(e, cur.result);
                 } else {
                   e.setField(cur.result, castFromString(e.field.getType(), cur.xml.getString(attrName)));
                 }
+              } else {
+                String source=cur.xml.getString(attrName);
+                Object val=castFromString(e.field.getType(), source);
+                e.setField(cur.result, val);
               }
             }
           }
-        } catch (ClassNotFoundException ce) {
-          System.err.println("no type found : " + cur.xml.getName());
-          queue.removeFirst();
-          continue;
         }
+        //        } catch (ClassNotFoundException ce) {
+        //          ce.printStackTrace();
+        //          System.err.println("no type found : " + cur.xml.getName());
+        //          queue.removeFirst();
+        //          continue;
+        //        }
       }
       //add children
       XML[] children=cur.xml.getChildren();

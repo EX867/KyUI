@@ -65,6 +65,7 @@ public class TextBox extends TextEdit implements DataTransferable {
     numberFilter.condition=false;
     fgColor=50;
     textColor=50;
+    hintColor=KyUI.Ref.color(50, 50, 50, 150);
     bgColor=KyUI.Ref.color(127);
     padding=textSize;
     lineNumSize=0;
@@ -181,7 +182,7 @@ public class TextBox extends TextEdit implements DataTransferable {
     }
     //g.textFont(textFont);
     if (content.empty()) {
-      g.fill(ColorExt.brighter(textColor, -60));
+      g.fill(hintColor);
       g.text(hint, pos.left + padding, centerY + offsetY);
     } else {
       g.fill(textColor);
@@ -189,6 +190,7 @@ public class TextBox extends TextEdit implements DataTransferable {
     }
     if (KyUI.focus == this) {
       if (cursorOn) {
+        g.fill(textColor);
         float cursorOffsetX=g.textWidth("|") / 2;
         String line=content.getLine(content.line);
         g.text("|", pos.left + g.textWidth(line.substring(0, content.point)) + padding - cursorOffsetX, centerY + offsetY - 3);

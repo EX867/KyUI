@@ -27,6 +27,7 @@ import sojamo.drop.*;
 //ADD>>search elements in editor (later)
 //ADD>>drag and drop overlay !!!**
 //FIX>>refactor loaders!!! generalize colorVariable to value.
+//ADD>>auto load fonts in button and text editors...
 public class KyUI {
   //
   public static PApplet Ref;
@@ -115,9 +116,9 @@ public class KyUI {
   public static LinkedList<Shortcut> shortcuts=new LinkedList<Shortcut>();
   // graphics
   public static PGraphics cacheGraphics;
-  public static LinkedList<Vector2> transform=new LinkedList<>();
+  public static LinkedList<Transform> transform=new LinkedList<>();
   static {
-    transform.add(new Vector2());
+    transform.add(new Transform(new Vector2(), 1));
   }
   public static LinkedList<Rect> clipArea=new LinkedList<Rect>();
   public static long drawStart=0;// these 3 parameters used to measure elapsed time.
@@ -489,26 +490,36 @@ public class KyUI {
     g.imageMode(PApplet.CORNERS);
     clipRect.set(rect);
     if (clipArea.size() > 0) {
-      clipRect=Rect.getIntersection(rect, clipArea.getLast().translate(transform.getLast().x, transform.getLast().y), clipRect);
+      Transform t=transform.getLast();
+      clipRect=Rect.getIntersection(rect, clipArea.getLast().translate(t.pos.x, t.pos.y).getScaled(t.scale), clipRect);
     }
     g.clip(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
     clipArea.add(rect.set(clipRect));
   }
   public static void removeClip(PGraphics g) {
     if (clipArea.size() > 0) {
+      g.noClip();
+      g.noFill();
+      g.strokeWeight(2);
+      g.stroke(0, 255, 0);
+      clipArea.getLast().translate(0, 10).render(g, 5);
       clipArea.removeLast();
-      if (clipArea.size() == 0) {
-        g.noClip();
-      } else {
-        g.noClip();
-        Rect last=clipArea.getLast().translate(transform.getLast().x, transform.getLast().y);
+      if (clipArea.size() != 0) {
         g.imageMode(PApplet.CORNERS);
+        Transform t=transform.getLast();
+        Rect last=clipArea.getLast().translate(t.pos.x, t.pos.y).getScaled(t.scale);
+        g.stroke(0, 0, 255);
+        last.translate(0, 10).render(g);
+        g.noStroke();
+        g.stroke(255, 0, 0);
+        g.rect(last.left, last.top, last.left + 10, last.top + 10);
         g.clip(last.left, last.top, last.right, last.bottom);
+        g.noStroke();
       }
     }
   }
-  public static void transform(float x, float y) {//transforms clipArea and mouseEvent(no mouseEvent...)
-    transform.addLast(new Vector2(x, y).addAssign(transform.getLast()));
+  public static void transform(float x, float y, float scale) {//transforms clipArea and mouseEvent(no mouseEvent...)
+    transform.addLast(new Transform(new Vector2(x, y).addAssign(transform.getLast().pos), 1));
   }
   public static void restore() {
     transform.removeLast();

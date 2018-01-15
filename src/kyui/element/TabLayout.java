@@ -51,9 +51,9 @@ public class TabLayout extends Element {
   @Attribute(setter="setTabBgColor", type=Attribute.COLOR)
   protected int tabBgColor;
   //tabLayout attributes
-  @Attribute(setter="setFixedSize")
+  @Attribute(setter="setFixedSize", layout=Attribute.SELF)
   protected int fixedSize;
-  @Attribute(setter="setIntervalSize")
+  @Attribute(setter="setIntervalSize", layout=Attribute.SELF)
   protected int intervalSize;
   //in-class values
   public int selection=0;
@@ -184,6 +184,7 @@ public class TabLayout extends Element {
     invalidate();
   }
   public void setMode(LinearLayout.Behavior mode) {
+    this.mode=mode;
     tabLayout.setMode(mode);
     localLayout();
   }

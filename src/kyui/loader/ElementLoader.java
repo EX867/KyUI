@@ -43,6 +43,7 @@ public class ElementLoader {
   public static ArrayList<Class<? extends Element>> types=new ArrayList<>();
   public static HashMap<Class, AttributeSet> attributes=new HashMap<>();
   static PGraphics imager;
+  public static HashMap<String, Class> classes=new HashMap<>(1000);//load element classes...forName is not working...
   public static HashMap<String, InspectorColorVarButton.ColorVariable> vars=new HashMap<>(1000);
   public static HashMap<InspectorColorVarButton.Reference, InspectorColorVarButton.ColorVariable> varsReverse=new HashMap<>(1000);
   public static LinkedList<LinearList.SelectableButton> variableList=new LinkedList<>();//this is used to change picker! managed by colorVariable.
@@ -115,20 +116,21 @@ public class ElementLoader {
       URLClassLoader cl=URLClassLoader.newInstance(urls);
       while (e.hasMoreElements()) {
         JarEntry je=e.nextElement();
-        KyUI.log("ElementLoader - checking... " + je.getName());
+        //KyUI.log("ElementLoader - checking... " + je.getName());
         if (je.isDirectory() || !je.getName().endsWith(".class")) {
           continue;
         }
         String className=je.getName().substring(0, je.getName().length() - 6);// -6 because of .class
         className=className.replace('/', '.').replace('\\', '.');
         try {
-          Class.forName(className);
+          Class.forName(className);//has problem.
         } catch (ClassNotFoundException ee) {
           Class c=cl.loadClass(className);
           if (Element.class.isAssignableFrom(c)) {
             loadClass(c);
+            KyUI.log("ElementLoader - " + c.getTypeName() + " is loaded! (" + c.getName() + ")");
           } else {
-            KyUI.log("ElementLoader - " + c.getTypeName() + " is not assignable to " + Element.class.getTypeName() + ".");
+            //non-element class.
           }
         }
       }
@@ -146,11 +148,6 @@ public class ElementLoader {
       for (Class c : set) {
         loadClass(c);
       }
-      reflections=new Reflections("kyui.editor.inspectorItem");
-      Set<Class<? extends InspectorButton>> set2=reflections.getSubTypesOf(InspectorButton.class);//????
-      for (Class c : set2) {
-        loadClass(c);
-      }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -158,6 +155,7 @@ public class ElementLoader {
   }
   public static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
     if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
+      classes.put(c.getName(), c);
       KyUI.log("ElementLoader - loading... " + c.getTypeName());
       types.add(c);
       elementList.addItem(new ElementImage(c));

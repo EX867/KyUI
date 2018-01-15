@@ -68,6 +68,9 @@ public class DivisionLayout extends Element {
       }
     } else if (size == 1) {
       Element e=children.get(0);
+      if (!e.isEnabled()) {
+        e=children.get(1);
+      }
       e.setPosition(new Rect(pos.left + e.margin + padding, pos.top + e.margin + padding, pos.right - e.margin - padding, pos.bottom - e.margin - padding));
     }
   }

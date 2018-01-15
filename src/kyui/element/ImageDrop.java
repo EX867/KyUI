@@ -16,8 +16,11 @@ public class ImageDrop extends Element implements DataTransferable<PImage> {
   public int fgColor;
   @Attribute
   public int strokeWidth=6;
+  @Attribute
   public PImage image;
   EventListener onDropListener;
+  @Attribute(setter="setImageFromPath")
+  String path="";
   public ImageDrop(String name) {
     super(name);
     init();
@@ -36,13 +39,13 @@ public class ImageDrop extends Element implements DataTransferable<PImage> {
     KyUI.addDragAndDrop(this, new FileDropEventListener() {
       @Override
       public void onEvent(DropEvent de) {
-        String filename=de.file().getAbsolutePath().replace("\\", "/");
-        image=KyUI.Ref.loadImage(filename);
-        KyUI.log(" image dropped on " + getName() + ", " + filename);
+        path=de.file().getAbsolutePath().replace("\\", "/");
+        image=KyUI.Ref.loadImage(path);
+        KyUI.log(" image dropped on " + getName() + ", " + path);
         if (onDropListener != null) {
           onDropListener.onEvent(self);
         }
-        if(dataChangeListener!=null){
+        if (dataChangeListener != null) {
           dataChangeListener.onEvent(self);
         }
         invalidate();
@@ -78,5 +81,12 @@ public class ImageDrop extends Element implements DataTransferable<PImage> {
   @Override
   public void setDataChangeListener(EventListener event) {
     dataChangeListener=event;
+  }
+  public void setImageFromPath(String path_){
+    PImage newImage=KyUI.Ref.loadImage(path_);
+    if(newImage!=null){
+      image=newImage;
+      path=path_;
+    }
   }
 }

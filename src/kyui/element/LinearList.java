@@ -54,6 +54,7 @@ public class LinearList extends Element {
     listLayout.setDirection(Attributes.Direction.VERTICAL);
     listLayout.setMode(LinearLayout.Behavior.FIXED);
     listLayout.padding=strokeWeight;
+    listLayout.setBgColor(0);
     slider.margin=0;
     listLayout.setAdjustListener(new EventListener() {
       @Override
@@ -157,7 +158,7 @@ public class LinearList extends Element {
     g.stroke(fgColor);
     fill(g, bgColor);
     listLayout.pos.render(g);
-    //slider.pos.render(g);
+    slider.pos.render(g);
     g.noFill();
     pos.render(g);
     g.noStroke();

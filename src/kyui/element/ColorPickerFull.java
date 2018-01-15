@@ -47,7 +47,7 @@ public class ColorPickerFull extends Element {
       recentButtons[a].setPressListener(new MouseEventListener() {
         @Override
         public boolean onEvent(MouseEvent e, int index) {
-          colorPicker.setColorRGB(recentButtons[b].c);
+          colorPicker.setColorRGBA(recentButtons[b].c);
           if (b == 0) {
             recentButtons[b].c=colorPicker.selectedRGB;
             if (recentButtons[0].c != recentButtons[1].c) {
@@ -57,6 +57,7 @@ public class ColorPickerFull extends Element {
               }
             }
           }
+          colorPicker.invalidate();
           return false;
         }
       });
@@ -109,5 +110,10 @@ public class ColorPickerFull extends Element {
   public void setColorRGB(int c) {
     colorPicker.setColorRGB(c);
     recentButtons[0].c=c;
+  }
+  @Override
+  public void setBgColor(int c) {
+    super.setBgColor(c);
+    colorPicker.setBgColor(c);
   }
 }

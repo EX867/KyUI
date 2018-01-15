@@ -46,7 +46,7 @@ public class Button extends Element {
   @Override
   public void render(PGraphics g) {
     if (bgColor != 0) {
-      g.fill(getDrawBgColor(g));
+      fill(g, getDrawBgColor(g));
       pos.render(g);
     }
     drawContent(g, textColor);

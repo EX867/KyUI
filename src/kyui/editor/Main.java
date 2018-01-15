@@ -85,6 +85,7 @@ public class Main extends PApplet {
       }
       selection=e;
       KyUI.log("selected : " + e.getName());
+      //System.out.println("type name? : " + e.getClass().getTypeName());
       ElementLoader.AttributeSet attrs=ElementLoader.attributes.get(e.getClass());
       if (attrs != null) {
         layout_inspector.setItems((java.util.List)attrs.items);

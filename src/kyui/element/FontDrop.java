@@ -9,7 +9,7 @@ import kyui.util.Rect;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import sojamo.drop.DropEvent;
-public class FontDrop extends Element implements DataTransferable<PFont> {
+public class FontDrop extends Element implements DataTransferable<PFont>{
   EventListener dataChangeListener;
   //modifiable values
   @Attribute(type=Attribute.COLOR)
@@ -17,6 +17,8 @@ public class FontDrop extends Element implements DataTransferable<PFont> {
   @Attribute
   public int strokeWidth=6;
   public PFont font;
+  @Attribute(setter="setFontFromPath")
+  String path="";
   @Attribute
   public int textSize=15;
   EventListener onDropListener;
@@ -39,13 +41,13 @@ public class FontDrop extends Element implements DataTransferable<PFont> {
     KyUI.addDragAndDrop(this, new FileDropEventListener() {
       @Override
       public void onEvent(DropEvent de) {
-        String filename=de.file().getAbsolutePath().replace("\\", "/");
-        font=KyUI.Ref.createFont(filename, 20);
-        KyUI.log(" font dropped on " + getName() + ", " + filename);
+        path=de.file().getAbsolutePath().replace("\\", "/");
+        font=KyUI.Ref.createFont(path, 20);
+        KyUI.log(" font dropped on " + getName() + ", " + path);
         if (onDropListener != null) {
           onDropListener.onEvent(self);
         }
-        if(dataChangeListener!=null){
+        if (dataChangeListener != null) {
           dataChangeListener.onEvent(self);
         }
         invalidate();
@@ -78,5 +80,12 @@ public class FontDrop extends Element implements DataTransferable<PFont> {
   @Override
   public void setDataChangeListener(EventListener event) {
     dataChangeListener=event;
+  }
+  public void setFontFromPath(String path_){
+    PFont newfont=KyUI.Ref.createFont(path_, 20);
+    if(newfont!=null){
+      font=newfont;
+      path=path_;
+    }
   }
 }

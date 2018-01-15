@@ -8,6 +8,8 @@ import processing.core.PImage;
 public class ImageButton extends Button {
   @Attribute
   public PImage image;
+  @Attribute(setter="setImageFromPath")
+  String path="";
   @Attribute
   public boolean scaled=false;
   public ImageButton(String name) {
@@ -42,5 +44,12 @@ public class ImageButton extends Button {
       return new Vector2(padding * 2, padding * 2);
     }
     return new Vector2(padding * 2 + image.width, padding * 2 + image.height);
+  }
+  public void setImageFromPath(String path_) {
+    PImage newImage=KyUI.Ref.loadImage(path_);
+    if (newImage != null) {
+      image=newImage;
+      path=path_;
+    }
   }
 }

@@ -2,6 +2,8 @@ package kyui.editor;
 import kyui.core.Element;
 import kyui.loader.ElementLoader;
 import kyui.util.DataTransferable;
+import processing.core.PFont;
+import processing.core.PImage;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -56,18 +58,18 @@ public @interface Attribute {
     }
     public void setField(Object o, Object value) {
       try {
+        Element e=(Element)o;
         if (setMethod == null) {
           field.set(o, value);
-          Element e=(Element)o;
-          if (attr.layout() == Attribute.PARENT) {
-            if (e.parents.size() > 0) {
-              e.parents.get(0).localLayout();
-            }
-          } else if (attr.layout() == Attribute.SELF) {
-            e.localLayout();
-          }
         } else {
           setMethod.invoke(o, value);//setMethod must have one parameter.
+        }
+        if (attr.layout() == Attribute.PARENT) {
+          if (e.parents.size() > 0) {
+            e.parents.get(0).localLayout();
+          }
+        } else if (attr.layout() == Attribute.SELF) {
+          e.localLayout();
         }
         ((Element)o).invalidate();
       } catch (Exception e) {
