@@ -18,7 +18,6 @@ import processing.event.MouseEvent;
 import sojamo.drop.DropEvent;
 
 import java.io.PrintWriter;
-import java.util.function.Function;
 //ADD>>delete function for colorVar and shortcut!!!
 public class Main extends PApplet {
   public static Runnable editorSetupFinishListener;
@@ -97,12 +96,13 @@ public class Main extends PApplet {
     });
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
     layout_elements.setFixedSize(150);
+    layout_elements.setBgColor(color(255, 0, 0));//TEST
     KyUI.addDragAndDrop(layout_elements, layout_tree, new DropEventListener() {
       private int count=0;//FIX>>to find not duplicated name!
       @Override
       public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
         ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
-        TreeGraph.Node<Element> node=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
+        TreeGraph.Node<Element> node=layout_tree.getNodeOverAbsolute();
         if (node != null) {
           String name=e.element.getSimpleName() + count + "_" + ((System.currentTimeMillis() / 1000) % 100000);//FIX>>defult valueI
           TreeGraph.Node n=ElementLoader.addElement(node, name, e.element);
@@ -235,7 +235,7 @@ public class Main extends PApplet {
     KyUI.addDragAndDrop(layout_tree, (DropEvent de) -> {
       String filename=de.file().getAbsolutePath().replace("\\", "/");
       if (getExtension(filename).equals("xml")) {
-        TreeGraph.Node nodeToAdd=layout_tree.getNodeOver(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
+        TreeGraph.Node nodeToAdd=layout_tree.getNodeOverAbsolute();
         if (nodeToAdd == null) {
           nodeToAdd=layout_tree.getRoot();
         }
@@ -265,8 +265,8 @@ public class Main extends PApplet {
   @Override
   public void draw() {
     KyUI.render(g);
-    mouseX=(int)(KyUI.mouseGlobal.x * KyUI.scaleGlobal);
-    mouseY=(int)(KyUI.mouseGlobal.y * KyUI.scaleGlobal);
+    mouseX=(int)(KyUI.mouseGlobal.getLast().x * KyUI.scaleGlobal);
+    mouseY=(int)(KyUI.mouseGlobal.getLast().y * KyUI.scaleGlobal);
     strokeWeight(1);
     noFill();
     ellipse(mouseX, mouseY, 20, 20);
@@ -275,7 +275,7 @@ public class Main extends PApplet {
     line(mouseX, 0, mouseX, height);
     strokeWeight(5);
     line(mouseX, mouseY, pmouseX, pmouseY);
-    text(frameRate, mouseX + 10, mouseY + 12);
+    text("[" + mouseX + ", " + mouseY + "] (" + frameRate + ")", mouseX + 10, mouseY + 12);
     //
     //    strokeWeight(1);
     //    noFill();

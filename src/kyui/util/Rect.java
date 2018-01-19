@@ -109,11 +109,7 @@ public class Rect implements Cloneable {//it is like android's rect...
   public Vector2 getSize() {
     return new Vector2(right - left, bottom - top);
   }
-  public Rect getScaled(float scale) {
-    float centerX=(left + right) / 2;
-    float centerY=(top + bottom) / 2;
-    float hWidth=right - centerX;
-    float hHeight=bottom - centerY;
-    return set(centerX - scale * hWidth, centerY - scale * hHeight, centerX + scale * hWidth, centerY + scale * hHeight);
+  public boolean empty() {
+    return left >= right || top >= bottom;
   }
 }

@@ -5,8 +5,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
@@ -75,8 +75,12 @@ public class KyUI {
   public static int mouseState=STATE_RELEASED;//no multi touch
   public static int mouseClickAfterTime=0;
   static long mouseEventTime=Long.MAX_VALUE;//this is last mouse event's time.
-  public static Vector2 mouseClick=new Vector2();// this parameter stores mouse click position.
-  public static Vector2 mouseGlobal=new Vector2();// this parameter stores global mouse position.(scaled)
+  public static LinkedList<Vector2> mouseClick=new LinkedList<>();// this parameter stores mouse click position.
+  public static LinkedList<Vector2> mouseGlobal=new LinkedList<>();// this parameter stores global mouse position.
+  static {
+    mouseClick.add(new Vector2());
+    mouseGlobal.add(new Vector2());
+  }
   public static final int GESTURE_THRESHOLD=13;
   public static final int WHEEL_COUNT=25;
   public static HashMap<String, DropEventListener> dropEvents=new HashMap<String, DropEventListener>();//dnd - internal
@@ -91,8 +95,8 @@ public class KyUI {
     public void execute(Object data_) {
       if (data_ instanceof DropEvent) {
         DropEvent de=(DropEvent)data_;
-        mouseGlobal.set(de.x() / scaleGlobal, de.y() / scaleGlobal);
-        Element target=roots.getLast().checkOverlayDrop(mouseGlobal.x, mouseGlobal.y);//if overlay, setup overlay.
+        mouseGlobal.getLast().set(de.x() / scaleGlobal, de.y() / scaleGlobal);
+        Element target=roots.getLast().checkOverlayDrop();//if overlay, setup overlay.
         if (target != null) {
           KyUI.log("drop target : " + target.getName());
           dropEventsExternal.get(target.getName()).onEvent(de);
@@ -116,11 +120,6 @@ public class KyUI {
   public static LinkedList<Shortcut> shortcuts=new LinkedList<Shortcut>();
   // graphics
   public static PGraphics cacheGraphics;
-  public static LinkedList<Transform> transform=new LinkedList<>();
-  static {
-    transform.add(new Transform(new Vector2(), 1));
-  }
-  public static LinkedList<Rect> clipArea=new LinkedList<Rect>();
   public static long drawStart=0;// these 3 parameters used to measure elapsed time.
   public static long drawEnd=0;
   public static long drawInterval=0;
@@ -128,12 +127,14 @@ public class KyUI {
   public static PFont fontMain;//set manually! (so public)
   public static PFont fontText;//set manually! (2)
   public static int INF=987654321;
-  private static Rect clipRect=new Rect();
   static int DESCRIPTION_THRESHOLD=500;
   static CachingFrame descriptionLayer;
   static Description currentDescription=null;
   static boolean canShowDescription=true;
   static Description descriptionDefault;
+  static Predicate<Element> descriptionCheck=(Element e) -> {
+    return e.description != null;
+  };
   //thread
   public static Thread updater;
   public static int updater_interval;
@@ -349,13 +350,14 @@ public class KyUI {
             }
           }
           KyUI.taskManager.executeAll();
+          roots.getLast().update_();
           //rendering
           for (CachingFrame root : roots) {
             root.render_(null);
           }
           //description
           if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
-            Element el=roots.getLast().checkOverlayDescription(mouseGlobal.x, mouseGlobal.y);
+            Element el=roots.getLast().checkOverlayCondition(descriptionCheck);
             if (el != null) {
               currentDescription=el.description;
               descriptionLayer.children.set(0, currentDescription);
@@ -369,7 +371,6 @@ public class KyUI {
             descriptionLayer.clear();
             currentDescription=null;
           }
-          roots.getLast().update_();
         }
         frameCount++;
         try {
@@ -443,19 +444,19 @@ public class KyUI {
     //updater.interrupt();
   }
   static void mouseEvent(MouseEvent e) {
-    mouseGlobal.set(Ref.mouseX / scaleGlobal, Ref.mouseY / scaleGlobal);
+    mouseGlobal.getLast().set(e.getX() / scaleGlobal, e.getY() / scaleGlobal);
     if (Ref.mousePressed) {
       if (mouseState == STATE_PRESS) mouseState=STATE_PRESSED;
       if (mouseState == STATE_RELEASE || mouseState == STATE_RELEASED) {
         mouseState=STATE_PRESS;
-        mouseClick.set(mouseGlobal.x, mouseGlobal.y);
+        mouseClick.getLast().set(mouseGlobal.getLast().x, mouseGlobal.getLast().y);
       }
     } else {
       if (mouseState == STATE_RELEASE) mouseState=STATE_RELEASED;
       if (mouseState == STATE_PRESS || mouseState == STATE_PRESSED) mouseState=STATE_RELEASE;
     }
     if (e.getAction() == MouseEvent.EXIT) {
-      mouseGlobal.set(-1, -1);//make no element contains this.
+      mouseGlobal.getLast().set(-1, -1);//make no element contains this.
     }
     if (roots.size() > 0) {
       roots.getLast().mouseEvent_(e, roots.size() - 1, true);
@@ -472,57 +473,26 @@ public class KyUI {
     return reflectedPressedKeys.size();
   }
   //
+  public static Element checkOverlayCondition(Predicate<Element> cond) {
+    return roots.getLast().checkOverlayCondition(cond);
+  }
   public static void changeLayout() {
     taskManager.executeAll();
     roots.getLast().onLayout();
     roots.getLast().invalidate();
   }
   public static void invalidate(Rect rect) {//adjust renderFlag.
-    if (roots.isEmpty()) return;
-    roots.getLast().checkInvalid(rect);
+    taskManager.addTask((n) -> {
+      if (roots.isEmpty()) return;
+      roots.getLast().checkInvalid(rect);
+    }, null);
   }
   public static void invalidateElement(Element e) {//adjust renderFlag.
-    if (roots.isEmpty()) return;
-    roots.getLast().invalidated=true;
-    e.renderFlag=true;
-  }
-  public static void clipRect(PGraphics g, Rect rect) {
-    g.imageMode(PApplet.CORNERS);
-    clipRect.set(rect);
-    if (clipArea.size() > 0) {
-      Transform t=transform.getLast();
-      clipRect=Rect.getIntersection(rect, clipArea.getLast().translate(t.pos.x, t.pos.y).getScaled(t.scale), clipRect);
-    }
-    g.clip(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
-    clipArea.add(rect.set(clipRect));
-  }
-  public static void removeClip(PGraphics g) {
-    if (clipArea.size() > 0) {
-      g.noClip();
-      g.noFill();
-      g.strokeWeight(2);
-      g.stroke(0, 255, 0);
-      clipArea.getLast().translate(0, 10).render(g, 5);
-      clipArea.removeLast();
-      if (clipArea.size() != 0) {
-        g.imageMode(PApplet.CORNERS);
-        Transform t=transform.getLast();
-        Rect last=clipArea.getLast().translate(t.pos.x, t.pos.y).getScaled(t.scale);
-        g.stroke(0, 0, 255);
-        last.translate(0, 10).render(g);
-        g.noStroke();
-        g.stroke(255, 0, 0);
-        g.rect(last.left, last.top, last.left + 10, last.top + 10);
-        g.clip(last.left, last.top, last.right, last.bottom);
-        g.noStroke();
-      }
-    }
-  }
-  public static void transform(float x, float y, float scale) {//transforms clipArea and mouseEvent(no mouseEvent...)
-    transform.addLast(new Transform(new Vector2(x, y).addAssign(transform.getLast().pos), 1));
-  }
-  public static void restore() {
-    transform.removeLast();
+    taskManager.addTask((n) -> {
+      if (roots.isEmpty()) return;
+      roots.getLast().invalidated=true;
+      e.renderFlag=true;
+    }, null);
   }
   public static void dropStart(Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
     dropMessenger=new DropMessenger("KyUI:messenger", start_, startEvent_, startIndex_, message_, displayText_);

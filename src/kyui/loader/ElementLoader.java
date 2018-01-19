@@ -100,6 +100,9 @@ public class ElementLoader {
     KyUI.log("ElementLoader - stored external jar data to " + externalDataPath + " successfully!");
   }
   public static void loadExternal(String path) {//https://stackoverflow.com/questions/11016092/how-to-load-classes-at-runtime-from-a-folder-or-jar
+    if (path.trim().isEmpty()) {
+      return;
+    }
     KyUI.log("ElementLoader - load start : " + path);
     if (!new File(path).isFile()) {
       KyUI.err("ElementLoader : load failed : " + path + " : file not exists!");

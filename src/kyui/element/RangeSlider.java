@@ -100,10 +100,10 @@ public class RangeSlider extends Button {
       float value=0;
       float size=getSize();
       if (direction == Attributes.Direction.HORIZONTAL) {
-        value=(KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left - sliderLength / 2);
+        value=(KyUI.mouseGlobal.getLast().x - pos.left - sliderLength / 2);
         //value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
       } else if (direction == Attributes.Direction.VERTICAL) {
-        value=(KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top - sliderLength / 2);
+        value=(KyUI.mouseGlobal.getLast().y - pos.top - sliderLength / 2);
         //value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
       }
       if (size == 0) {

@@ -133,7 +133,7 @@ public class TextEdit extends Element {//no sliderX for now...
         return false;
       }
     } else if (e.getAction() == MouseEvent.WHEEL) {
-      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      if (entered) {
         offsetY+=e.getCount() * KyUI.WHEEL_COUNT;
         if (offsetY > textSize * (content.lines() + blankLines) + pos.top - pos.bottom) {
           offsetY=textSize * (content.lines() + blankLines) + pos.top - pos.bottom;
@@ -149,11 +149,11 @@ public class TextEdit extends Element {//no sliderX for now...
     return true;
   }
   protected void adjustCursor() {
-    content.setCursorLine(Math.max(Math.min(offsetToLine(offsetY - padding + KyUI.mouseGlobal.y - pos.top), content.lines() - 1), 0));
+    content.setCursorLine(Math.max(Math.min(offsetToLine(offsetY - padding + KyUI.mouseGlobal.getLast().y - pos.top), content.lines() - 1), 0));
     PGraphics cg=KyUI.cacheGraphics;
     cg.textFont(textFont);
     cg.textSize(Math.max(1, textSize));//just using function...
-    float mouseX=/*offsetX+*/KyUI.mouseGlobal.x - pos.left - padding - lineNumSize;
+    float mouseX=/*offsetX+*/KyUI.mouseGlobal.getLast().x - pos.left - padding - lineNumSize;
     String line=content.getLine(content.line);
     int point=0;//mid
     int low=1;

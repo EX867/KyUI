@@ -105,9 +105,9 @@ public class Slider extends Element implements DataTransferable {
         requestFocus();
         float size=getSize();
         if (direction == Attributes.Direction.HORIZONTAL) {
-          set(min + (max - min) * (KyUI.mouseGlobal.x * KyUI.scaleGlobal - pos.left) / size);
+          set(min + (max - min) * (KyUI.mouseGlobal.getLast().x - pos.left) / size);
         } else if (direction == Attributes.Direction.VERTICAL) {
-          set(min + (max - min) * (KyUI.mouseGlobal.y * KyUI.scaleGlobal - pos.top) / size);
+          set(min + (max - min) * (KyUI.mouseGlobal.getLast().y - pos.top) / size);
         }
         if (adjustListener != null) {
           adjustListener.onEvent(this);

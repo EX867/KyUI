@@ -79,7 +79,7 @@ public class Button extends Element {
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.RELEASE) {
-      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      if (entered) {
         if (pressedL) {
           onPress();
           if (pressListener != null) {

@@ -174,7 +174,7 @@ public class LinearLayout extends Element {
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.WHEEL) {
-      if (pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+      if (entered) {
         setOffset(offset + e.getCount() * KyUI.WHEEL_COUNT);
         localLayout();
         if (adjustListener != null) {
@@ -202,9 +202,9 @@ public class LinearLayout extends Element {
           requestFocus();
           float value=0;
           if (direction == Attributes.Direction.HORIZONTAL) {
-            value=(KyUI.mouseClick.x - KyUI.mouseGlobal.x) * KyUI.scaleGlobal;
+            value=(KyUI.mouseClick.getFirst().x - KyUI.mouseGlobal.getFirst().x) * KyUI.scaleGlobal;
           } else if (direction == Attributes.Direction.VERTICAL) {
-            value=(KyUI.mouseClick.y - KyUI.mouseGlobal.y) * KyUI.scaleGlobal;
+            value=(KyUI.mouseClick.getFirst().y - KyUI.mouseGlobal.getFirst().y) * KyUI.scaleGlobal;
           }
           clickScrollMax=Math.max(Math.abs(value), clickScrollMax);
           setOffset(clickOffset + value);

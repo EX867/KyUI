@@ -34,7 +34,7 @@ public class DropMessenger extends Element {
     KyUI.cacheGraphics.textSize(textSize);//is this making sync error?
     float hwidth=KyUI.cacheGraphics.textWidth(displayText) / 2 + padding;
     float hheight=textSize / 2 + padding;
-    setPosition(new Rect(KyUI.mouseGlobal.x - hwidth, KyUI.mouseGlobal.y - hheight, KyUI.mouseGlobal.x + hwidth, KyUI.mouseGlobal.y + hheight));
+    setPosition(new Rect(KyUI.mouseGlobal.getLast().x - hwidth, KyUI.mouseGlobal.getLast().y - hheight, KyUI.mouseGlobal.getLast().x + hwidth, KyUI.mouseGlobal.getLast().y + hheight));
     bgColor=KyUI.Ref.color(255, 100);
   }
   @Override
@@ -52,10 +52,11 @@ public class DropMessenger extends Element {
     }
   }
   @Override
-  public void update() {
+  public boolean mouseEventIntercept(MouseEvent e) {
     float hwidth=(pos.right - pos.left) / 2;
     float hheight=(pos.bottom - pos.top) / 2;
-    setPosition(pos.set(KyUI.mouseGlobal.x - hwidth, KyUI.mouseGlobal.y - hheight, KyUI.mouseGlobal.x + hwidth, KyUI.mouseGlobal.y + hheight));
+    setPosition(pos.set(KyUI.mouseGlobal.getLast().x - hwidth, KyUI.mouseGlobal.getLast().y - hheight, KyUI.mouseGlobal.getLast().x + hwidth, KyUI.mouseGlobal.getLast().y + hheight));
+    return true;
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {

@@ -16,7 +16,7 @@ public class ColorButton extends Button implements DataTransferable<Integer> {
   EventListener dataChangeListener;
   //modifiable values
   @Attribute(type=Attribute.COLOR)
-  public int c=0xFF000000;
+  public int c=0xFFFFFFFF;
   public ColorButton(String name) {
     super(name);
     init();
@@ -26,8 +26,8 @@ public class ColorButton extends Button implements DataTransferable<Integer> {
     init();
   }
   private void init() {
-    padding=6;
-    bgColor=KyUI.Ref.color(127);
+    padding=8;
+    bgColor=KyUI.Ref.color(90);
   }
   @Override
   protected void drawContent(PGraphics g, int textC) {

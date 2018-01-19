@@ -2,10 +2,8 @@ package kyui.core;
 import kyui.editor.Attribute;
 import kyui.element.TreeGraph;
 import kyui.event.TreeNodeAction;
-import kyui.util.Task;
-import kyui.util.Vector2;
-import kyui.util.Rect;
-import kyui.util.ColorExt;
+import kyui.util.*;
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -13,6 +11,7 @@ import processing.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 public class Element implements TreeNodeAction {
   public List<Element> parents=new ArrayList<Element>();
   public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
@@ -102,6 +101,16 @@ public class Element implements TreeNodeAction {
   protected int endClip=KyUI.INF;
   //clip
   protected boolean clipping=false;
+  public static LinkedList<Rect> clipArea=new LinkedList<>();
+  //transform
+  public static LinkedList<Transform> transforms=new LinkedList<>();
+  protected Transform transform=Transform.identity;
+  //public static LinkedList<Transform> transformsAcc=new LinkedList<>();//stack...
+  protected boolean relative=false;
+  static {
+    transforms.addLast(Transform.identity);
+    //transformsAcc.addLast(Transform.identity);
+  }
   //dnd
   public DropMessenger.Visual dropVisual;//used when creating drop messenger
   public boolean droppableStart=false;//this element can be start of drag.
@@ -116,8 +125,8 @@ public class Element implements TreeNodeAction {
   protected boolean skipPress=false;
   protected boolean skipRelease=false;
   //
-  public Element(String name) {
-    this.name=name;
+  public Element(String name_) {
+    name=name_;
     KyUI.addElement(this);
   }
   //children modify
@@ -224,20 +233,94 @@ public class Element implements TreeNodeAction {
   public final void invalidate(Rect rect) {
     KyUI.invalidate(rect);
   }
+  //===transform===//
+  final void clipRectRender(PGraphics g) {
+    if (clipRect == null) {
+      clipRect=new Rect();
+    }
+    clipArea();
+    g.imageMode(PApplet.CORNERS);
+    g.clip(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
+  }
+  final void removeClipRender(PGraphics g) {
+    g.noClip();
+    clipAfter();
+    if (clipArea.size() != 0) {
+      g.imageMode(PApplet.CORNERS);
+      g.clip(clipArea.getLast().left, clipArea.getLast().top, clipArea.getLast().right, clipArea.getLast().bottom);
+    }
+  }
+  protected void clipArea() {//override this!
+    if (clipRect == null) {
+      clipRect=new Rect();
+    }
+    clipRect.set(pos);//change this!
+    if (clipArea.size() == 0) {
+      clipArea.addLast(clipRect);
+    } else {
+      clipArea.addLast(Rect.getIntersection(clipArea.getLast(), clipRect, new Rect()));
+    }
+  }
+  final void clipAfter() {
+    clipArea.removeLast();//must exist.
+  }
+  final void transformRender(PGraphics g) {
+    g.pushMatrix();
+    g.translate(transform.center.x, transform.center.y);
+    g.scale(transform.scale);
+    transformMouse();
+  }
+  final void transformRenderAfter(PGraphics g) {
+    g.popMatrix();
+    transformMouseAfter();
+  }
+  final void transformMouse() {
+    KyUI.mouseGlobal.addLast(transforms.getLast().trans(transform, KyUI.mouseGlobal.getLast()));
+    KyUI.mouseClick.addLast(transforms.getLast().trans(transform, KyUI.mouseClick.getLast()));
+    clipArea.addLast(transform.trans(transforms.getLast(), clipArea.getLast()));//just add.
+    transforms.add(transform);
+    //transformsAcc.addLast(Transform.getDist(transform, transformsAcc.getLast()));//transform-transformsAcc.getLast()
+  }
+  final void transformMouseAfter() {
+    KyUI.mouseGlobal.removeLast();
+    KyUI.mouseClick.removeLast();
+    clipArea.removeLast();
+    transforms.removeLast();
+    //transformsAcc.removeLast();
+  }
+  public boolean contains() {
+    if (clipArea.isEmpty()) {
+      if (pos.contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y)) {
+        return true;
+      }
+    } else {
+      if (clipArea.getLast().contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  //===rendering===//
   void render_(PGraphics g) {
     boolean renderFlag_=renderFlag;
     if (clipping) {
-      clipRect(g);
+      clipRectRender(g);
     }
     if (renderFlag_) {
       render(g);
     }
+    if (relative) {
+      transformRender(g);
+    }
     renderChildren(g);
+    if (relative) {
+      transformRenderAfter(g);
+    }
     if (renderFlag_) {
       renderAfter(g);
     }
     if (clipping) {
-      removeClip(g);
+      removeClipRender(g);
     }
     renderFlag=false;
   }
@@ -259,45 +342,38 @@ public class Element implements TreeNodeAction {
       pos.render(g);
     }
   }
-  public void fill(PGraphics g, int c) {//overloading has many problem...
+  public static void fill(PGraphics g, int c) {//overloading has many problem...
     ColorExt.fill(g, c);
   }
   public void renderAfter(PGraphics g) {//override this!
   }
-  public void clipRect(PGraphics g) {//override this!
-    if (clipRect == null) {
-      clipRect=new Rect();
-    }
-    KyUI.clipRect(g, clipRect.set(pos));
-  }
-  public void removeClip(PGraphics g) {
-    KyUI.removeClip(g);
-  }
-  synchronized boolean checkInvalid(Rect rect) {
-    if (pos.contains(rect)) {
-      if (children.size() == 0) {
-        renderFlag=true;
-      }
-      int end=Math.min(children.size(), endClip);
-      for (int a=Math.max(0, startClip); a < end; a++) {
-        Element child=children.get(a);
-        if (child.isVisible() && child.isEnabled()) {
-          if (child.checkInvalid(rect)) {//child not contains rect.\
-            renderFlag=true;
-          }
-        }
-      }
-      return false;
-    }
+  //ADD
+  public boolean mouseEventIntercept(MouseEvent e) {//override this!
     return true;
   }
-  Element checkOverlayDrop(float x, float y) {
-    if (!pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+  public boolean mouseEvent(MouseEvent e, int index) {//override this!
+    return true;
+  }
+  public void mouseEntered(MouseEvent e, int index) {
+    invalidate();
+  }
+  public void mouseExited(MouseEvent e, int index) {
+    if (pressedL && droppableStart) {
+      startDrop(e, index);
+    }
+    invalidate();
+  }
+  public void startDrop(MouseEvent e, int index) {
+    KyUI.dropStart(this, e, index, "", getName());
+  }
+  //
+  Element checkOverlayDrop() {//no transform
+    if (!contains()) {
       return null;
     }
     for (Element child : children) {
       if (child.isEnabled()) {
-        Element ret_=child.checkOverlayDrop(x, y);
+        Element ret_=child.checkOverlayDrop();
         if (ret_ != null) {
           return ret_;
         }
@@ -308,58 +384,72 @@ public class Element implements TreeNodeAction {
     }
     return null;
   }
-  Element checkOverlayDescription(float x, float y) {
-    if (!pos.contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y)) {
+  Element checkOverlayCondition(Predicate<Element> cond) {
+    if (!contains()) {
       return null;
     }
-    for (Element child : children) {
+    if (clipping) {
+      clipArea();
+    }
+    if (relative) {
+      transformMouse();
+    }
+    int end=Math.min(children.size(), endClip);
+    for (int a=Math.max(0, startClip); a < end; a++) {
+      Element child=children.get(a);
       if (child.isEnabled()) {
-        Element ret_=child.checkOverlayDescription(x, y);
+        Element ret_=child.checkOverlayCondition(cond);
         if (ret_ != null) {
           return ret_;
         }
       }
     }
-    if (description != null) {
+    if (relative) {
+      transformMouseAfter();
+    }
+    if (clipping) {
+      clipAfter();
+    }
+    if (cond.test(this)) {
       return this;
     }
     return null;
   }
-  final void keyEvent_(KeyEvent e) {
-    for (Element child : children) {
-      if (child.isActive() && child.isEnabled()) child.keyEvent_(e);
+  synchronized boolean checkInvalid(Rect rect) {
+    if (!contains()) {
+      return true;
     }
-    keyEvent(e);
-  }
-  public void keyEvent(KeyEvent e) {//override this!
-    //if(e.getAction()==KeyEvent.PRESS)
-  }
-  final void keyTyped_(KeyEvent e) {//keyTyped is special, so handled in other method.
-    for (Element child : children) {
-      if (child.isActive() && child.isEnabled()) child.keyTyped_(e);
+    if (clipping) {
+      clipArea();
     }
-    keyTyped(e);
-  }
-  public void keyTyped(KeyEvent e) {//override this!
-    //do not use e.getAction() in here! (incorrect)
-  }
-  static LinkedList<Rect> clipPos=new LinkedList<Rect>();
-  Rect clipPosRect=new Rect();
-  void addClipPos() {
-    clipPosRect.set(pos);
-    if (clipPos.size() > 0) {
-      clipRect=Rect.getIntersection(pos, clipPos.getLast(), clipPosRect);
+    if (relative) {
+      transformMouse();
     }
-    clipPos.addLast(clipPosRect);
-  }
-  void removeClipPos() {
-    if (clipPos.size() > 0) {
-      clipPos.removeLast();
+    if (children.size() == 0) {
+      renderFlag=true;
     }
+    int end=Math.min(children.size(), endClip);
+    for (int a=Math.max(0, startClip); a < end; a++) {
+      Element child=children.get(a);
+      if (child.isVisible() && child.isEnabled()) {
+        if (child.checkInvalid(rect)) {//child not contains rect.\
+          renderFlag=true;
+        }
+      }
+    }
+    if (relative) {
+      transformMouseAfter();
+    }
+    if (clipping) {
+      clipAfter();
+    }
+    return false;
   }
   boolean mouseEvent_(MouseEvent e, int index, boolean trigger) {
-    addClipPos();
-    boolean contains=clipPos.getLast().contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y);
+    boolean contains=contains();
+    if (clipping) {
+      clipArea();
+    }
     if (contains) {
       if (!entered) {
         entered=true;
@@ -385,6 +475,9 @@ public class Element implements TreeNodeAction {
         invalidate();
       }
     }
+    if (relative) {
+      transformMouse();
+    }
     int end=Math.min(children.size(), endClip);
     for (int a=Math.max(0, startClip); a < end; a++) {
       Element child=children.get(a);
@@ -393,6 +486,9 @@ public class Element implements TreeNodeAction {
           childrenIntercept=true;
         }
       }
+    }
+    if (relative) {
+      transformMouseAfter();
     }
     if (childrenIntercept) {
       //System.out.println(getName() + " intercepted! " + KyUI.frameCount);
@@ -426,26 +522,29 @@ public class Element implements TreeNodeAction {
     }
     skipRelease=false;
     skipPress=false;
-    removeClipPos();
+    if (clipping) {
+      clipAfter();
+    }
     return ret;
   }
-  public boolean mouseEventIntercept(MouseEvent e) {//override this!
-    return true;
-  }
-  public boolean mouseEvent(MouseEvent e, int index) {//override this!
-    return true;
-  }
-  public void mouseEntered(MouseEvent e, int index) {
-    invalidate();
-  }
-  public void mouseExited(MouseEvent e, int index) {
-    if (pressedL && droppableStart) {
-      startDrop(e, index);
+  //
+  final void keyEvent_(KeyEvent e) {
+    for (Element child : children) {
+      if (child.isActive() && child.isEnabled()) child.keyEvent_(e);
     }
-    invalidate();
+    keyEvent(e);
   }
-  public void startDrop(MouseEvent e, int index) {
-    KyUI.dropStart(this, e, index, "", getName());
+  public void keyEvent(KeyEvent e) {//override this!
+    //if(e.getAction()==KeyEvent.PRESS)
+  }
+  final void keyTyped_(KeyEvent e) {//keyTyped is special, so handled in other method.
+    for (Element child : children) {
+      if (child.isActive() && child.isEnabled()) child.keyTyped_(e);
+    }
+    keyTyped(e);
+  }
+  public void keyTyped(KeyEvent e) {//override this!
+    //do not use e.getAction() in here! (incorrect)
   }
   //
   public final void requestFocus() {//make onRequestListener?

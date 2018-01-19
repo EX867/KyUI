@@ -99,20 +99,22 @@ public class ColorPicker extends Element {
   public boolean mouseEvent(MouseEvent e, int index) {
     float centerX=(pos.right + pos.left) / 2;
     float centerY=(pos.top + pos.bottom) / 2;
+    float x=KyUI.mouseGlobal.getLast().x;
+    float y=KyUI.mouseGlobal.getLast().y;
     float width=Math.min((pos.right - pos.left), (pos.bottom - pos.top));
-    if (e.getAction() == MouseEvent.PRESS && ((KyUI.mouseGlobal.x - centerX) * (KyUI.mouseGlobal.x - centerX) + (KyUI.mouseGlobal.y - centerY) * (KyUI.mouseGlobal.y - centerY) > width * width / 4)) {
+    if (e.getAction() == MouseEvent.PRESS && ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) > width * width / 4)) {
       skipPress=true;
       pressedL=false;
       return true;
-    } else if (pressedL && e.getAction() == MouseEvent.RELEASE && ((KyUI.mouseGlobal.x - centerX) * (KyUI.mouseGlobal.x - centerX) + (KyUI.mouseGlobal.y - centerY) * (KyUI.mouseGlobal.y - centerY) > width * width / 4)) {
+    } else if (pressedL && e.getAction() == MouseEvent.RELEASE && ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) > width * width / 4)) {
       skipRelease=true;
       return true;
     }
     if (e.getAction() == MouseEvent.PRESS || ((e.getAction() == MouseEvent.DRAG || e.getAction() == MouseEvent.RELEASE) && pressedL)) {
       requestFocus();
-      float radius=(float)Math.sqrt((KyUI.mouseGlobal.x - centerX) * (KyUI.mouseGlobal.x - centerX) + (KyUI.mouseGlobal.y - centerY) * (KyUI.mouseGlobal.y - centerY));
+      float radius=(float)Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
       if (((width / 4 < radius && radius < width / 2) || hueClicked) && sbClicked == false) {
-        float atan2pos=(float)Math.atan2(KyUI.mouseGlobal.y - centerY, KyUI.mouseGlobal.x - centerX);
+        float atan2pos=(float)Math.atan2(y - centerY, x - centerX);
         if (atan2pos < 0) atan2pos+=PApplet.TWO_PI;
         selectedHSB=KyUI.Ref.color((atan2pos) * 256 / PApplet.TWO_PI, KyUI.Ref.green(selectedHSB), KyUI.Ref.blue(selectedHSB), alphav);
         selectedRGB=Color.HSBtoRGB(KyUI.Ref.red(selectedHSB) / 255, KyUI.Ref.green(selectedHSB) / 255, KyUI.Ref.blue(selectedHSB) / 255);
@@ -121,8 +123,8 @@ public class ColorPicker extends Element {
         updateColorHSB();
         hueClicked=true;
         invalidate();
-      } else if ((cacheRect.set(centerX - width / 6, centerY - width / 6, centerX + width / 6, centerY + width / 6).contains(KyUI.mouseGlobal.x, KyUI.mouseGlobal.y) || sbClicked) && hueClicked == false) {
-        selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), (KyUI.mouseGlobal.x - centerX + width / 6) * 255 / (width / 3), (centerY + width / 6 - KyUI.mouseGlobal.y) * 255 / (width / 3), alphav);
+      } else if ((cacheRect.set(centerX - width / 6, centerY - width / 6, centerX + width / 6, centerY + width / 6).contains(x, y) || sbClicked) && hueClicked == false) {
+        selectedHSB=KyUI.Ref.color(KyUI.Ref.red(selectedHSB), (x - centerX + width / 6) * 255 / (width / 3), (centerY + width / 6 - y) * 255 / (width / 3), alphav);
         selectedRGB=Color.HSBtoRGB(KyUI.Ref.red(selectedHSB) / 255, KyUI.Ref.green(selectedHSB) / 255, KyUI.Ref.blue(selectedHSB) / 255);
         selectedRGB=KyUI.Ref.color(KyUI.Ref.red(selectedRGB), KyUI.Ref.green(selectedRGB), KyUI.Ref.blue(selectedRGB), alphav);
         updateColorRGB();
