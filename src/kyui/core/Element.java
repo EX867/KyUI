@@ -170,12 +170,6 @@ public class Element implements TreeNodeAction {
     pos=rect;
     localLayout();
   }
-  public void movePosition(float x, float y) {//this is not good ...
-    pos.set(pos.left + x, pos.top + y, pos.right + x, pos.bottom + y);
-    for (Element child : children) {
-      child.movePosition(x, y);
-    }
-  }
   public void onLayout() {
     //update children.pos here.
     //default is recursive.
@@ -275,8 +269,8 @@ public class Element implements TreeNodeAction {
     transformMouseAfter();
   }
   final void transformMouse() {
-    KyUI.mouseGlobal.addLast(transforms.getLast().trans(transform, KyUI.mouseGlobal.getLast()));
-    KyUI.mouseClick.addLast(transforms.getLast().trans(transform, KyUI.mouseClick.getLast()));
+    KyUI.mouseGlobal.addLast(transform.trans(transforms.getLast(), KyUI.mouseGlobal.getLast()));
+    KyUI.mouseClick.addLast(transform.trans(transforms.getLast(), KyUI.mouseClick.getLast()));
     clipArea.addLast(transform.trans(transforms.getLast(), clipArea.getLast()));//just add.
     transforms.add(transform);
     //transformsAcc.addLast(Transform.getDist(transform, transformsAcc.getLast()));//transform-transformsAcc.getLast()
@@ -294,7 +288,7 @@ public class Element implements TreeNodeAction {
         return true;
       }
     } else {
-      if (clipArea.getLast().contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y)) {
+      if (Rect.getIntersection(clipArea.getLast(), pos, new Rect()).contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y)) {
         return true;
       }
     }
@@ -347,7 +341,6 @@ public class Element implements TreeNodeAction {
   }
   public void renderAfter(PGraphics g) {//override this!
   }
-  //ADD
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
     return true;
   }
@@ -367,13 +360,18 @@ public class Element implements TreeNodeAction {
     KyUI.dropStart(this, e, index, "", getName());
   }
   //
-  Element checkOverlayDrop() {//no transform
-    if (!contains()) {
+  Element checkOverlayDrop(Rect bounds, Vector2 position, Transform last) {
+    //clip rect...
+    if (!bounds.contains(position.x, position.y)) {
       return null;
+    }
+    Vector2 position_=position;
+    if (relative) {
+      position_=transform.trans(last, position);
     }
     for (Element child : children) {
       if (child.isEnabled()) {
-        Element ret_=child.checkOverlayDrop();
+        Element ret_=child.checkOverlayDrop(bounds, position_, (relative) ? transform : last);
         if (ret_ != null) {
           return ret_;
         }
@@ -496,14 +494,12 @@ public class Element implements TreeNodeAction {
       trigger=false;
     }
     if (trigger) {
-      if (e.getAction() == MouseEvent.PRESS) {//(1)
-        if (contains) {
-          if (e.getButton() == KyUI.Ref.LEFT) {
-            pressedL=true;
-            //System.out.println(getName() + " set pressedL true");
-          } else if (e.getButton() == KyUI.Ref.RIGHT) {
-            pressedR=true;
-          }
+      if (entered && e.getAction() == MouseEvent.PRESS) {//(1)
+        if (e.getButton() == KyUI.Ref.LEFT) {
+          pressedL=true;
+          //System.out.println(getName() + " set pressedL true " + KyUI.frameCount);
+        } else if (e.getButton() == KyUI.Ref.RIGHT) {
+          pressedR=true;
         }
       }
       if ((entered || KyUI.focus == this)) {
@@ -514,7 +510,7 @@ public class Element implements TreeNodeAction {
       }
     }
     if (e.getAction() == MouseEvent.RELEASE) {
-      if (contains && enabled) {//??
+      if (entered && enabled) {//??
         KyUI.dropEnd(this, e, index);
         if (trigger) invalidate();
       }

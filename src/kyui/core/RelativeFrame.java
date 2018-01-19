@@ -1,5 +1,7 @@
 package kyui.core;
 import kyui.editor.Attribute;
+import kyui.util.Rect;
+import kyui.util.Transform;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
@@ -27,33 +29,41 @@ public class RelativeFrame extends Element {
     clipping=true;
     relative=true;
     bgColor=KyUI.Ref.color(127);
+    transform=new Transform(new Vector2(), 1);
   }
   @Override
   public void render(PGraphics g) {
+    super.render(g);
     if (drawAxis) {
-      g.strokeWeight(4);
+      g.strokeWeight(4 * transform.scale);
       g.stroke(50);
-      g.line(-1000, 0, 1000, 0);
-      g.line(0, -1000, 0, 1000);
+      g.line(transform.center.x, transform.center.y - 1000 * transform.scale, transform.center.x, transform.center.y + 1000 * transform.scale);
+      g.line(transform.center.x - 1000 * transform.scale, transform.center.y, transform.center.x + 1000 * transform.scale, transform.center.y);
       g.noStroke();
     }
+  }
+  @Override
+  public void setPosition(Rect rect) {
+    super.setPosition(rect);
+    transform.center.x=(pos.left + pos.right) / 2;
+    transform.center.y=(pos.top + pos.bottom) / 2;
   }
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {//from LinearLayout.
     float centerX=(pos.left + pos.right) / 2;
     float centerY=(pos.top + pos.bottom) / 2;
-    if (scroll && e != null) {
+    if (scroll) {
       if (e.getAction() == MouseEvent.PRESS) {
         if (entered) {//needs?
-          clickOffsetX=transform.center.x;
-          clickOffsetY=transform.center.y;
+          clickOffsetX=transform.center.x - centerX;
+          clickOffsetY=transform.center.y - centerY;
           clickScrollMaxSq=0;
         }
       } else if (e.getAction() == MouseEvent.DRAG) {
         if (pressedL) {
           requestFocus();
-          float valueX=(KyUI.mouseClick.getLast().x - KyUI.mouseGlobal.getLast().x);
-          float valueY=(KyUI.mouseClick.getLast().y - KyUI.mouseGlobal.getLast().y);
+          float valueX=(KyUI.mouseGlobal.getFirst().x - KyUI.mouseClick.getFirst().x);
+          float valueY=(KyUI.mouseGlobal.getFirst().y - KyUI.mouseClick.getFirst().y);
           float value=valueX * valueX + valueY * valueY;
           clickScrollMaxSq=Math.max(value, clickScrollMaxSq);
           setOffset(clickOffsetX + valueX, clickOffsetY + valueY);
@@ -85,7 +95,7 @@ public class RelativeFrame extends Element {
     return true;
   }
   public void setOffset(float valueX, float valueY) {
-    transform.center.x=valueX;
-    transform.center.y=valueY;
+    transform.center.x=(pos.left + pos.right) / 2 + valueX;
+    transform.center.y=(pos.top + pos.bottom) / 2 + valueY;
   }
 }

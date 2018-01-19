@@ -62,6 +62,7 @@ public class DropMessenger extends Element {
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG) {
       requestFocus();
+      invalidate();
     } else if (e.getAction() == MouseEvent.RELEASE) {
       KyUI.dropLayer.removeChild(getName());
       KyUI.removeLayer();
@@ -76,9 +77,6 @@ public class DropMessenger extends Element {
       return false;
     }
     return super.mouseEvent(e, index);
-  }
-  public void onEvent(Element end, MouseEvent endEvent, int endIndex) {
-    KyUI.getDropEvent(end).onEvent(this, endEvent, endIndex);
   }
   public static interface Visual {
     public void render(DropMessenger e, PGraphics g);

@@ -24,4 +24,8 @@ public class Transform {
   public static Transform getDist(Transform a, Transform b) {
     return new Transform(b.trans(a, a.center), b.scale * a.scale);
   }
+  @Override
+  public String toString() {
+    return "{" + center + ", " + scale + "}";
+  }
 }

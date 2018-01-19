@@ -96,7 +96,7 @@ public class KyUI {
       if (data_ instanceof DropEvent) {
         DropEvent de=(DropEvent)data_;
         mouseGlobal.getLast().set(de.x() / scaleGlobal, de.y() / scaleGlobal);
-        Element target=roots.getLast().checkOverlayDrop();//if overlay, setup overlay.
+        Element target=roots.getLast().checkOverlayDrop(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity);//if overlay, setup overlay.
         if (target != null) {
           KyUI.log("drop target : " + target.getName());
           dropEventsExternal.get(target.getName()).onEvent(de);
@@ -504,8 +504,12 @@ public class KyUI {
     if (!end.droppableEnd) return;//this is : ignoring. so please check this thing
     if (dropMessenger != null) {
       if (end.droppableEnd) {
-        if (getDropEvent(end) != null) {
-          dropMessenger.onEvent(end, endEvent, endIndex);
+        DropEventListener de=getDropEvent(end);
+        if (de != null) {
+          DropMessenger dm=dropMessenger;
+          taskManager.addTask((n) -> {
+            de.onEvent(dm, endEvent, endIndex);
+          }, null);
         }
       }
       dropMessenger=null;

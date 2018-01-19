@@ -39,7 +39,7 @@ public class Main extends PApplet {
     surface.setLocation(0, 0);
     surface.setTitle(startText);
     frameRate(30);
-    KyUI.start(this);
+    KyUI.start(this, 30);
     surface.setIcon(ElementLoader.loadImageResource("editor.png"));
     ElementLoader.isEditor=true;
     StatusBar main_status=new StatusBar("kyui_main_status");
@@ -96,7 +96,6 @@ public class Main extends PApplet {
     });
     layout_elements.direction=Attributes.Direction.HORIZONTAL;
     layout_elements.setFixedSize(150);
-    layout_elements.setBgColor(color(255, 0, 0));//TEST
     KyUI.addDragAndDrop(layout_elements, layout_tree, new DropEventListener() {
       private int count=0;//FIX>>to find not duplicated name!
       @Override

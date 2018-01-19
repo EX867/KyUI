@@ -7,22 +7,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2ab9e1f1-fed2-4c1f-820c-dff50cb87f17" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/kyui/core/Element.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/kyui/test/Test.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/core/DropMessenger.java" afterPath="$PROJECT_DIR$/src/kyui/core/DropMessenger.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/core/Element.java" afterPath="$PROJECT_DIR$/src/kyui/core/Element.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/core/KyUI.java" afterPath="$PROJECT_DIR$/src/kyui/core/KyUI.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/core/RelativeFrame.java" afterPath="$PROJECT_DIR$/src/kyui/core/RelativeFrame.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/editor/Main.java" afterPath="$PROJECT_DIR$/src/kyui/editor/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/Button.java" afterPath="$PROJECT_DIR$/src/kyui/element/Button.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/ColorButton.java" afterPath="$PROJECT_DIR$/src/kyui/element/ColorButton.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/ColorPicker.java" afterPath="$PROJECT_DIR$/src/kyui/element/ColorPicker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/LinearLayout.java" afterPath="$PROJECT_DIR$/src/kyui/element/LinearLayout.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/RangeSlider.java" afterPath="$PROJECT_DIR$/src/kyui/element/RangeSlider.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/Slider.java" afterPath="$PROJECT_DIR$/src/kyui/element/Slider.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/TextEdit.java" afterPath="$PROJECT_DIR$/src/kyui/element/TextEdit.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/element/TreeGraph.java" afterPath="$PROJECT_DIR$/src/kyui/element/TreeGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/loader/ElementLoader.java" afterPath="$PROJECT_DIR$/src/kyui/loader/ElementLoader.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/util/Rect.java" afterPath="$PROJECT_DIR$/src/kyui/util/Rect.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kyui/util/Transform.java" afterPath="$PROJECT_DIR$/src/kyui/util/Transform.java" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/" />
@@ -38,20 +30,31 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/kyui/editor/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3618">
-              <caret line="237" column="65" lean-forward="false" selection-start-line="237" selection-start-column="65" selection-end-line="237" selection-end-column="65" />
+            <state relative-caret-position="147">
+              <caret line="101" column="82" lean-forward="true" selection-start-line="101" selection-start-column="82" selection-end-line="101" selection-end-column="82" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#5918#6264#0" expanded="false" />
-                <element signature="e#7153#7422#0" expanded="false" />
-                <element signature="e#7457#7657#0" expanded="false" />
-                <element signature="e#8435#8615#0" expanded="false" />
-                <element signature="e#9183#9333#0" expanded="false" />
-                <element signature="e#9852#9943#0" expanded="false" />
-                <element signature="e#10787#11025#0" expanded="false" />
-                <element signature="e#11068#11294#0" expanded="false" />
+                <element signature="e#4299#4327#0" expanded="true" />
+                <element signature="e#5866#6212#0" expanded="false" />
+                <element signature="e#7101#7370#0" expanded="false" />
+                <element signature="e#7405#7605#0" expanded="false" />
+                <element signature="e#8383#8563#0" expanded="false" />
+                <element signature="e#9131#9281#0" expanded="false" />
+                <element signature="e#9800#9891#0" expanded="false" />
+                <element signature="e#10735#10973#0" expanded="false" />
+                <element signature="e#11016#11242#0" expanded="false" />
                 <element signature="method#handleMouseEvent#0;class#Main#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RangeSlider.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/kyui/element/RangeSlider.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="243">
+              <caret line="93" column="24" lean-forward="false" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -59,8 +62,8 @@
       <file leaf-file-name="Element.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/kyui/core/Element.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="612">
-              <caret line="452" column="19" lean-forward="true" selection-start-line="452" selection-start-column="19" selection-end-line="452" selection-end-column="19" />
+            <state relative-caret-position="178">
+              <caret line="307" column="5" lean-forward="true" selection-start-line="307" selection-start-column="5" selection-end-line="307" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="class#ModifyChildrenTask#0;class#Element#0" expanded="false" />
@@ -71,26 +74,23 @@
                 <element signature="method#addedTo#0;class#Element#0" expanded="false" />
                 <element signature="method#equals#0;class#Element#0" expanded="false" />
                 <element signature="method#setPosition#0;class#Element#0" expanded="false" />
-                <element signature="method#movePosition#0;class#Element#0" expanded="false" />
                 <element signature="method#onLayout#0;class#Element#0" expanded="false" />
                 <element signature="method#setDescription#0;class#Element#0" expanded="false" />
                 <element signature="method#update_#0;class#Element#0" expanded="false" />
                 <element signature="method#update#0;class#Element#0" expanded="false" />
-                <element signature="method#clipRectRender#0;class#Element#0" expanded="false" />
-                <element signature="method#removeClipRender#0;class#Element#0" expanded="false" />
-                <element signature="method#clipArea#0;class#Element#0" expanded="false" />
-                <element signature="method#transformRenderAfter#0;class#Element#0" expanded="false" />
-                <element signature="method#render_#0;class#Element#0" expanded="false" />
+                <element signature="e#8590#8591#0" expanded="true" />
+                <element signature="e#8634#8635#0" expanded="true" />
                 <element signature="method#renderChildren#0;class#Element#0" expanded="false" />
                 <element signature="method#render#0;class#Element#0" expanded="false" />
+                <element signature="e#10939#10940#0" expanded="true" />
+                <element signature="e#11001#11002#0" expanded="true" />
                 <element signature="method#renderAfter#0;class#Element#0" expanded="false" />
                 <element signature="method#mouseExited#0;class#Element#0" expanded="false" />
-                <element signature="method#checkOverlayDrop#0;class#Element#0" expanded="false" />
                 <element signature="method#checkOverlayCondition#0;class#Element#0" expanded="false" />
                 <element signature="method#checkInvalid#0;class#Element#0" expanded="false" />
                 <element signature="method#keyEvent_#0;class#Element#0" expanded="false" />
                 <element signature="method#keyTyped_#0;class#Element#0" expanded="false" />
-                <element signature="e#16164#16180#0" expanded="false" />
+                <element signature="e#16193#16209#0" expanded="false" />
                 <element signature="method#requestFocus#0;class#Element#0" expanded="false" />
                 <element signature="method#releaseFocus#0;class#Element#0" expanded="false" />
                 <element signature="method#editorAdd#0;class#Element#0" expanded="false" />
@@ -103,11 +103,21 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="RelativeFrame.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/kyui/core/RelativeFrame.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="62" column="20" lean-forward="false" selection-start-line="62" selection-start-column="20" selection-end-line="62" selection-end-column="20" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="KyUI.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/kyui/core/KyUI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6354">
-              <caret line="475" column="69" lean-forward="false" selection-start-line="475" selection-start-column="69" selection-end-line="475" selection-end-column="69" />
+            <state relative-caret-position="-3345">
+              <caret line="83" column="26" lean-forward="false" selection-start-line="83" selection-start-column="26" selection-end-line="83" selection-end-column="26" />
               <folding>
                 <element signature="method#rename#0;class#KyUI#0" expanded="false" />
                 <element signature="method#removeElement#0;class#KyUI#0" expanded="false" />
@@ -115,8 +125,6 @@
                 <element signature="method#get#0;class#KyUI#0" expanded="false" />
                 <element signature="method#get2#0;class#KyUI#0" expanded="false" />
                 <element signature="method#keyEvent#0;class#KyUI#0" expanded="false" />
-                <element signature="e#17985#17986#0" expanded="true" />
-                <element signature="e#18045#18046#0" expanded="true" />
                 <element signature="method#changeLayout#0;class#KyUI#0" expanded="false" />
                 <element signature="class#Shortcut#0;class#KyUI#0" expanded="false" />
                 <element signature="class#Key#0;class#KyUI#0" expanded="false" />
@@ -125,21 +133,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LinearList.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/kyui/element/LinearList.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="170" column="7" lean-forward="true" selection-start-line="170" selection-start-column="7" selection-end-line="170" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TreeGraph.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="TreeGraph.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/kyui/element/TreeGraph.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2538">
-              <caret line="158" column="138" lean-forward="false" selection-start-line="158" selection-start-column="138" selection-end-line="158" selection-end-column="138" />
+            <state relative-caret-position="46">
+              <caret line="149" column="45" lean-forward="true" selection-start-line="149" selection-start-column="45" selection-end-line="149" selection-end-column="45" />
               <folding />
             </state>
           </provider>
@@ -247,7 +245,6 @@
         <option value="$PROJECT_DIR$/src/kyui/event/EventListener.java" />
         <option value="$PROJECT_DIR$/src/kyui/editor/InspectorButton1.java" />
         <option value="$PROJECT_DIR$/src/kyui/editor/InspectorColorVarButton.java" />
-        <option value="$PROJECT_DIR$/src/kyui/core/CachingFrame.java" />
         <option value="$PROJECT_DIR$/src/kyui/core/Description.java" />
         <option value="$PROJECT_DIR$/src/MainLauncher.java" />
         <option value="$PROJECT_DIR$/kyui.xml" />
@@ -274,20 +271,21 @@
         <option value="$PROJECT_DIR$/src/kyui/loader/ElementLoader.java" />
         <option value="$PROJECT_DIR$/src/kyui/util/Rect.java" />
         <option value="$PROJECT_DIR$/src/kyui/core/Element_.java" />
-        <option value="$PROJECT_DIR$/src/kyui/core/RelativeFrame.java" />
-        <option value="$PROJECT_DIR$/src/kyui/util/Transform.java" />
-        <option value="$PROJECT_DIR$/src/kyui/core/KyUI.java" />
-        <option value="$PROJECT_DIR$/src/kyui/editor/Main.java" />
-        <option value="$PROJECT_DIR$/src/kyui/core/Element.java" />
-        <option value="$PROJECT_DIR$/src/kyui/core/DropMessenger.java" />
         <option value="$PROJECT_DIR$/src/kyui/element/Button.java" />
         <option value="$PROJECT_DIR$/src/kyui/element/TextEdit.java" />
         <option value="$PROJECT_DIR$/src/kyui/element/LinearLayout.java" />
-        <option value="$PROJECT_DIR$/src/kyui/element/TreeGraph.java" />
         <option value="$PROJECT_DIR$/src/kyui/element/RangeSlider.java" />
         <option value="$PROJECT_DIR$/src/kyui/element/Slider.java" />
         <option value="$PROJECT_DIR$/src/kyui/element/ColorPicker.java" />
         <option value="$PROJECT_DIR$/src/kyui/element/LinearList.java" />
+        <option value="$PROJECT_DIR$/src/kyui/util/Transform.java" />
+        <option value="$PROJECT_DIR$/src/kyui/core/CachingFrame.java" />
+        <option value="$PROJECT_DIR$/src/kyui/core/DropMessenger.java" />
+        <option value="$PROJECT_DIR$/src/kyui/core/Element.java" />
+        <option value="$PROJECT_DIR$/src/kyui/editor/Main.java" />
+        <option value="$PROJECT_DIR$/src/kyui/core/KyUI.java" />
+        <option value="$PROJECT_DIR$/src/kyui/core/RelativeFrame.java" />
+        <option value="$PROJECT_DIR$/src/kyui/element/TreeGraph.java" />
       </list>
     </option>
   </component>
@@ -367,6 +365,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -423,6 +422,13 @@
               <item name="KyUI" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="kyui" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="KyUI" type="b2602c69:ProjectViewProjectNode" />
+              <item name="KyUI" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="kyui" type="462c0819:PsiDirectoryNode" />
               <item name="util" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -433,9 +439,8 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="PackagesPane" />
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -719,11 +724,13 @@
       <workItem from="1516338882569" duration="632000" />
       <workItem from="1516339709506" duration="8477000" />
       <workItem from="1516348286505" duration="530000" />
+      <workItem from="1516352729851" duration="8625000" />
+      <workItem from="1516361441270" duration="6287000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="618419000" />
+    <option name="totallyTimeSpent" value="633331000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -744,7 +751,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22847682" sideWeight="0.5083333" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26490065" sideWeight="0.49166667" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.388521" sideWeight="0.49166667" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.178125" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -774,31 +781,10 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-8431">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/library/core.jar!/processing/core/PGraphics.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="1815" column="24" lean-forward="true" selection-start-line="1815" selection-start-column="24" selection-end-line="1815" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/library/core.jar!/processing/core/PApplet.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="310">
           <caret line="2417" column="57" lean-forward="false" selection-start-line="2417" selection-start-column="57" selection-end-line="2417" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/editor/InspectorButton1.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="453">
-          <caret line="38" column="33" lean-forward="false" selection-start-line="38" selection-start-column="33" selection-end-line="38" selection-end-column="33" />
         </state>
       </provider>
     </entry>
@@ -871,24 +857,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/core/CachingFrame.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="32" column="36" lean-forward="false" selection-start-line="32" selection-start-column="36" selection-end-line="32" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/loader/ElementLoader.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="455">
           <caret line="114" column="9" lean-forward="false" selection-start-line="114" selection-start-column="9" selection-end-line="114" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/util/Rect.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="64" column="21" lean-forward="false" selection-start-line="64" selection-start-column="21" selection-end-line="64" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -898,46 +870,6 @@
         <state relative-caret-position="450">
           <caret line="48" column="13" lean-forward="true" selection-start-line="48" selection-start-column="13" selection-end-line="48" selection-end-column="13" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/core/RelativeFrame.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="18" lean-forward="true" selection-start-line="0" selection-start-column="18" selection-end-line="0" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/util/Transform.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="18" lean-forward="true" selection-start-line="0" selection-start-column="18" selection-end-line="0" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/editor/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3618">
-          <caret line="237" column="65" lean-forward="false" selection-start-line="237" selection-start-column="65" selection-end-line="237" selection-end-column="65" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#5918#6264#0" expanded="false" />
-            <element signature="e#7153#7422#0" expanded="false" />
-            <element signature="e#7457#7657#0" expanded="false" />
-            <element signature="e#8435#8615#0" expanded="false" />
-            <element signature="e#9183#9333#0" expanded="false" />
-            <element signature="e#9852#9943#0" expanded="false" />
-            <element signature="e#10787#11025#0" expanded="false" />
-            <element signature="e#11068#11294#0" expanded="false" />
-            <element signature="method#handleMouseEvent#0;class#Main#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/core/DropMessenger.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="602">
-          <caret line="59" column="3" lean-forward="false" selection-start-line="59" selection-start-column="3" selection-end-line="59" selection-end-column="3" />
         </state>
       </provider>
     </entry>
@@ -1088,28 +1020,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/element/TreeGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2538">
-          <caret line="158" column="138" lean-forward="false" selection-start-line="158" selection-start-column="138" selection-end-line="158" selection-end-column="138" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/element/RangeSlider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
-          <caret line="102" column="43" lean-forward="false" selection-start-line="102" selection-start-column="43" selection-end-line="102" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/element/Slider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="109" column="63" lean-forward="false" selection-start-line="109" selection-start-column="63" selection-end-line="109" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/element/ColorPicker.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="202">
@@ -1117,30 +1027,79 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/core/KyUI.java">
+    <entry file="file://$PROJECT_DIR$/src/kyui/editor/InspectorButton1.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6354">
-          <caret line="475" column="69" lean-forward="false" selection-start-line="475" selection-start-column="69" selection-end-line="475" selection-end-column="69" />
+        <state relative-caret-position="36">
+          <caret line="7" column="107" lean-forward="true" selection-start-line="7" selection-start-column="107" selection-end-line="7" selection-end-column="107" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/util/Rect.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="104">
+          <caret line="16" column="16" lean-forward="true" selection-start-line="16" selection-start-column="16" selection-end-line="16" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/element/LinearList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="196" column="7" lean-forward="true" selection-start-line="196" selection-start-column="7" selection-end-line="196" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/util/Transform.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="28" column="45" lean-forward="true" selection-start-line="28" selection-start-column="45" selection-end-line="28" selection-end-column="45" />
           <folding>
-            <element signature="method#rename#0;class#KyUI#0" expanded="false" />
-            <element signature="method#removeElement#0;class#KyUI#0" expanded="false" />
-            <element signature="method#add#0;class#KyUI#0" expanded="false" />
-            <element signature="method#get#0;class#KyUI#0" expanded="false" />
-            <element signature="method#get2#0;class#KyUI#0" expanded="false" />
-            <element signature="method#keyEvent#0;class#KyUI#0" expanded="false" />
-            <element signature="e#17985#17986#0" expanded="true" />
-            <element signature="e#18045#18046#0" expanded="true" />
-            <element signature="method#changeLayout#0;class#KyUI#0" expanded="false" />
-            <element signature="class#Shortcut#0;class#KyUI#0" expanded="false" />
-            <element signature="class#Key#0;class#KyUI#0" expanded="false" />
+            <element signature="e#675#676#0" expanded="false" />
+            <element signature="e#759#760#0" expanded="false" />
+            <element signature="e#1068#1069#0" expanded="false" />
+            <element signature="e#1118#1119#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/test/Test.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1800">
+          <caret line="116" column="28" lean-forward="true" selection-start-line="116" selection-start-column="28" selection-end-line="116" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/test/Test2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="28" column="28" lean-forward="true" selection-start-line="28" selection-start-column="28" selection-end-line="28" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/core/CachingFrame.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="63">
+          <caret line="13" column="42" lean-forward="false" selection-start-line="13" selection-start-column="42" selection-end-line="13" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/element/Slider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="109" column="63" lean-forward="false" selection-start-line="109" selection-start-column="63" selection-end-line="109" selection-end-column="63" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kyui/core/Element.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="452" column="19" lean-forward="true" selection-start-line="452" selection-start-column="19" selection-end-line="452" selection-end-column="19" />
+        <state relative-caret-position="178">
+          <caret line="307" column="5" lean-forward="true" selection-start-line="307" selection-start-column="5" selection-end-line="307" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="class#ModifyChildrenTask#0;class#Element#0" expanded="false" />
@@ -1151,26 +1110,23 @@
             <element signature="method#addedTo#0;class#Element#0" expanded="false" />
             <element signature="method#equals#0;class#Element#0" expanded="false" />
             <element signature="method#setPosition#0;class#Element#0" expanded="false" />
-            <element signature="method#movePosition#0;class#Element#0" expanded="false" />
             <element signature="method#onLayout#0;class#Element#0" expanded="false" />
             <element signature="method#setDescription#0;class#Element#0" expanded="false" />
             <element signature="method#update_#0;class#Element#0" expanded="false" />
             <element signature="method#update#0;class#Element#0" expanded="false" />
-            <element signature="method#clipRectRender#0;class#Element#0" expanded="false" />
-            <element signature="method#removeClipRender#0;class#Element#0" expanded="false" />
-            <element signature="method#clipArea#0;class#Element#0" expanded="false" />
-            <element signature="method#transformRenderAfter#0;class#Element#0" expanded="false" />
-            <element signature="method#render_#0;class#Element#0" expanded="false" />
+            <element signature="e#8590#8591#0" expanded="true" />
+            <element signature="e#8634#8635#0" expanded="true" />
             <element signature="method#renderChildren#0;class#Element#0" expanded="false" />
             <element signature="method#render#0;class#Element#0" expanded="false" />
+            <element signature="e#10939#10940#0" expanded="true" />
+            <element signature="e#11001#11002#0" expanded="true" />
             <element signature="method#renderAfter#0;class#Element#0" expanded="false" />
             <element signature="method#mouseExited#0;class#Element#0" expanded="false" />
-            <element signature="method#checkOverlayDrop#0;class#Element#0" expanded="false" />
             <element signature="method#checkOverlayCondition#0;class#Element#0" expanded="false" />
             <element signature="method#checkInvalid#0;class#Element#0" expanded="false" />
             <element signature="method#keyEvent_#0;class#Element#0" expanded="false" />
             <element signature="method#keyTyped_#0;class#Element#0" expanded="false" />
-            <element signature="e#16164#16180#0" expanded="false" />
+            <element signature="e#16193#16209#0" expanded="false" />
             <element signature="method#requestFocus#0;class#Element#0" expanded="false" />
             <element signature="method#releaseFocus#0;class#Element#0" expanded="false" />
             <element signature="method#editorAdd#0;class#Element#0" expanded="false" />
@@ -1182,10 +1138,72 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kyui/element/LinearList.java">
+    <entry file="file://$PROJECT_DIR$/src/kyui/element/RangeSlider.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="170" column="7" lean-forward="true" selection-start-line="170" selection-start-column="7" selection-end-line="170" selection-end-column="7" />
+        <state relative-caret-position="243">
+          <caret line="93" column="24" lean-forward="false" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/editor/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="101" column="82" lean-forward="true" selection-start-line="101" selection-start-column="82" selection-end-line="101" selection-end-column="82" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#4299#4327#0" expanded="true" />
+            <element signature="e#5866#6212#0" expanded="false" />
+            <element signature="e#7101#7370#0" expanded="false" />
+            <element signature="e#7405#7605#0" expanded="false" />
+            <element signature="e#8383#8563#0" expanded="false" />
+            <element signature="e#9131#9281#0" expanded="false" />
+            <element signature="e#9800#9891#0" expanded="false" />
+            <element signature="e#10735#10973#0" expanded="false" />
+            <element signature="e#11016#11242#0" expanded="false" />
+            <element signature="method#handleMouseEvent#0;class#Main#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/core/KyUI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3345">
+          <caret line="83" column="26" lean-forward="false" selection-start-line="83" selection-start-column="26" selection-end-line="83" selection-end-column="26" />
+          <folding>
+            <element signature="method#rename#0;class#KyUI#0" expanded="false" />
+            <element signature="method#removeElement#0;class#KyUI#0" expanded="false" />
+            <element signature="method#add#0;class#KyUI#0" expanded="false" />
+            <element signature="method#get#0;class#KyUI#0" expanded="false" />
+            <element signature="method#get2#0;class#KyUI#0" expanded="false" />
+            <element signature="method#keyEvent#0;class#KyUI#0" expanded="false" />
+            <element signature="method#changeLayout#0;class#KyUI#0" expanded="false" />
+            <element signature="class#Shortcut#0;class#KyUI#0" expanded="false" />
+            <element signature="class#Key#0;class#KyUI#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/core/DropMessenger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-296">
+          <caret line="35" column="41" lean-forward="true" selection-start-line="35" selection-start-column="41" selection-end-line="35" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/core/RelativeFrame.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="62" column="20" lean-forward="false" selection-start-line="62" selection-start-column="20" selection-end-line="62" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kyui/element/TreeGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="149" column="45" lean-forward="true" selection-start-line="149" selection-start-column="45" selection-end-line="149" selection-end-column="45" />
           <folding />
         </state>
       </provider>

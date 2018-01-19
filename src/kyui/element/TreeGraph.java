@@ -39,8 +39,8 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
   float selectionOffsetX=0;
   float selectionOffsetY=0;
   boolean selectionControl;
-  protected boolean dragged=false;
   Rect defaultRootPos=new Rect(-60, -30, 60, 30);
+  boolean selectDragged=false;
   public TreeGraph(String name) {
     super(name);
     init("[root]");
@@ -94,14 +94,11 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
       //n.textSize=(int)(scale * textSize);
       n.index=0;
     }
-    float centerX=0;//(pos.left + pos.right) / 2;// - offsetX;
-    float centerY=0;//(pos.top + pos.bottom) / 2;// - offsetY;
     float width=(defaultRootPos.right - defaultRootPos.left);
     float height=(defaultRootPos.bottom - defaultRootPos.top);
     Stack<Node<Content>> stack=new Stack<Node<Content>>();
     stack.push(root);
-    float scale=1;
-    root.pos.set((-width / 2)/* scale*/ + centerX, (-height / 2)/* scale*/ + centerY, (width / 2) /* scale*/ + centerX, (height / 2) /* scale */ + centerY);
+    root.pos.set(-width / 2, -height / 2, width / 2, height / 2);
     float top=0;
     while (!stack.isEmpty()) {
       while (stack.peek().index < stack.peek().localNodes.size()) {
@@ -109,7 +106,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
         stack.peek().index++;
         stack.push(n);
         float cx=(width + intervalX) * n.depth;
-        n.pos.set((cx - width / 2) * scale + centerX, (top - height / 2) * scale + centerY, (cx + width / 2) * scale + centerX, (top + height / 2) * scale + centerY);//not setPosition because will layout other elements later.
+        n.pos.set(cx - width / 2, top - height / 2, cx + width / 2, top + height / 2);//not setPosition because will layout other elements later.
         if (n.related) {
           n.pos.set(n.pos.left + selectionOffsetX, n.pos.top + selectionOffsetY, n.pos.right + selectionOffsetX, n.pos.bottom + selectionOffsetY);
         }
@@ -132,40 +129,36 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
   //removed setOffset range check.
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
-    float centerX=(pos.left + pos.right) / 2;
-    float centerY=(pos.top + pos.bottom) / 2;
     if (e.getAction() == MouseEvent.PRESS) {
-      dragged=false;
-      if (selection != null) {
-        return super.mouseEventIntercept(e);
-      }
+      selectDragged=false;
     } else if (e.getAction() == MouseEvent.DRAG) {
-      if (selectionControl || !pressedL) {
-        return super.mouseEventIntercept(null);
-      } else {
-        return super.mouseEventIntercept(e);
+      if (!pressedL) {
+        return true;
+      }
+      if (selectionControl) {
+        return true;
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
-      if (pressedL && clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
-        return super.mouseEventIntercept(null);
+      if (selectionControl) {
+        return true;
       }
     }
     return super.mouseEventIntercept(e);
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
+    float centerX=(pos.left + pos.right) / 2;
+    float centerY=(pos.top + pos.bottom) / 2;
     if (e.getAction() == MouseEvent.DRAG) {
-      if (pressedL) {
-        float valueX=(KyUI.mouseClick.getFirst().x - KyUI.mouseGlobal.getFirst().x) * KyUI.scaleGlobal;// / transformsAcc.getLast().scale;
-        float valueY=(KyUI.mouseClick.getFirst().y - KyUI.mouseGlobal.getFirst().y) * KyUI.scaleGlobal;// / transformsAcc.getLast().scale;
-        if (selection != null && selectionControl) {
-          requestFocus();
-          dragged=true;
+      if (pressedL&&selectionControl&&selection!=null) {
+        requestFocus();
+        float valueX=(KyUI.mouseClick.getLast().x - KyUI.mouseGlobal.getLast().x) * KyUI.scaleGlobal;// / transformsAcc.getLast().scale;
+        float valueY=(KyUI.mouseClick.getLast().y - KyUI.mouseGlobal.getLast().y) * KyUI.scaleGlobal;// / transformsAcc.getLast().scale;
+          selectDragged=true;
           selectionOffsetX=-valueX;
           selectionOffsetY=-valueY;
           onLayout();
           return false;
-        }
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       boolean ret=true;
@@ -188,12 +181,13 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
           onLayout();
           invalidate();
         }
-        selectionControl=false;
-        if (!dragged && selection != null) {
+        if (selectionControl && selection != null) {
+          selectionControl=false;
           selection.unselect();
           selection=null;
           return false;
         }
+        selectionControl=false;
         return super.mouseEventIntercept(e);
       }
     }
@@ -408,7 +402,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
         Ref.selectionControl=true;
         return true;
       } else if (e.getAction() == MouseEvent.RELEASE) {
-        if (Ref.dragged) {
+        if (Ref.selectDragged) {
           return true;
         } else {
           return false;
