@@ -234,7 +234,7 @@ public class Element implements TreeNodeAction {
     }
     clipArea();
     g.imageMode(PApplet.CORNERS);
-    g.clip(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
+    g.clip(clipArea.getLast().left, clipArea.getLast().top, clipArea.getLast().right, clipArea.getLast().bottom);
   }
   final void removeClipRender(PGraphics g) {
     g.noClip();
@@ -364,17 +364,17 @@ public class Element implements TreeNodeAction {
     if (!bounds.contains(position.x, position.y)) {
       return null;
     }
-//    KyUI.Ref.rectMode(KyUI.Ref.CORNERS);
-//    KyUI.Ref.g.strokeWeight(5);
-//    KyUI.Ref.g.noFill();
-//    KyUI.Ref.g.stroke(255, 0, 0);
-//    bounds.render(KyUI.Ref.g);
-//    KyUI.Ref.g.ellipse(position.x, position.y, 20, 20);
+    //    KyUI.Ref.rectMode(KyUI.Ref.CORNERS);
+    //    KyUI.Ref.g.strokeWeight(5);
+    //    KyUI.Ref.g.noFill();
+    //    KyUI.Ref.g.stroke(255, 0, 0);
+    //    bounds.render(KyUI.Ref.g);
+    //    KyUI.Ref.g.ellipse(position.x, position.y, 20, 20);
     if (relative) {
       bounds=transform.trans(last, bounds);
       position=transform.trans(last, position);
       last=transform;
-//      KyUI.Ref.g.translate(transform.center.x, transform.center.y);
+      //      KyUI.Ref.g.translate(transform.center.x, transform.center.y);
       //      KyUI.Ref.g.scale(transform.scale);
       //      KyUI.Ref.g.stroke(0, 0, 255);
       //      bounds.render(KyUI.Ref.g);

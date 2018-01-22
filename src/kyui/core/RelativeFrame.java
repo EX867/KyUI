@@ -24,6 +24,7 @@ public class RelativeFrame extends Element {
   public float scaleMax=2.0F;
   Vector2 oldMouseValue=new Vector2();
   Vector2 oldClickValue=new Vector2();
+  protected boolean scrolled=false;
   public RelativeFrame(String name) {
     super(name);
     clipping=true;
@@ -54,6 +55,7 @@ public class RelativeFrame extends Element {
     float centerY=(pos.top + pos.bottom) / 2;
     if (scroll) {
       if (e.getAction() == MouseEvent.PRESS) {
+        scrolled=false;
         if (entered) {//needs?
           clickOffsetX=transform.center.x;// - centerX;
           clickOffsetY=transform.center.y;// - centerY;
@@ -62,23 +64,26 @@ public class RelativeFrame extends Element {
       } else if (e.getAction() == MouseEvent.DRAG) {
         if (pressedL) {
           requestFocus();
-          float valueX=(KyUI.mouseGlobal.getFirst().x - KyUI.mouseClick.getFirst().x);
-          float valueY=(KyUI.mouseGlobal.getFirst().y - KyUI.mouseClick.getFirst().y);
+          float valueX=(KyUI.mouseGlobal.getLast().x - KyUI.mouseClick.getLast().x) * KyUI.scaleGlobal;
+          float valueY=(KyUI.mouseGlobal.getLast().y - KyUI.mouseClick.getLast().y) * KyUI.scaleGlobal;
           float value=valueX * valueX + valueY * valueY;
           clickScrollMaxSq=Math.max(value, clickScrollMaxSq);
           setOffset(clickOffsetX + valueX, clickOffsetY + valueY);
           invalidate();
           if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
+            scrolled=true;
             return false;
             //else setOffset(clickOffsetX, clickOffsetY);
           }
         }
       } else if (e.getAction() == MouseEvent.RELEASE) {
         if (pressedL && clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
+          scrolled=true;
           return false;
         }
       } else if (e.getAction() == MouseEvent.WHEEL) {
         if (entered) {
+          float oldScale=transform.scale;
           transform.scale-=(float)e.getCount() * 5 / 100;//only real scale on pointercount 2.
           if (transform.scale < scaleMin) {
             transform.scale=scaleMin;
@@ -86,6 +91,8 @@ public class RelativeFrame extends Element {
           if (transform.scale > scaleMax) {
             transform.scale=scaleMax;
           }
+          Vector2 mouse=KyUI.mouseGlobal.getLast();
+          setOffset(mouse.x + (transform.center.x - mouse.x) * transform.scale / oldScale, mouse.y + (transform.center.y - mouse.y) * transform.scale / oldScale);
           invalidate();
           return false;
         }

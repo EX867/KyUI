@@ -60,6 +60,9 @@ public class LinearLayout extends Element {
     return childrenSize;//return already calculated valueI.
   }
   void setClip() {
+    if (fixedSize <= 0) {
+      fixedSize=1;
+    }
     if (mode == Behavior.FIXED) {
       startClip=(int)offset / fixedSize - 1;
       if (direction == Attributes.Direction.HORIZONTAL) {

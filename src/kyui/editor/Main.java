@@ -102,7 +102,6 @@ public class Main extends PApplet {
       public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
         ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
         TreeGraph.Node<Element> node=layout_tree.getNodeOverAbsolute();
-        System.out.println(node);
         if (node != null) {
           String name=e.element.getSimpleName() + count + "_" + ((System.currentTimeMillis() / 1000) % 100000);//FIX>>defult valueI
           TreeGraph.Node n=ElementLoader.addElement(node, name, e.element);

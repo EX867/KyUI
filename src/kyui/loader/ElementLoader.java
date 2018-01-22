@@ -103,6 +103,7 @@ public class ElementLoader {
     if (path.trim().isEmpty()) {
       return;
     }
+    KyUI.log("");
     KyUI.log("ElementLoader - load start : " + path);
     if (!new File(path).isFile()) {
       KyUI.err("ElementLoader : load failed : " + path + " : file not exists!");
@@ -141,9 +142,9 @@ public class ElementLoader {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    KyUI.log("");
   }
   public static void loadInternal() {
+    KyUI.log("");
     try {
       loadClass(Element.class);
       Reflections reflections=new Reflections("kyui.element");
@@ -154,7 +155,6 @@ public class ElementLoader {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    KyUI.log("");
   }
   public static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
     if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
@@ -440,6 +440,9 @@ public class ElementLoader {
   }
   public static TreeGraph.Node<Element> addElement(TreeGraph.Node<Element> node, String name, Class type) {//class extends Element
     try {
+      if (type == null) {
+        KyUI.err("type not found! while trying to make " + name + "...");
+      }
       Constructor<? extends Element> c=type.getDeclaredConstructor(String.class);
       c.setAccessible(true);
       TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));

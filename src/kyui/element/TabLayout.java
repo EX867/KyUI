@@ -183,6 +183,11 @@ public class TabLayout extends Element {
     contents.get(selection).setEnabled(true);
     invalidate();
   }
+  public void setTabNames(String[] texts) {
+    for (int a=1; a <= texts.length && a < tabLayout.children.size(); a++) {
+      ((TabButton)tabLayout.children.get(a)).text=texts[a - 1];
+    }
+  }
   public void setMode(LinearLayout.Behavior mode) {
     this.mode=mode;
     tabLayout.setMode(mode);

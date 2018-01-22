@@ -56,7 +56,7 @@ public class LayoutLoader {
         try {
           XML base=cur.xml;
           Class type=cur.node.content.getClass();
-          xml=base.addChild(new XML(type.getName()));
+          xml=base.addChild(new XML(type.getName().replace("$", "..")));
           //System.out.println("add " + xml.getName() + " to " + base.getName());
           ElementLoader.AttributeSet set=ElementLoader.attributes.get(cur.node.content.getClass());
           java.util.List<Attribute.Editor> attrs=set.attrs;
@@ -70,7 +70,10 @@ public class LayoutLoader {
                 xml.setString(attr.field.getName(), v.name);
               }
             } else {
-              xml.setString(attr.field.getName(), attr.getField(e).toString());
+              Object o=attr.getField(e);
+              if (o != null) {
+                xml.setString(attr.field.getName(), o.toString());
+              }
             }
           }
         } catch (Exception e) {
@@ -152,7 +155,7 @@ public class LayoutLoader {
         }
         //        try {
         //Class type=Class.forName(cur.xml.getName());
-        Class type=ElementLoader.classes.get(cur.xml.getName());
+        Class type=ElementLoader.classes.get(cur.xml.getName().replace("..", "$"));
         node=ElementLoader.addElement(cur.node, name, type);
         cur.result=(Element)node.content;
         if (cur.result == null) {
