@@ -173,6 +173,9 @@ public class LinearLayout extends Element {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
+    if (mode == Behavior.STATIC) {
+      return true;
+    }
     if (e.getAction() == MouseEvent.WHEEL) {
       if (entered) {
         setOffset(offset + e.getCount() * KyUI.WHEEL_COUNT);
@@ -183,11 +186,7 @@ public class LinearLayout extends Element {
         return false;
       }
     }
-    //  return true;
-    //}
-    //@Override
-    //public boolean mouseEventIntercept(MouseEvent e, int index) {
-    if (draggable || mode != Behavior.STATIC) {
+    if (draggable) {
       if (mode == Behavior.FIXED) {
         setClip();
       }
@@ -213,9 +212,9 @@ public class LinearLayout extends Element {
             if (adjustListener != null) {
               adjustListener.onEvent(this);
             }
-          } else {
-            offset=clickOffset;
-          }
+          }// else {
+          //offset=clickOffset;
+          //}
         }
       } else if (e.getAction() == MouseEvent.RELEASE) {
         if (pressedL && clickScrollMax > KyUI.GESTURE_THRESHOLD) return false;

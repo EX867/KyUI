@@ -34,6 +34,7 @@ public class KyUI {
   private static boolean ready=false;
   private static boolean end=false;
   public static boolean externalLog=false;
+  static boolean MONO_THREAD=false;
   // object control
   protected static final HashMap<String, Element> Elements=new HashMap<String, Element>();
   protected static LinkedList<CachingFrame> roots=new LinkedList<CachingFrame>();//no support multi window.
@@ -42,6 +43,7 @@ public class KyUI {
   // events
   public static LinkedList<Event> EventQueue=new LinkedList<Event>();//items popped from update thread.
   public static TaskManager taskManager=new TaskManager();//do it in here... add task directly to here. (in Element)
+  //
   static class ModifyLayerTask implements Task {
     @Override
     public void execute(Object data_raw) {
@@ -96,7 +98,9 @@ public class KyUI {
       if (data_ instanceof DropEvent) {
         DropEvent de=(DropEvent)data_;
         mouseGlobal.getLast().set(de.x() / scaleGlobal, de.y() / scaleGlobal);
-        Element target=roots.getLast().checkOverlayDrop(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity);//if overlay, setup overlay.
+        Element target=roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, (Element e) -> {
+          return (KyUI.dropEventsExternal.containsKey(e.getName()));
+        });//if overlay, setup overlay.
         if (target != null) {
           KyUI.log("drop target : " + target.getName());
           dropEventsExternal.get(target.getName()).onEvent(de);
@@ -136,7 +140,8 @@ public class KyUI {
     return e.description != null;
   };
   //thread
-  public static Thread updater;
+  public static Updater updater;
+  public static Thread updaterThread;
   public static int updater_interval;
   public static long frameCount;
   //public Thread animation;
@@ -147,11 +152,12 @@ public class KyUI {
   private KyUI() {//WARNING! names must not contains ':' and "->".
   }
   public static void start(PApplet ref) {
-    start(ref, 30);
+    start(ref, 30, false);
   }
   @SuppressWarnings("unchecked")
-  public static void start(PApplet ref, int rate) {
+  public static void start(PApplet ref, int rate, boolean mono) {
     if (ready) return;// this makes setup() only called once.
+    MONO_THREAD=mono;
     Ref=ref;
     try {
       //      //keyRepeat
@@ -231,10 +237,14 @@ public class KyUI {
       e.printStackTrace();
     }
     ready=true;
-    updater=new Thread(new Updater());
+    updater=new Updater();
+    updaterThread=new Thread(updater);
     frameRate(rate);
     frameCount=0;
-    updater.start();
+    cacheGraphics.beginDraw();
+    if (!MONO_THREAD) {
+      updaterThread.start();
+    }
   }
   public static void end() {
     end=true;
@@ -333,52 +343,57 @@ public class KyUI {
     }
     drawEnd=System.currentTimeMillis();
     drawInterval=drawEnd - drawStart;
+    if (MONO_THREAD) {
+      KyUI.updater.loop();
+    }
   }
   static class Updater implements Runnable {
     @Override
     public void run() {
-      cacheGraphics.beginDraw();
       while (!end) {
-        synchronized (updater) {
-          //empty EventQueue.
-          while (EventQueue.size() > 0) {
-            Event e=EventQueue.pollFirst();
-            if (e instanceof KeyEvent) {
-              keyEvent((KeyEvent)e);
-            } else if (e instanceof MouseEvent) {
-              mouseEvent((MouseEvent)e);
-            }
-          }
-          KyUI.taskManager.executeAll();
-          roots.getLast().update_();
-          //rendering
-          for (CachingFrame root : roots) {
-            root.render_(null);
-          }
-          //description
-          if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
-            Element el=roots.getLast().checkOverlayCondition(descriptionCheck);
-            if (el != null) {
-              currentDescription=el.description;
-              descriptionLayer.children.set(0, currentDescription);
-              descriptionLayer.invalidate();
-              currentDescription.onShow();
-              descriptionLayer.render_(null);
-            }
-            canShowDescription=false;
-          } else if (currentDescription != null && System.currentTimeMillis() - mouseEventTime < DESCRIPTION_THRESHOLD) {
-            descriptionLayer.children.set(0, descriptionDefault);
-            descriptionLayer.clear();
-            currentDescription=null;
-          }
-        }
-        frameCount++;
+        loop();
         try {
           Thread.sleep(updater_interval);
         } catch (InterruptedException e) {
         }
       }
       cacheGraphics.endDraw();
+    }
+    public void loop() {
+      synchronized (updater) {
+        //empty EventQueue.
+        while (EventQueue.size() > 0) {
+          Event e=EventQueue.pollFirst();
+          if (e instanceof KeyEvent) {
+            keyEvent((KeyEvent)e);
+          } else if (e instanceof MouseEvent) {
+            mouseEvent((MouseEvent)e);
+          }
+        }
+        KyUI.taskManager.executeAll();
+        roots.getLast().update_();
+        //rendering
+        for (CachingFrame root : roots) {
+          root.render_(null);
+        }
+        //description
+        if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
+          Element el=roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, descriptionCheck);
+          if (el != null) {
+            currentDescription=el.description;
+            descriptionLayer.children.set(0, currentDescription);
+            descriptionLayer.invalidate();
+            currentDescription.onShow();
+            descriptionLayer.render_(null);
+          }
+          canShowDescription=false;
+        } else if (currentDescription != null && System.currentTimeMillis() - mouseEventTime < DESCRIPTION_THRESHOLD) {
+          descriptionLayer.children.set(0, descriptionDefault);
+          descriptionLayer.clear();
+          currentDescription=null;
+        }
+      }
+      frameCount++;
     }
   }
   //
@@ -474,7 +489,7 @@ public class KyUI {
   }
   //
   public static Element checkOverlayCondition(Predicate<Element> cond) {
-    return roots.getLast().checkOverlayCondition(cond);
+    return roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getFirst(), Transform.identity, cond);
   }
   public static void changeLayout() {
     taskManager.executeAll();
@@ -499,6 +514,9 @@ public class KyUI {
     dropMessenger.setVisual(start_.dropVisual);
     dropLayer.addChild(dropMessenger);
     addLayer(dropLayer);
+    taskManager.addTask((n) -> {
+      handleEvent(startEvent_);
+    }, null);
   }
   public static void dropEnd(Element end, MouseEvent endEvent, int endIndex) {
     if (!end.droppableEnd) return;//this is : ignoring. so please check this thing

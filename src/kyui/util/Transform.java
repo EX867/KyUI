@@ -16,12 +16,12 @@ public class Transform {
     return new Rect(transX(before, r.left), transY(before, r.top), transX(before, r.right), transY(before, r.bottom));
   }
   public float transX(Transform before, float x) {
-    return (before.center.x - center.x) + (x - before.center.x) * before.scale;
+    return ((before.center.x - center.x) + (x - before.center.x) * before.scale) / scale;
   }
   public float transY(Transform before, float y) {
-    return (before.center.y - center.y) + (y - before.center.y) * before.scale;
+    return ((before.center.y - center.y) + (y - before.center.y) * before.scale) / scale;
   }
-  public static Transform getDist(Transform a, Transform b) {
+  public static Transform add(Transform a, Transform b) {
     return new Transform(b.trans(a, a.center), b.scale * a.scale);
   }
   @Override

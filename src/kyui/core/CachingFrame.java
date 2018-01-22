@@ -2,6 +2,7 @@ package kyui.core;
 import kyui.util.Rect;
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import processing.event.MouseEvent;
 public final class CachingFrame extends Element {
   public PGraphics display;
   boolean invalidated=false;
@@ -15,7 +16,10 @@ public final class CachingFrame extends Element {
     boolean a=renderFlag || invalidated;
     if (a) render(null);//???
     renderChildren(display);
-    if (a) renderAfter(null);
+    if (a) {
+      display.popMatrix();
+      display.endDraw();
+    }
     renderFlag=false;
     invalidated=false;
   }
@@ -36,11 +40,6 @@ public final class CachingFrame extends Element {
   boolean checkInvalid(Rect rect) {
     invalidated=true;
     return super.checkInvalid(rect);
-  }
-  @Override
-  public void renderAfter(PGraphics g) {
-    display.popMatrix();
-    display.endDraw();
   }
   public void resize(int width, int height) {
     if (width == 0 || height == 0) {

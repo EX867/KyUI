@@ -126,39 +126,28 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
     root.pos.set(rect.left, rect.top, rect.right, rect.bottom);
     onLayout();
   }
-  //removed setOffset range check.
   @Override
   public boolean mouseEventIntercept(MouseEvent e) {
-    if (e.getAction() == MouseEvent.PRESS) {
+    if(e.getAction()==MouseEvent.PRESS){
       selectDragged=false;
-    } else if (e.getAction() == MouseEvent.DRAG) {
-      if (!pressedL) {
-        return true;
-      }
-      if (selectionControl) {
-        return true;
-      }
-    } else if (e.getAction() == MouseEvent.RELEASE) {
-      if (selectionControl) {
-        return true;
-      }
     }
-    return super.mouseEventIntercept(e);
+    return true;
   }
+  //removed setOffset range check.
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     float centerX=(pos.left + pos.right) / 2;
     float centerY=(pos.top + pos.bottom) / 2;
     if (e.getAction() == MouseEvent.DRAG) {
-      if (pressedL&&selectionControl&&selection!=null) {
+      if (pressedL && selectionControl && selection != null) {
         requestFocus();
         float valueX=(KyUI.mouseClick.getLast().x - KyUI.mouseGlobal.getLast().x) * KyUI.scaleGlobal;// / transformsAcc.getLast().scale;
         float valueY=(KyUI.mouseClick.getLast().y - KyUI.mouseGlobal.getLast().y) * KyUI.scaleGlobal;// / transformsAcc.getLast().scale;
-          selectDragged=true;
-          selectionOffsetX=-valueX;
-          selectionOffsetY=-valueY;
-          onLayout();
-          return false;
+        selectionOffsetX=-valueX;
+        selectionOffsetY=-valueY;
+        selectDragged=true;
+        onLayout();
+        return false;
       }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       boolean ret=true;
@@ -181,21 +170,20 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
           onLayout();
           invalidate();
         }
-        if (selectionControl && selection != null) {
+        if (!selectionControl && selection != null) {
           selectionControl=false;
           selection.unselect();
           selection=null;
           return false;
         }
         selectionControl=false;
-        return super.mouseEventIntercept(e);
       }
     }
-    return true;
+    return super.mouseEvent(e, index);
   }
   public Node<Content> getNodeOverAbsolute() {
     return (Node<Content>)KyUI.checkOverlayCondition((Element e) -> {
-      return e instanceof Node && ((Node)e).Ref == this && e.contains();
+      return e instanceof Node && ((Node)e).Ref == this;
     });
   }
   Node<Content> getNodeOver(float x, float y, Node<Content> exclude) {

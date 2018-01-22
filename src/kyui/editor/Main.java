@@ -39,7 +39,7 @@ public class Main extends PApplet {
     surface.setLocation(0, 0);
     surface.setTitle(startText);
     frameRate(30);
-    KyUI.start(this, 30);
+    KyUI.start(this, 30, true);//TEST
     surface.setIcon(ElementLoader.loadImageResource("editor.png"));
     ElementLoader.isEditor=true;
     StatusBar main_status=new StatusBar("kyui_main_status");
@@ -102,6 +102,7 @@ public class Main extends PApplet {
       public void onEvent(DropMessenger messenger, MouseEvent end, int endIndex) {
         ElementLoader.ElementImage e=KyUI.<ElementLoader.ElementImage>get2(messenger.message);//e.element.getInstance()..
         TreeGraph.Node<Element> node=layout_tree.getNodeOverAbsolute();
+        System.out.println(node);
         if (node != null) {
           String name=e.element.getSimpleName() + count + "_" + ((System.currentTimeMillis() / 1000) % 100000);//FIX>>defult valueI
           TreeGraph.Node n=ElementLoader.addElement(node, name, e.element);
@@ -267,6 +268,7 @@ public class Main extends PApplet {
     mouseX=(int)(KyUI.mouseGlobal.getLast().x * KyUI.scaleGlobal);
     mouseY=(int)(KyUI.mouseGlobal.getLast().y * KyUI.scaleGlobal);
     strokeWeight(1);
+    stroke(0);
     noFill();
     ellipse(mouseX, mouseY, 20, 20);
     fill(0);
@@ -282,11 +284,15 @@ public class Main extends PApplet {
     //    fill(0);
     //    line(0, mouseytest, width, mouseytest);
     //    line(mousextest, 0, mousextest, height);
+    //    System.out.println("frame end : " + frameCount);
   }
   @Override
   protected void handleKeyEvent(KeyEvent e) {
     super.handleKeyEvent(e);
     KyUI.handleEvent(e);
+    if (keyPressed && key == ' ') {
+      loop();
+    }
   }
   @Override
   protected void handleMouseEvent(MouseEvent e) {

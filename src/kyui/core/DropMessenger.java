@@ -51,15 +51,11 @@ public class DropMessenger extends Element {
       visual=v;
     }
   }
-  @Override
-  public boolean mouseEventIntercept(MouseEvent e) {
+   @Override
+  public boolean mouseEvent(MouseEvent e, int index) {
     float hwidth=(pos.right - pos.left) / 2;
     float hheight=(pos.bottom - pos.top) / 2;
     setPosition(pos.set(KyUI.mouseGlobal.getLast().x - hwidth, KyUI.mouseGlobal.getLast().y - hheight, KyUI.mouseGlobal.getLast().x + hwidth, KyUI.mouseGlobal.getLast().y + hheight));
-    return true;
-  }
-  @Override
-  public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG) {
       requestFocus();
       invalidate();
@@ -76,7 +72,7 @@ public class DropMessenger extends Element {
       }, null);
       return false;
     }
-    return super.mouseEvent(e, index);
+    return true;
   }
   public static interface Visual {
     public void render(DropMessenger e, PGraphics g);

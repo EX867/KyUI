@@ -273,7 +273,7 @@ public class Element implements TreeNodeAction {
     KyUI.mouseClick.addLast(transform.trans(transforms.getLast(), KyUI.mouseClick.getLast()));
     clipArea.addLast(transform.trans(transforms.getLast(), clipArea.getLast()));//just add.
     transforms.add(transform);
-    //transformsAcc.addLast(Transform.getDist(transform, transformsAcc.getLast()));//transform-transformsAcc.getLast()
+    //transformsAcc.addLast(Transform.add(transform, transformsAcc.getLast()));//transform-transformsAcc.getLast()
   }
   final void transformMouseAfter() {
     KyUI.mouseGlobal.removeLast();
@@ -310,9 +310,9 @@ public class Element implements TreeNodeAction {
     if (relative) {
       transformRenderAfter(g);
     }
-    if (renderFlag_) {
-      renderAfter(g);
-    }
+    //    if (renderFlag_) {
+    //      renderAfter(g);
+    //    }
     if (clipping) {
       removeClipRender(g);
     }
@@ -339,8 +339,6 @@ public class Element implements TreeNodeAction {
   public static void fill(PGraphics g, int c) {//overloading has many problem...
     ColorExt.fill(g, c);
   }
-  public void renderAfter(PGraphics g) {//override this!
-  }
   public boolean mouseEventIntercept(MouseEvent e) {//override this!
     return true;
   }
@@ -360,53 +358,34 @@ public class Element implements TreeNodeAction {
     KyUI.dropStart(this, e, index, "", getName());
   }
   //
-  Element checkOverlayDrop(Rect bounds, Vector2 position, Transform last) {
+  Element checkOverlayCondition(Rect bounds, Vector2 position, Transform last, Predicate<Element> cond) {
     //clip rect...
+    bounds=Rect.getIntersection(bounds, pos, new Rect());
     if (!bounds.contains(position.x, position.y)) {
       return null;
     }
-    Vector2 position_=position;
+//    KyUI.Ref.rectMode(KyUI.Ref.CORNERS);
+//    KyUI.Ref.g.strokeWeight(5);
+//    KyUI.Ref.g.noFill();
+//    KyUI.Ref.g.stroke(255, 0, 0);
+//    bounds.render(KyUI.Ref.g);
+//    KyUI.Ref.g.ellipse(position.x, position.y, 20, 20);
     if (relative) {
-      position_=transform.trans(last, position);
+      bounds=transform.trans(last, bounds);
+      position=transform.trans(last, position);
+      last=transform;
+//      KyUI.Ref.g.translate(transform.center.x, transform.center.y);
+      //      KyUI.Ref.g.scale(transform.scale);
+      //      KyUI.Ref.g.stroke(0, 0, 255);
+      //      bounds.render(KyUI.Ref.g);
     }
     for (Element child : children) {
       if (child.isEnabled()) {
-        Element ret_=child.checkOverlayDrop(bounds, position_, (relative) ? transform : last);
+        Element ret_=child.checkOverlayCondition(bounds, position, last, cond);
         if (ret_ != null) {
           return ret_;
         }
       }
-    }
-    if ((KyUI.dropEventsExternal.containsKey(getName()))) {
-      return this;
-    }
-    return null;
-  }
-  Element checkOverlayCondition(Predicate<Element> cond) {
-    if (!contains()) {
-      return null;
-    }
-    if (clipping) {
-      clipArea();
-    }
-    if (relative) {
-      transformMouse();
-    }
-    int end=Math.min(children.size(), endClip);
-    for (int a=Math.max(0, startClip); a < end; a++) {
-      Element child=children.get(a);
-      if (child.isEnabled()) {
-        Element ret_=child.checkOverlayCondition(cond);
-        if (ret_ != null) {
-          return ret_;
-        }
-      }
-    }
-    if (relative) {
-      transformMouseAfter();
-    }
-    if (clipping) {
-      clipAfter();
     }
     if (cond.test(this)) {
       return this;

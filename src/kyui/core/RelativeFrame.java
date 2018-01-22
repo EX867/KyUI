@@ -49,14 +49,14 @@ public class RelativeFrame extends Element {
     transform.center.y=(pos.top + pos.bottom) / 2;
   }
   @Override
-  public boolean mouseEventIntercept(MouseEvent e) {//from LinearLayout.
+  public boolean mouseEvent(MouseEvent e, int index) {//from LinearLayout.
     float centerX=(pos.left + pos.right) / 2;
     float centerY=(pos.top + pos.bottom) / 2;
     if (scroll) {
       if (e.getAction() == MouseEvent.PRESS) {
         if (entered) {//needs?
-          clickOffsetX=transform.center.x - centerX;
-          clickOffsetY=transform.center.y - centerY;
+          clickOffsetX=transform.center.x;// - centerX;
+          clickOffsetY=transform.center.y;// - centerY;
           clickScrollMaxSq=0;
         }
       } else if (e.getAction() == MouseEvent.DRAG) {
@@ -70,8 +70,7 @@ public class RelativeFrame extends Element {
           invalidate();
           if (clickScrollMaxSq > KyUI.GESTURE_THRESHOLD * KyUI.GESTURE_THRESHOLD) {
             return false;
-          } else {
-            setOffset(clickOffsetX, clickOffsetY);
+            //else setOffset(clickOffsetX, clickOffsetY);
           }
         }
       } else if (e.getAction() == MouseEvent.RELEASE) {
@@ -95,7 +94,7 @@ public class RelativeFrame extends Element {
     return true;
   }
   public void setOffset(float valueX, float valueY) {
-    transform.center.x=(pos.left + pos.right) / 2 + valueX;
-    transform.center.y=(pos.top + pos.bottom) / 2 + valueY;
+    transform.center.x=valueX;//(pos.left + pos.right) / 2 +
+    transform.center.y=valueY;//(pos.top + pos.bottom) / 2 +
   }
 }
