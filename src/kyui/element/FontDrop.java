@@ -9,7 +9,7 @@ import kyui.util.Rect;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import sojamo.drop.DropEvent;
-public class FontDrop extends Element implements DataTransferable<PFont>{
+public class FontDrop extends Element implements DataTransferable<PFont> {
   EventListener dataChangeListener;
   //modifiable values
   @Attribute(type=Attribute.COLOR)
@@ -61,7 +61,8 @@ public class FontDrop extends Element implements DataTransferable<PFont>{
   public void render(PGraphics g) {
     g.stroke(fgColor);
     g.strokeWeight(strokeWidth);
-    super.render(g);
+    fill(g, bgColor);
+    pos.render(g, -strokeWidth / 2);
     g.fill(fgColor);
     g.textFont(font);
     g.textSize(Math.max(1, textSize));
@@ -81,9 +82,9 @@ public class FontDrop extends Element implements DataTransferable<PFont>{
   public void setDataChangeListener(EventListener event) {
     dataChangeListener=event;
   }
-  public void setFontFromPath(String path_){
+  public void setFontFromPath(String path_) {
     PFont newfont=KyUI.Ref.createFont(path_, 20);
-    if(newfont!=null){
+    if (newfont != null) {
       font=newfont;
       path=path_;
     }

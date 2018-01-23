@@ -66,7 +66,7 @@ public class LinearList extends Element {
       @Override
       public void onEvent(Element e) {
         setList();
-        listLayout.invalidate();
+        LinearList.this.invalidate();
       }
     });
     bgColor=KyUI.Ref.color(127);

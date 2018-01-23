@@ -157,20 +157,14 @@ public class DropDown extends Button implements DataTransferable<Integer> {
       }
       if (picker.size() == 0) return true;
       downButton.text=UP;
-      float top=pos.bottom;
-      float bottom=Math.min(pos.bottom + picker.getPreferredSize().y, KyUI.Ref.height);
-      if (KyUI.Ref.height - pos.bottom < pos.top) {
-        top=Math.max(pos.top - picker.getPreferredSize().y, 0);
-        bottom=pos.top;
+      Rect screen=transformsAcc.getLast().trans(kyui.util.Transform.identity, new Rect(0, 0, KyUI.Ref.width, KyUI.Ref.height));
+      Rect rect=new Rect(pos.left, pos.bottom, pos.right, pos.bottom + picker.getPreferredSize().y);
+      if (screen.bottom - pos.bottom < pos.top - screen.top) {
+        rect.top=pos.top - picker.getPreferredSize().y;
+        rect.bottom=pos.top;
       }
-      picker.setPosition(new Rect(pos.left, top, pos.right, bottom));
-      //      KyUI.Ref.g.stroke(255, 0, 0);
-      //      KyUI.Ref.g.noFill();
-      //      kyui.util.Transform.identity.trans(transformsAcc.getLast(), picker.pos).render(KyUI.Ref.g);
-      //      KyUI.Ref.g.stroke(0, 0, 255);
-      //      kyui.util.Transform.identity.trans(transformsAcc.getLast(), pos).render(KyUI.Ref.g);
-      //      KyUI.Ref.noLoop();
-      //      downLayer.setTransform(transformsAcc.getLast());
+      picker.setPosition(Rect.getIntersection(rect, screen, new Rect()));
+      downLayer.setTransform(transformsAcc.getLast());
       KyUI.addLayer(downLayer);
       return false;
     }

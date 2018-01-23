@@ -58,7 +58,8 @@ public class FileDrop extends Element implements DataTransferable<File> {
   public void render(PGraphics g) {
     g.stroke(fgColor);
     g.strokeWeight(strokeWidth);
-    super.render(g);
+    fill(g, bgColor);
+    pos.render(g, -strokeWidth / 2);
     if (file != null) {
       g.fill(fgColor);
       g.textSize(Math.max(1, textSize));

@@ -14,9 +14,18 @@ public final class CachingFrame extends Element {
   }
   @Override
   synchronized void render_(PGraphics g) {
+    //    if (renderFlag_) {
+    //      renderAfter(g);
+    //    }
     boolean a=renderFlag || invalidated;
     if (a) render(null);//???
+    if (relative) {
+      transformRender(display);
+    }
     renderChildren(display);
+    if (relative) {
+      transformRenderAfter(display);
+    }
     if (a) {
       display.popMatrix();
       display.endDraw();

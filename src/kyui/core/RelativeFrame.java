@@ -15,11 +15,7 @@ public class RelativeFrame extends Element {
   @Attribute
   public boolean drawAxis=true;
   @Attribute(layout=Attribute.SELF)
-  public float intervalX=20;
-  @Attribute(layout=Attribute.SELF)
-  public float intervalY=20;
-  @Attribute(layout=Attribute.SELF)
-  public float scaleMin=0.3F;
+  public float scaleMin=0.1F;
   @Attribute(layout=Attribute.SELF)
   public float scaleMax=2.0F;
   Vector2 oldMouseValue=new Vector2();

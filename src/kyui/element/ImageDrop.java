@@ -59,7 +59,8 @@ public class ImageDrop extends Element implements DataTransferable<PImage> {
   public void render(PGraphics g) {
     g.stroke(fgColor);
     g.strokeWeight(strokeWidth);
-    super.render(g);
+    fill(g, bgColor);
+    pos.render(g, -strokeWidth / 2);
     if (image != null) {
       g.imageMode(KyUI.Ref.CENTER);
       g.pushMatrix();

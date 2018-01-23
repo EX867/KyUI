@@ -16,6 +16,8 @@ public class DivisionLayout extends Element {
   public boolean inverse=false;
   @Attribute(layout=Attribute.SELF)
   public Attributes.Rotation rotation=Attributes.Rotation.LEFT;
+  @Attribute(layout=Attribute.SELF)
+  public float interval=0;
   public DivisionLayout(String name) {
     super(name);
     children_max=2;
@@ -61,10 +63,10 @@ public class DivisionLayout extends Element {
       }
       if (rotation.ordinal() % 2 == 1) {//horizontal
         e1.setPosition(new Rect(pos.left + e1.margin + padding, pos.top + e1.margin + padding, pos.left + first - e1.margin - padding / 2, pos.bottom - e1.margin - padding));
-        e2.setPosition(new Rect(pos.left + first + e2.margin + padding / 2, pos.top + e2.margin + padding, pos.right - e2.margin - padding, pos.bottom - e2.margin - padding));
+        e2.setPosition(new Rect(pos.left + first + interval + e2.margin + padding / 2, pos.top + e2.margin + padding, pos.right - e2.margin - padding, pos.bottom - e2.margin - padding));
       } else {//vertical
         e1.setPosition(new Rect(pos.left + e1.margin + padding, pos.top + e1.margin + padding, pos.right - e1.margin - padding, pos.top + first - e1.margin - padding / 3));
-        e2.setPosition(new Rect(pos.left + e2.margin + padding, pos.top + first + e2.margin + padding / 2, pos.right - e2.margin - padding, pos.bottom - e2.margin - padding));
+        e2.setPosition(new Rect(pos.left + e2.margin + padding, pos.top + first + interval + e2.margin + padding / 2, pos.right - e2.margin - padding, pos.bottom - e2.margin - padding));
       }
     } else if (size == 1) {
       Element e=children.get(0);

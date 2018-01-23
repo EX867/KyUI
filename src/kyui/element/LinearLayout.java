@@ -64,12 +64,15 @@ public class LinearLayout extends Element {
       fixedSize=1;
     }
     if (mode == Behavior.FIXED) {
-      startClip=(int)offset / fixedSize - 1;
+      startClip=(int)offset / (fixedSize + padding + intervalSize) - 1;
       if (direction == Attributes.Direction.HORIZONTAL) {
-        endClip=(int)(offset + pos.right - pos.left) / fixedSize + 2;
+        endClip=(int)(offset + pos.right - pos.left) / (fixedSize + padding + intervalSize) + 2;
       } else if (direction == Attributes.Direction.VERTICAL) {
-        endClip=(int)(offset + pos.bottom - pos.top) / fixedSize + 2;
+        endClip=(int)(offset + pos.bottom - pos.top) / (fixedSize + padding + intervalSize) + 2;
       }
+    } else {
+      startClip=0;
+      endClip=Integer.MAX_VALUE;
     }
   }
   public void setOffset(float value) {

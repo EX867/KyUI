@@ -18,6 +18,10 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
   EventListener onSelectListener;
   public Node selection;
   //modifiable values
+  @Attribute(layout=Attribute.SELF)
+  public float intervalX=20;
+  @Attribute(layout=Attribute.SELF)
+  public float intervalY=5;
   @Attribute(type=Attribute.COLOR)
   public int selectionColor;
   @Attribute
@@ -39,7 +43,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
   private float clickScrollMaxSq=0;
   float selectionOffsetX=0;
   float selectionOffsetY=0;
-  Rect defaultRootPos=new Rect(-60, -30, 60, 30);
+  Rect defaultRootPos=new Rect(-60, -20, 60, 20);
   boolean selectionControl=false;
   public TreeGraph(String name) {
     super(name);
