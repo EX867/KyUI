@@ -105,11 +105,11 @@ public class Element implements TreeNodeAction {
   //transform
   public static LinkedList<Transform> transforms=new LinkedList<>();
   protected Transform transform=Transform.identity;
-  //public static LinkedList<Transform> transformsAcc=new LinkedList<>();//stack...
+  public static LinkedList<Transform> transformsAcc=new LinkedList<>();//stack...
   protected boolean relative=false;
   static {
     transforms.addLast(Transform.identity);
-    //transformsAcc.addLast(Transform.identity);
+    transformsAcc.addLast(Transform.identity);
   }
   //dnd
   public DropMessenger.Visual dropVisual;//used when creating drop messenger
@@ -271,16 +271,20 @@ public class Element implements TreeNodeAction {
   final void transformMouse() {
     KyUI.mouseGlobal.addLast(transform.trans(transforms.getLast(), KyUI.mouseGlobal.getLast()));
     KyUI.mouseClick.addLast(transform.trans(transforms.getLast(), KyUI.mouseClick.getLast()));
-    clipArea.addLast(transform.trans(transforms.getLast(), clipArea.getLast()));//just add.
+    if (clipArea.size() > 0) {
+      clipArea.addLast(transform.trans(transforms.getLast(), clipArea.getLast()));//just add.
+    }
     transforms.add(transform);
-    //transformsAcc.addLast(Transform.add(transform, transformsAcc.getLast()));//transform-transformsAcc.getLast()
+    transformsAcc.addLast(Transform.add(transformsAcc.getLast(), transform));
   }
   final void transformMouseAfter() {
     KyUI.mouseGlobal.removeLast();
     KyUI.mouseClick.removeLast();
-    clipArea.removeLast();
+    if (clipArea.size() > 0) {
+      clipArea.removeLast();
+    }
     transforms.removeLast();
-    //transformsAcc.removeLast();
+    transformsAcc.removeLast();
   }
   public boolean contains() {
     if (clipArea.isEmpty()) {
@@ -392,33 +396,22 @@ public class Element implements TreeNodeAction {
     }
     return null;
   }
-  synchronized boolean checkInvalid(Rect rect) {
-    if (!contains()) {
+  synchronized boolean checkInvalid(Rect rect, Rect bounds, Transform last) {
+    rect=Rect.getIntersection(rect, pos, new Rect());
+    if (!bounds.contains(rect)) {
       return true;
     }
-    if (clipping) {
-      clipArea();
-    }
     if (relative) {
-      transformMouse();
+      bounds=transform.trans(last, bounds);
+      rect=transform.trans(last, rect);
+      last=transform;
     }
-    if (children.size() == 0) {
-      renderFlag=true;
-    }
-    int end=Math.min(children.size(), endClip);
-    for (int a=Math.max(0, startClip); a < end; a++) {
-      Element child=children.get(a);
-      if (child.isVisible() && child.isEnabled()) {
-        if (child.checkInvalid(rect)) {//child not contains rect.\
+    for (Element child : children) {
+      if (child.isEnabled() && child.isVisible()) {
+        if (child.checkInvalid(rect, bounds, last)) {
           renderFlag=true;
         }
       }
-    }
-    if (relative) {
-      transformMouseAfter();
-    }
-    if (clipping) {
-      clipAfter();
     }
     return false;
   }

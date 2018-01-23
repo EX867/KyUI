@@ -164,6 +164,13 @@ public class DropDown extends Button implements DataTransferable<Integer> {
         bottom=pos.top;
       }
       picker.setPosition(new Rect(pos.left, top, pos.right, bottom));
+      //      KyUI.Ref.g.stroke(255, 0, 0);
+      //      KyUI.Ref.g.noFill();
+      //      kyui.util.Transform.identity.trans(transformsAcc.getLast(), picker.pos).render(KyUI.Ref.g);
+      //      KyUI.Ref.g.stroke(0, 0, 255);
+      //      kyui.util.Transform.identity.trans(transformsAcc.getLast(), pos).render(KyUI.Ref.g);
+      //      KyUI.Ref.noLoop();
+      //      downLayer.setTransform(transformsAcc.getLast());
       KyUI.addLayer(downLayer);
       return false;
     }

@@ -278,7 +278,7 @@ public class KyUI {
     taskManager.addTask(modifyLayerTask, null);
   }
   public static CachingFrame getNewLayer() {
-    return new CachingFrame("KyUI:" + count++, new Rect(0, 0, Ref.width, Ref.height));
+    return new CachingFrame("KyUI:" + (count++), new Rect(0, 0, Ref.width, Ref.height));
   }
   protected static void addElement(Element e) {
     if (e instanceof ImageElement) {
@@ -499,7 +499,7 @@ public class KyUI {
   public static void invalidate(Rect rect) {//adjust renderFlag.
     taskManager.addTask((n) -> {
       if (roots.isEmpty()) return;
-      roots.getLast().checkInvalid(rect);
+      roots.getLast().checkInvalid(rect, roots.getLast().pos, Transform.identity);
     }, null);
   }
   public static void invalidateElement(Element e) {//adjust renderFlag.

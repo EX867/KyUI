@@ -1,5 +1,6 @@
 package kyui.core;
 import kyui.util.Rect;
+import kyui.util.Transform;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
@@ -36,10 +37,14 @@ public final class CachingFrame extends Element {
     display.noStroke();
     display.textFont(KyUI.fontMain);
   }
+  public void setTransform(Transform t) {//use carefully!
+    relative=true;
+    transform=t;
+  }
   @Override
-  boolean checkInvalid(Rect rect) {
+  boolean checkInvalid(Rect rect, Rect bounds, Transform last) {
     invalidated=true;
-    return super.checkInvalid(rect);
+    return super.checkInvalid(rect, bounds, last);
   }
   public void resize(int width, int height) {
     if (width == 0 || height == 0) {

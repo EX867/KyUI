@@ -22,7 +22,7 @@ public class Transform {
     return ((before.center.y - center.y) + (y - before.center.y) * before.scale) / scale;
   }
   public static Transform add(Transform a, Transform b) {
-    return new Transform(b.trans(a, a.center), b.scale * a.scale);
+    return new Transform(a.trans(b, b.center), b.scale * a.scale);
   }
   @Override
   public String toString() {
