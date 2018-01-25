@@ -20,6 +20,10 @@ public class FileDrop extends Element implements DataTransferable<File> {
   public File file;
   @Attribute
   public int textSize=15;
+  @Attribute
+  public String hint="";
+  @Attribute(type=Attribute.COLOR)
+  public int hintColor;
   EventListener onDropListener;
   public FileDrop(String name) {
     super(name);
@@ -35,6 +39,7 @@ public class FileDrop extends Element implements DataTransferable<File> {
     padding=strokeWidth / 2 + 1;
     bgColor=KyUI.Ref.color(127);
     fgColor=KyUI.Ref.color(50);
+    hintColor=KyUI.Ref.color(200, 140);
     FileDrop self=this;
     KyUI.addDragAndDrop(this, new FileDropEventListener() {
       @Override
@@ -60,7 +65,11 @@ public class FileDrop extends Element implements DataTransferable<File> {
     g.strokeWeight(strokeWidth);
     fill(g, bgColor);
     pos.render(g, -strokeWidth / 2);
-    if (file != null) {
+    if (file == null) {
+      g.fill(fgColor);
+      g.textSize(Math.max(1, textSize));
+      g.text(hint, (pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
+    } else {
       g.fill(fgColor);
       g.textSize(Math.max(1, textSize));
       g.text(file.getAbsolutePath(), (pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);

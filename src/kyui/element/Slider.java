@@ -78,13 +78,13 @@ public class Slider extends Element implements DataTransferable {
         float sizeX=pos.right - pos.left - 2 * padding;
         float sizeYh=(pos.bottom - pos.top) / 2 - padding;
         float posYm=(pos.top + pos.bottom) / 2;
-        float point=pos.left + padding + value * (sizeX / (max - min));
+        float point=pos.left + padding + (value - min) * (sizeX / (max - min));
         g.rect(point - sliderSize, posYm - sizeYh, point + sliderSize, posYm + sizeYh);
       } else if (direction == Attributes.Direction.VERTICAL) {
         float sizeX=pos.bottom - pos.top - 2 * padding;
         float sizeYh=(pos.right - pos.left) / 2 - padding;
         float posYm=(pos.left + pos.right) / 2;
-        float point=pos.top + padding + value * (sizeX / (max - min));
+        float point=pos.top + padding + (value - min) * (sizeX / (max - min));
         g.rect(posYm - sizeYh, point + sliderSize, posYm + sizeYh, point - sliderSize);
       }
     }
@@ -103,7 +103,7 @@ public class Slider extends Element implements DataTransferable {
     if (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG)) {//only works with left event...
       if (pressedL || e.getAction() == MouseEvent.PRESS) {
         requestFocus();
-        float size=getSize();
+        float size=Math.max(1, getSize());
         if (direction == Attributes.Direction.HORIZONTAL) {
           set(min + (max - min) * (KyUI.mouseGlobal.getLast().x - pos.left) / size);
         } else if (direction == Attributes.Direction.VERTICAL) {

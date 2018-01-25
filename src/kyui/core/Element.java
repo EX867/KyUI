@@ -90,6 +90,8 @@ public class Element implements TreeNodeAction {
   @Attribute(setter="setPosition", layout=Attribute.NONE)//setPosition includes layout.
   public Rect pos=new Rect(0, 0, 0, 0);
   Description description;
+  @Attribute(setter="setDescription", getter="getDescription")
+  private String desc="";//dummy var
   @Attribute(type=Attribute.COLOR, setter="setBgColor")
   public int bgColor=0;
   @Attribute(layout=Attribute.PARENT)
@@ -124,6 +126,8 @@ public class Element implements TreeNodeAction {
   //control flow
   protected boolean skipPress=false;
   protected boolean skipRelease=false;
+  //
+  static Transform overlayCondition_transform=Transform.identity;
   //
   public Element(String name_) {
     name=name_;
@@ -206,18 +210,42 @@ public class Element implements TreeNodeAction {
     return active;
   }
   public void setDescription(String text) {
+    if (text.isEmpty()) {
+      if (description != null) {
+        KyUI.removeElement(description.getName());
+        description=null;
+      }
+    }
     if (description == null) {
       description=new Description(this, text);
     } else {
       description.text=text;
     }
   }
+  public String getDescription() {
+    if (description == null) {
+      return "";
+    }
+    return description.text;
+  }
   //
   public final void update_() {
+    if (clipping) {
+      clipArea();
+    }
+    if (relative) {
+      transformMouse();
+    }
     for (int a=0; a < children.size(); a++) {
       if (children.get(a).isEnabled()) children.get(a).update_();
     }
     update();
+    if (relative) {
+      transformMouseAfter();
+    }
+    if (clipping) {
+      clipAfter();
+    }
   }
   public void update() {//override this!
   }
@@ -363,25 +391,14 @@ public class Element implements TreeNodeAction {
   }
   //
   Element checkOverlayCondition(Rect bounds, Vector2 position, Transform last, Predicate<Element> cond) {
-    //clip rect...
     bounds=Rect.getIntersection(bounds, pos, new Rect());
     if (!bounds.contains(position.x, position.y)) {
       return null;
     }
-    //    KyUI.Ref.rectMode(KyUI.Ref.CORNERS);
-    //    KyUI.Ref.g.strokeWeight(5);
-    //    KyUI.Ref.g.noFill();
-    //    KyUI.Ref.g.stroke(255, 0, 0);
-    //    bounds.render(KyUI.Ref.g);
-    //    KyUI.Ref.g.ellipse(position.x, position.y, 20, 20);
     if (relative) {
       bounds=transform.trans(last, bounds);
       position=transform.trans(last, position);
       last=transform;
-      //      KyUI.Ref.g.translate(transform.center.x, transform.center.y);
-      //      KyUI.Ref.g.scale(transform.scale);
-      //      KyUI.Ref.g.stroke(0, 0, 255);
-      //      bounds.render(KyUI.Ref.g);
     }
     for (Element child : children) {
       if (child.isEnabled()) {
@@ -392,6 +409,7 @@ public class Element implements TreeNodeAction {
       }
     }
     if (cond.test(this)) {
+      overlayCondition_transform=last;
       return this;
     }
     return null;

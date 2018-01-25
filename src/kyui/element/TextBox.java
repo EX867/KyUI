@@ -26,6 +26,7 @@ public class TextBox extends TextEdit implements DataTransferable {
   public boolean error=false;
   //...?
   public int strokeWeight=6;
+  public boolean transferLineFeedEscape=false;
   //
   public enum NumberType {
     NONE, INTEGER, FLOAT
@@ -168,12 +169,13 @@ public class TextBox extends TextEdit implements DataTransferable {
     if (!title.equals("")) {
       g.textSize(Math.max(1, textSize * 3 / 4));
       g.fill(fgColor);
-      offsetY=(textSize / 3);
+      offsetY=(textSize / 4);
       g.text(title + "/ ", pos.left + textSize / 2, pos.top + textSize * 3 / 4);
     } else {
       offsetY=0;
     }
     g.textSize(Math.max(1, textSize));
+    //g.textLeading(textSize / 2);
     if (content.hasSelection()) {
       g.fill(selectionColor);
       String selectionPart=content.getSelectionPart(0);
@@ -232,6 +234,9 @@ public class TextBox extends TextEdit implements DataTransferable {
     } else if (numberOnly == NumberType.FLOAT) {
       return valueF;
     } else {
+      if (transferLineFeedEscape) {
+        return content.toString().replaceAll("\\\\n", "\n");
+      }
       return content.toString();
     }
   }

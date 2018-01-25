@@ -370,7 +370,9 @@ public class ElementLoader {
           } else if (a.field.getType() == Rect.class) {
             i=new InspectorRectButton(name);
           } else if (a.field.getType() == String.class) {
-            i=new InspectorButton1<String, TextBox>(name, new TextBox(name1).setNumberOnly(TextBox.NumberType.NONE));
+            TextBox t=new TextBox(name1).setNumberOnly(TextBox.NumberType.NONE);
+            i=new InspectorButton1<String, TextBox>(name, t);
+            t.transferLineFeedEscape=true;
           } else if (a.field.getType() == PImage.class) {
             i=new InspectorButton1<PImage, ImageDrop>(name, new ImageDrop(name1));
           } else if (a.field.getType() == PFont.class) {

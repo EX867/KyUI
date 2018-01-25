@@ -24,10 +24,10 @@ import processing.event.KeyEvent;
 import sojamo.drop.*;
 //===To ADD list===//
 //ADD>>optimize mouseEvent and rendering chain!! especially clipping...
-//ADD>>search elements in editor (later)
+//[Editor]ADD>>search elements in editor (later)
 //ADD>>drag and drop overlay !!!**
 //FIX>>refactor loaders!!! generalize colorVariable to value.
-//ADD>>auto load fonts in button and text editors...
+//FIX>>TextBox cursor speed problem
 public class KyUI {
   //
   public static PApplet Ref;
@@ -380,6 +380,7 @@ public class KyUI {
         if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
           Element el=roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, descriptionCheck);
           if (el != null) {
+            descriptionLayer.setTransform(Element.overlayCondition_transform);
             currentDescription=el.description;
             descriptionLayer.children.set(0, currentDescription);
             descriptionLayer.invalidate();
