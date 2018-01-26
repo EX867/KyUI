@@ -2,6 +2,7 @@ package kyui.core;
 import kyui.event.EventListener;
 import kyui.util.HideInEditor;
 import kyui.util.Rect;
+import kyui.util.Transform;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 @HideInEditor
@@ -10,17 +11,19 @@ public class Description extends Element {
   public static int textColor=0;
   public static int textSize=15;
   protected Element parent=null;
-  public EventListener onShowEvent=(Element e) -> {
+  public EventListener onShowEvent=(Element e) -> {//use KyUI.descriptionLayer.transform
     //default action go to down side of parent element.
     float centerX=(parent.pos.left + parent.pos.right) / 2;
     Vector2 size=getPreferredSize();
+    float x1=KyUI.descriptionLayer.transform.transX(Transform.identity, 0);
+    float x2=KyUI.descriptionLayer.transform.transX(Transform.identity, KyUI.Ref.width);
     float hWidth=size.x / 2;
     e.pos.set(centerX - hWidth, parent.pos.bottom, centerX + hWidth, parent.pos.bottom + size.y);
-    if (e.pos.right > KyUI.Ref.width) {
-      e.pos.translate(e.pos.right - KyUI.Ref.width, 0);
+    if (e.pos.right > x2) {
+      e.pos.translate(e.pos.right - x2, 0);
     }
-    if (e.pos.left < 0) {
-      e.pos.translate(e.pos.left, 0);
+    if (e.pos.left < x1) {
+      e.pos.translate(e.pos.left, x1);
     }
   };
   Description(String name) {//used in KyUI

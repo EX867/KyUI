@@ -26,7 +26,7 @@ public class RelativeFrame extends Element {
     clipping=true;
     relative=true;
     bgColor=KyUI.Ref.color(127);
-    transform=new Transform(new Vector2(), 1);
+    transform=new Transform(new Vector2((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2), 1);//maybe 0...
   }
   @Override
   public void render(PGraphics g) {
@@ -41,9 +41,11 @@ public class RelativeFrame extends Element {
   }
   @Override
   public void setPosition(Rect rect) {
+    float deltaX=(rect.left + rect.right - pos.left - pos.right) / 2;
+    float deltaY=(rect.top + rect.bottom - pos.top - pos.bottom) / 2;
     super.setPosition(rect);
-    transform.center.x=(pos.left + pos.right) / 2;
-    transform.center.y=(pos.top + pos.bottom) / 2;
+    transform.center.x+=deltaX;
+    transform.center.y+=deltaY;
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {//from LinearLayout.
