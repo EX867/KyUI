@@ -30,6 +30,7 @@ public class Main extends PApplet {
   }
   @Override
   public void settings() {
+    noSmooth();
     size(1920, 1000);
   }
   final String startText="KyUI Layout Editor 0.1";
@@ -39,7 +40,6 @@ public class Main extends PApplet {
     surface.setLocation(0, 0);
     surface.setTitle(startText);
     frameRate(30);
-    noSmooth();
     KyUI.start(this, 30, true);//TEST
     surface.setIcon(ElementLoader.loadImageResource("editor.png"));
     ElementLoader.isEditor=true;
