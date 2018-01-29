@@ -504,7 +504,11 @@ public class Element implements TreeNodeAction {
         KyUI.dropEnd(this, e, index);
         if (trigger) invalidate();
       }
-      pressedL=false;
+      if (e.getButton() == KyUI.Ref.LEFT) {
+        pressedL=false;
+      } else if (e.getButton() == KyUI.Ref.RIGHT) {
+        pressedR=false;
+      }
     }
     skipRelease=false;
     skipPress=false;
