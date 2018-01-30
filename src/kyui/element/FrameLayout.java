@@ -12,7 +12,7 @@ public class FrameLayout extends Element {
   @Override
   public void onLayout() {
     for (Element e : children) {
-      e.setPosition(new Rect(pos.left + e.margin, pos.top + e.margin, pos.right - e.margin, pos.bottom - e.margin));
+      e.setPosition(new Rect(pos.left + e.margin + padding, pos.top + e.margin + padding, pos.right - e.margin - padding, pos.bottom - e.margin - padding));
     }
   }
 }

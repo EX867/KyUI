@@ -6,6 +6,7 @@ import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.event.TreeNodeAction;
 import kyui.util.Rect;
+import kyui.util.Transform;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
@@ -73,6 +74,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
     addChild(root);
     bgColor=KyUI.Ref.color(127);
     selectionColor=0;//KyUI.Ref.color(0, 0, 127);
+    transform=new Transform(new Vector2((pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2), 1);
     KyUI.taskManager.executeAll();
   }
   public Node addNode(String text, Content content) {
@@ -305,6 +307,11 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
       Ref.removeChild(node);
       Ref.nodes.remove(node);
     }
+    public void removeNodeWithoutInteract(Node node) {
+      localNodes.remove(node);
+      Ref.removeChild(node);
+      Ref.nodes.remove(node);
+    }
     public void delete() {
       if (parent == null) {
         Ref.removeChild(this);
@@ -319,6 +326,23 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
         n.delete_();
         KyUI.taskManager.addTask((Object o) -> {
           removeNode(n);
+        }, null);
+      }
+    }
+    public void deleteWithoutInteract() {
+      if (parent == null) {
+        Ref.removeChild(this);
+        Ref.nodes.remove(this);
+      } else {
+        parent.removeNodeWithoutInteract(this);
+      }
+      deleteWithoutInteract_();
+    }
+    void deleteWithoutInteract_() {
+      for (Node n : localNodes) {
+        n.deleteWithoutInteract_();
+        KyUI.taskManager.addTask((Object o) -> {
+          removeNodeWithoutInteract(n);
         }, null);
       }
     }

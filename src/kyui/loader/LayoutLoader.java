@@ -153,8 +153,6 @@ public class LayoutLoader {
         } else {
           name=cur.xml.getString("name");
         }
-        //        try {
-        //Class type=Class.forName(cur.xml.getName());
         Class type=ElementLoader.classes.get(cur.xml.getName().replace("..", "$"));
         node=ElementLoader.addElement(cur.node, name, type);
         cur.result=(Element)node.content;
@@ -168,6 +166,9 @@ public class LayoutLoader {
           for (String attrName : attrs) {
             if (!attrName.equals("name") && cur.xml.hasAttribute(attrName)) {
               Attribute.Editor e=set.getAttribute(attrName);
+              if (e == null) {
+                continue;
+              }
               if ((e.field.getType() == Integer.class || e.field.getType() == int.class) && e.attr.type() == Attribute.COLOR && color != null) {
                 InspectorColorVarButton.ColorVariable v=ElementLoader.vars.get(cur.xml.getString(attrName));
                 if (v != null) {
@@ -204,7 +205,7 @@ public class LayoutLoader {
     }
     if (treeGraph != null) {
       KyUI.removeElement(treeGraph.getName());
-      treeGraph.getRoot().delete();
+      treeGraph.getRoot().deleteWithoutInteract();
     }
   }
   static Object castFromString(Class c, String source) {

@@ -1,15 +1,19 @@
 package kyui.element;
+import com.sun.istack.internal.Nullable;
 import kyui.core.Attributes;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
+import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
 import kyui.loader.ElementLoader;
+import kyui.loader.LayoutLoader;
 import kyui.util.ColorExt;
 import kyui.util.HideInEditor;
 import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
+import processing.data.XML;
 import processing.event.MouseEvent;
 
 import java.util.HashMap;
@@ -44,6 +48,10 @@ public class TabLayout extends Element {
   protected Attributes.Rotation buttonEdgeRotation=Attributes.Rotation.UP;
   @Attribute(layout=Attribute.SELF)
   public boolean enableX=false;
+  @Attribute(layout=Attribute.SELF)
+  public boolean enableAdd=true;
+  @Attribute(layout=Attribute.SELF)
+  public int tabPadding=10;
   @Attribute(setter="setTextSize")
   protected int textSize=15;
   @Attribute(setter="setTextColor", type=Attribute.COLOR)
@@ -55,23 +63,27 @@ public class TabLayout extends Element {
   protected int fixedSize;
   @Attribute(setter="setIntervalSize", layout=Attribute.SELF)
   protected int intervalSize;
+  static int cnt=0;
+  public EventListener addTabListener=(Element e) -> {
+  };
   //in-class values
   public int selection=0;
+  protected TabButton defaultTab;
   //temp vars
   private int count=0;
   private Rect cacheRect=new Rect(0, 0, 0, 0);
   //dummy field(?)
-  @Attribute(setter="setContentLayoutName", getter="getContentLayoutName", layout=Attribute.SELF)
-  String contentLayoutName;
+  //  @Attribute(setter="setContentLayoutName", getter="getContentLayoutName", layout=Attribute.SELF)
+  //  String contentLayoutName;
   void setContentLayoutName(String name) {
     Element val=KyUI.get(name);
     if (val != null && val instanceof FrameLayout) {
       attachExternalFrame((FrameLayout)val);
     }
   }
-  String getContentLayoutName() {
-    return contentLayout.getName();
-  }
+  //  String getContentLayoutName() {
+  //    return contentLayout.getName();
+  //  }
   public TabLayout(String name) {
     super(name);
     init();
@@ -82,12 +94,11 @@ public class TabLayout extends Element {
     init();
   }
   private void init() {
-    tabSize=38;
+    tabSize=40;
     idToIndex=new HashMap<Integer, Integer>(100);
     linkLayout=new DivisionLayout(getName() + ":linkLayout");//, pos);
     tabLayout=new LinearLayout(getName() + ":tabLayout");
     contentLayout=new FrameLayout(getName() + ":contentLayout");
-    tabLayout.starts=1;
     linkLayout.rotation=Attributes.Rotation.UP;
     linkLayout.addChild(tabLayout);
     linkLayout.addChild(contentLayout);
@@ -95,9 +106,8 @@ public class TabLayout extends Element {
     tabs=tabLayout.children;
     contents=contentLayout.children;
     tabBgColor=KyUI.Ref.color(50);
-    addTab(0, "", new Element(getName() + ":default"));
+    addTab(0, "+", new Element(getName() + "::default"));
     selectTab(0);//0 means no tab selected.
-    //localLayout();
     tabLayout.bgColor=KyUI.Ref.color(127);
     contentLayout.bgColor=KyUI.Ref.color(127);
     tabColor1=KyUI.Ref.color(10, 40, 200);
@@ -105,6 +115,10 @@ public class TabLayout extends Element {
     KyUI.taskManager.executeAll();
     TabButton t=(TabButton)tabLayout.children.get(0);
     fixedSize=tabLayout.fixedSize;
+    defaultTab.setPressListener((MouseEvent e, int index) -> {
+      addTabListener.onEvent(TabLayout.this);
+      return false;
+    });
   }
   public void attachExternalFrame(FrameLayout frame) {//this can used when only frame has same children count with contentLayout (say 0!)
     if (frame.children.size() != contentLayout.children.size()) {
@@ -121,6 +135,16 @@ public class TabLayout extends Element {
   public void addTab(String text, Element content) {
     addTab(KyUI.INF, text, content);
   }
+  public Element addTabFromXml(String text, String path, @Nullable LinearList colorList) {
+    XML xml=KyUI.Ref.loadXML(path);
+    if (xml == null) {
+      return null;
+    }
+    FrameLayout frame=new FrameLayout(getName() + ":" + path.replaceAll("\\\\", "/").substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".")));
+    LayoutLoader.loadXML(frame, xml, null, colorList);
+    addTab(KyUI.INF, text, frame);
+    return frame;
+  }
   public void addTab(int index, String text, Element content) {
     index++;
     idToIndex.put(count, index);
@@ -131,10 +155,12 @@ public class TabLayout extends Element {
     btn.rotation=buttonRotation;
     btn.edgeRotation=buttonEdgeRotation;
     btn.textSize=textSize;
+    btn.xButton.textSize=textSize;
+    btn.xButton.textOffsetY=-textSize / 4;
     btn.textColor=textColor;
     btn.bgColor=tabBgColor;
     if (count == 0) {
-      btn.setEnabled(false);
+      defaultTab=btn;
     }
     content.setEnabled(false);
     count++;
@@ -228,7 +254,10 @@ public class TabLayout extends Element {
   }
   public void setTextSize(int v) {
     for (Element e : tabLayout.children) {
-      ((TabButton)e).textSize=v;
+      TabButton t=(TabButton)e;
+      t.textSize=v;
+      t.xButton.textSize=v;
+      t.xButton.textOffsetY=-v / 4;
     }
     textSize=v;
   }
@@ -254,8 +283,15 @@ public class TabLayout extends Element {
   }
   @Override
   public void onLayout() {
+    defaultTab.setEnabled(enableAdd);
+    tabLayout.starts=enableAdd ? 0 : 1;
     linkLayout.value=tabSize;
+    contentLayout.padding=padding;
+    for (Element e : tabLayout.children) {
+      e.padding=tabPadding;
+    }
     linkLayout.setPosition(pos);
+    //contentLayout.onLayout();
   }
   @Override
   public void editorAdd(Element e) {
@@ -296,6 +332,16 @@ public class TabLayout extends Element {
       xButton.setPressListener(new TabXButtonListener(this));
     }
     public void render(PGraphics g) {
+      if (this == defaultTab) {
+        textOffsetX=-textSize % 2;
+        textOffsetY=-textSize / 6;
+        if (bgColor != 0) {
+          fill(g, getDrawBgColor(g));
+          pos.render(g, -2);
+        }
+        drawContent(g, textColor);
+        return;
+      }
       textOffsetX=0;
       textOffsetY=0;
       if (edgeRotation == Attributes.Rotation.UP) {
@@ -324,6 +370,10 @@ public class TabLayout extends Element {
     }
     @Override
     public void onLayout() {
+      if (this == defaultTab) {
+        super.onLayout();
+        return;
+      }
       float size;
       xButton.rotation=rotation;
       if (rotation.ordinal() % 2 == 0) {
@@ -358,11 +408,12 @@ public class TabLayout extends Element {
     }
     @Override
     public Vector2 getPreferredSize() {
-      if (!enableX) return super.getPreferredSize();
+      if (!enableX || this == defaultTab) return super.getPreferredSize();
+      padding=tabPadding;
       if (rotation == Attributes.Rotation.UP || rotation == Attributes.Rotation.DOWN) {
-        return super.getPreferredSize().addAssign(new Vector2((pos.bottom - pos.top), 0));
+        return super.getPreferredSize().addAssign(new Vector2((pos.bottom - pos.top) * 2 / 3, 0));
       } else {
-        return super.getPreferredSize().addAssign(new Vector2(0, (pos.right - pos.left)));
+        return super.getPreferredSize().addAssign(new Vector2(0, (pos.right - pos.left) * 2 / 3));
       }
     }
     class TabXButtonListener implements MouseEventListener {

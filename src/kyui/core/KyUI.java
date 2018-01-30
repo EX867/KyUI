@@ -26,6 +26,7 @@ import sojamo.drop.*;
 //ADD>>optimize mouseEvent and rendering chain!! especially clipping...
 //[Editor]ADD>>search elements in editor (later)
 //ADD>>drag and drop overlay !!!**
+//ADD>>match_parent and layout attribute
 //FIX>>refactor loaders!!! generalize colorVariable to value.
 //FIX>>TextBox cursor speed problem
 public class KyUI {
@@ -331,6 +332,9 @@ public class KyUI {
     taskManager.executeAll();//because this need latest state.
     return (Type)Elements.get(name);
   }
+  public static CachingFrame getRoot() {
+    return roots.getLast();
+  }
   // called by processing animation thread
   public static void render(PGraphics g) {
     drawStart=drawEnd;
@@ -496,6 +500,7 @@ public class KyUI {
     taskManager.executeAll();
     roots.getLast().onLayout();
     roots.getLast().invalidate();
+    taskManager.executeAll();
   }
   public static void invalidate(Rect rect) {//adjust renderFlag.
     taskManager.addTask((n) -> {

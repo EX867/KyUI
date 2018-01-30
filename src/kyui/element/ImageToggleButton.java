@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
+import kyui.loader.ElementLoader;
 import kyui.util.ColorExt;
 import kyui.util.DataTransferable;
 import kyui.util.Rect;
@@ -37,9 +38,11 @@ public class ImageToggleButton extends ImageButton implements DataTransferable<B
   }
   @Override
   public void onPress() {
+    //if (!ElementLoader.isEditor) {
     if (value) value=false;
     else value=true;
-    if(dataChangeListener!=null){
+    //}
+    if (dataChangeListener != null) {
       dataChangeListener.onEvent(this);
     }
   }

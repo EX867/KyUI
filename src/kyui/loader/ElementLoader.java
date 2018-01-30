@@ -443,11 +443,13 @@ public class ElementLoader {
   public static TreeGraph.Node<Element> addElement(TreeGraph.Node<Element> node, String name, Class type) {//class extends Element
     try {
       if (type == null) {
-        KyUI.err("type not found! while trying to make " + name + "...");
+        KyUI.err("type not found! while trying to make " + name + "... maybe not called Elementoader.loadOnStart().");
+        return null;
       }
       Constructor<? extends Element> c=type.getDeclaredConstructor(String.class);
       c.setAccessible(true);
       TreeGraph.Node<Element> n=node.addNode(name, c.newInstance(name));
+      //System.out.println(n.content + " attached to " + node.content);
       //for if name is changed...
       n.text=n.content.getName();
       return n;

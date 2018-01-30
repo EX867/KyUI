@@ -30,7 +30,7 @@ public class Main extends PApplet {
   }
   @Override
   public void settings() {
-    noSmooth();
+    //noSmooth();
     size(1920, 1000);
   }
   final String startText="KyUI Layout Editor 0.1";
@@ -53,6 +53,7 @@ public class Main extends PApplet {
     TabLayout main_tabs=new TabLayout("kyui_main_tabs");
     main_tabs.setRotation(Attributes.Rotation.LEFT);
     main_tabs.setTabSize(40);
+    main_tabs.enableAdd=false;
     //create tabs
     DivisionLayout main_layout=new DivisionLayout("kyui_main_layout");
     DivisionLayout main_colors=new DivisionLayout("kyui_main_colors");
@@ -139,10 +140,13 @@ public class Main extends PApplet {
       }
       return false;
     });
+    ImageButton layout_partial_export=new ImageButton("kyui_layout_partial_export", ElementLoader.loadImageResource("partialexport.png"));
+    layout_partial_export.setDescription("export selected node to xml");
     layout_delete.setDescription("delete selected element and its children");
     layout_top.addChild(layout_frame_move);
     layout_top.addChild(layout_export);
     layout_top.addChild(layout_delete);
+    layout_top.addChild(layout_partial_export);
     //add all to main_layout
     main_layout.addChild(layout_frame);
     main_layout.addChild(layout_right);
@@ -224,10 +228,24 @@ public class Main extends PApplet {
       write.close();
       KyUI.log("exported as layout.xml in " + KyUI.frameCount);
     };
+    EventListener action_partial_export=(Element e) -> {
+      if (selectionNode == null) {
+        return;
+      }
+      PrintWriter write=createWriter("layout_" + selectionNode.content.toString() + ".xml");
+      XML xml=LayoutLoader.saveXML(null, selectionNode);
+      write.write(xml.format(2));
+      write.close();
+      KyUI.log("exported as layout_" + selectionNode.content.toString() + ".xml in " + KyUI.frameCount);
+    };
     layout_export.setPressListener((MouseEvent e, int index) -> {
       action_export.onEvent(null);
       return false;
     });//...
+    layout_partial_export.setPressListener((MouseEvent e, int index) -> {
+      action_partial_export.onEvent(null);
+      return false;
+    });
     ElementLoader.loadOnStart(layout_elements, layout_inspector);
     ElementLoader.vars.put("NONE", new InspectorColorVarButton.ColorVariable("NONE", 0));
     main_tabs.selectTab(1);

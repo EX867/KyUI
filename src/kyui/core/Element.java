@@ -11,6 +11,7 @@ import processing.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 public class Element implements TreeNodeAction {
   public List<Element> parents=new ArrayList<Element>();
@@ -36,12 +37,13 @@ public class Element implements TreeNodeAction {
         data.element.addedTo(parent);//...bad thing one more...
       } else if (data_raw instanceof RemoveChildData) {
         RemoveChildData data=(RemoveChildData)data_raw;
-        if (data.index < 0) {
+        int index=parent.children.indexOf(data.element);
+        if (index < 0) {
           return;
         }
-        Element element=parent.children.get(data.index);
+        Element element=parent.children.get(index);
         element.parents.remove(this);
-        parent.children.remove(data.index);
+        parent.children.remove(index);
         if (element.parents.size() == 0) KyUI.removeElement(element.getName());
       } else if (data_raw instanceof ReorderChildData) {
         ReorderChildData data=(ReorderChildData)data_raw;
@@ -64,9 +66,9 @@ public class Element implements TreeNodeAction {
     }
   }
   class RemoveChildData {
-    int index;
-    public RemoveChildData(int index_) {
-      index=index_;
+    Element element;
+    public RemoveChildData(Element element_) {
+      element=element_;
     }
   }
   class ReorderChildData {
@@ -141,15 +143,13 @@ public class Element implements TreeNodeAction {
     KyUI.taskManager.addTask(modifyChildrenTask, new AddChildData(index, element));
   }
   public final void removeChild(int index) {
-    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(index));
+    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(children.get(index)));
   }
   public final void removeChild(String name) {
     removeChild(KyUI.get(name));
   }
   public final void removeChild(Element e) {
-    int index=children.indexOf(e);
-    if (index == -1) return;
-    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(index));
+    KyUI.taskManager.addTask(modifyChildrenTask, new RemoveChildData(e));
   }
   public final void reorderChild(int a, int b) {
     KyUI.taskManager.addTask(modifyChildrenTask, new ReorderChildData(a, b));
@@ -172,6 +172,7 @@ public class Element implements TreeNodeAction {
     //System.out.println(getName() + " moved to " + rect.toString());
     invalidate(pos);
     pos=rect;
+    //pos.set(rect);
     localLayout();
   }
   public void onLayout() {
@@ -390,7 +391,7 @@ public class Element implements TreeNodeAction {
     KyUI.dropStart(this, e, index, "", getName());
   }
   //
-  Element checkOverlayCondition(Rect bounds, Vector2 position, Transform last, Predicate<Element> cond) {
+  public Element checkOverlayCondition(Rect bounds, Vector2 position, Transform last, Predicate<Element> cond) {
     bounds=Rect.getIntersection(bounds, pos, new Rect());
     if (!bounds.contains(position.x, position.y)) {
       return null;
@@ -413,6 +414,12 @@ public class Element implements TreeNodeAction {
       return this;
     }
     return null;
+  }
+  public void runRecursively(Consumer<Element> r) {
+    r.accept(this);
+    for (Element child : children) {
+      child.runRecursively(r);
+    }
   }
   synchronized boolean checkInvalid(Rect rect, Rect bounds, Transform last) {
     rect=Rect.getIntersection(rect, pos, new Rect());

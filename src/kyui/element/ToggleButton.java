@@ -1,6 +1,7 @@
 package kyui.element;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
+import kyui.loader.ElementLoader;
 import kyui.util.ColorExt;
 import kyui.util.DataTransferable;
 import kyui.util.Rect;
@@ -29,8 +30,10 @@ public class ToggleButton extends Button implements DataTransferable<Boolean> {
   }
   @Override
   public void onPress() {
+    //if (!ElementLoader.isEditor) {
     if (value) value=false;
     else value=true;
+    //}
     if (dataChangeListener != null) {
       dataChangeListener.onEvent(this);
     }
