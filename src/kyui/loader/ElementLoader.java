@@ -112,6 +112,9 @@ public class ElementLoader {
     if (!loadedExternals.contains(path)) {
       loadedExternals.add(path);
       exportExternals();
+    } else {
+      KyUI.log("ElementLoader - " + path + " is already loaded.");
+      return;
     }
     try {
       JarFile jarFile=new JarFile(path);
@@ -126,11 +129,14 @@ public class ElementLoader {
         }
         String className=je.getName().substring(0, je.getName().length() - 6);// -6 because of .class
         className=className.replace('/', '.').replace('\\', '.');
+        Class c=null;
         try {
-          Class.forName(className);//has problem.
+          c=Class.forName(className);//has problem.
         } catch (ClassNotFoundException ee) {
-          Class c=cl.loadClass(className);
-          if (Element.class.isAssignableFrom(c)) {
+          c=cl.loadClass(className);
+        }
+        if (c != null) {
+          if (Element.class.isAssignableFrom(c) && !classes.containsKey(c.getName())) {
             loadClass(c);
             KyUI.log("ElementLoader - " + c.getTypeName() + " is loaded! (" + c.getName() + ")");
           } else {

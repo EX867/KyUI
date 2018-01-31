@@ -199,7 +199,9 @@ public class TextBox extends TextEdit implements DataTransferable {
       }
     }
     if (!rightText.isEmpty()) {
+      g.fill(textColor);
       g.textAlign(PApplet.RIGHT, PApplet.CENTER);
+      g.textSize(Math.max(1, textSize / 2));
       g.text(rightText, pos.right - textSize, centerY + offsetY);
     }
     //g.textFont(KyUI.fontMain);

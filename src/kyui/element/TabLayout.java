@@ -119,6 +119,7 @@ public class TabLayout extends Element {
       addTabListener.onEvent(TabLayout.this);
       return false;
     });
+    defaultTab.xButton.text="";
   }
   public void attachExternalFrame(FrameLayout frame) {//this can used when only frame has same children count with contentLayout (say 0!)
     if (frame.children.size() != contentLayout.children.size()) {
