@@ -17,4 +17,15 @@ public class ColorExt {
   public static void fill(PGraphics g, int c) {
     g.fill(KyUI.Ref.red(c), KyUI.Ref.green(c), KyUI.Ref.blue(c), KyUI.Ref.alpha(c));
   }
+  public static void drawIndicator(PGraphics g, float x1, float y1, float x2, float y2, int thick) {
+    g.noFill();
+    g.stroke(255.0F);
+    g.strokeWeight(thick * 2);
+    g.rect(x1, y1, x2, y2);
+    g.stroke(0.0F);
+    g.strokeWeight(thick);
+    g.rect(x1 - thick, y1 - thick, x2 + thick, y2 + thick);
+    g.rect(x1 + thick, y1 + thick, x2 - thick, y2 - thick);
+    g.noStroke();
+  }
 }
