@@ -6,8 +6,6 @@ import kyui.element.KeyCatcher;
 import kyui.element.LinearList;
 import kyui.event.EventListener;
 import processing.data.XML;
-
-import java.util.List;
 public class ShortcutLoader {
   //first load default data and then loading custom data will
   public static void loadXml(XML xml) {

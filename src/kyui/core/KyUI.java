@@ -1,13 +1,4 @@
 package kyui.core;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
 import kyui.event.FileDropEventListener;
@@ -19,9 +10,20 @@ import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.data.XML;
 import processing.event.Event;
-import processing.event.MouseEvent;
 import processing.event.KeyEvent;
-import sojamo.drop.*;
+import processing.event.MouseEvent;
+import sojamo.drop.DropEvent;
+import sojamo.drop.DropListener;
+import sojamo.drop.SDrop;
+
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 //===To ADD list===//
 //ADD>>optimize mouseEvent and rendering chain!! especially clipping...
 //[Editor]ADD>>search elements in editor (later)
@@ -99,7 +101,7 @@ public class KyUI {
       if (data_ instanceof DropEvent) {
         DropEvent de=(DropEvent)data_;
         mouseGlobal.getLast().set(de.x() / scaleGlobal, de.y() / scaleGlobal);
-        Element target=roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, (Element e) -> {
+        Element target=roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, (Element e, Vector2 pos) -> {
           return (KyUI.dropEventsExternal.containsKey(e.getName()));
         });//if overlay, setup overlay.
         if (target != null) {
@@ -137,7 +139,7 @@ public class KyUI {
   static Description currentDescription=null;
   static boolean canShowDescription=true;
   static Description descriptionDefault;
-  static Predicate<Element> descriptionCheck=(Element e) -> {
+  static BiFunction<Element, Vector2, Boolean> descriptionCheck=(Element e, Vector2 pos) -> {
     return e.description != null;
   };
   //thread
@@ -493,7 +495,7 @@ public class KyUI {
     return reflectedPressedKeys.size();
   }
   //
-  public static Element checkOverlayCondition(Predicate<Element> cond) {
+  public static Element checkOverlayCondition(BiFunction<Element, Vector2, Boolean> cond) {
     return roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getFirst(), Transform.identity, cond);
   }
   public static void changeLayout() {

@@ -1,13 +1,8 @@
 package kyui.element;
-import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
-import kyui.event.MouseEventListener;
-import kyui.util.ColorExt;
 import kyui.util.Rect;
-import kyui.util.Vector2;
 import processing.core.PGraphics;
-import processing.event.MouseEvent;
 public class StatusBar extends Button {
   //modifiable values
   @Attribute

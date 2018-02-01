@@ -1,5 +1,4 @@
 package kyui.util;
-import kyui.core.KyUI;
 import processing.core.PApplet;
 
 import java.util.ArrayList;

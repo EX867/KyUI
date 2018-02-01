@@ -11,8 +11,8 @@ import processing.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 public class Element implements TreeNodeAction {
   public List<Element> parents=new ArrayList<Element>();
   public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
@@ -391,11 +391,12 @@ public class Element implements TreeNodeAction {
     KyUI.dropStart(this, e, index, "", getName());
   }
   //
-  public Element checkOverlayCondition(Rect bounds, Vector2 position, Transform last, Predicate<Element> cond) {
+  public Element checkOverlayCondition(Rect bounds, Vector2 position, Transform last, BiFunction<Element, Vector2, Boolean> cond) {
     bounds=Rect.getIntersection(bounds, pos, new Rect());
     if (!bounds.contains(position.x, position.y)) {
       return null;
     }
+    Vector2 ppos=position;
     if (relative) {
       bounds=transform.trans(last, bounds);
       position=transform.trans(last, position);
@@ -409,7 +410,7 @@ public class Element implements TreeNodeAction {
         }
       }
     }
-    if (cond.test(this)) {
+    if (cond.apply(this, ppos)) {
       overlayCondition_transform=last;
       return this;
     }

@@ -3,7 +3,6 @@ import kyui.util.Rect;
 import kyui.util.Transform;
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.event.MouseEvent;
 public final class CachingFrame extends Element {
   public PGraphics display;
   boolean invalidated=false;

@@ -1,7 +1,6 @@
 package kyui.core;
 import kyui.event.EventListener;
 import kyui.util.HideInEditor;
-import kyui.util.Rect;
 import kyui.util.Transform;
 import kyui.util.Vector2;
 import processing.core.PGraphics;

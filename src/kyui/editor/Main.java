@@ -1,8 +1,5 @@
 package kyui.editor;
-import kyui.core.Attributes;
-import kyui.core.DropMessenger;
-import kyui.core.KyUI;
-import kyui.core.Element;
+import kyui.core.*;
 import kyui.element.*;
 import kyui.event.DropEventListener;
 import kyui.event.EventListener;
@@ -10,7 +7,6 @@ import kyui.loader.ElementLoader;
 import kyui.loader.LayoutLoader;
 import kyui.loader.ShortcutLoader;
 import kyui.util.Rect;
-import kyui.core.RelativeFrame;
 import processing.core.PApplet;
 import processing.data.XML;
 import processing.event.KeyEvent;

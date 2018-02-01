@@ -2,8 +2,8 @@ package kyui.element;
 import kyui.core.Element;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
-import kyui.loader.ElementLoader;
 import kyui.event.MouseEventListener;
+import kyui.loader.ElementLoader;
 import kyui.util.Rect;
 import processing.event.MouseEvent;
 public class ColorPickerFull extends Element {

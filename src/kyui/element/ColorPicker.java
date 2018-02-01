@@ -9,7 +9,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.event.MouseEvent;
 
-import java.awt.Color;
+import java.awt.*;
 //ADD>>caching sb square!
 public class ColorPicker extends Element {
   private ColorPicker this_=this;

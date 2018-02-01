@@ -1,7 +1,6 @@
 package kyui.test;
 import kyui.core.KyUI;
 import kyui.loader.ElementLoader;
-import kyui.loader.LayoutLoader;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;

@@ -2,8 +2,6 @@ package kyui.editor;
 import kyui.core.Element;
 import kyui.loader.ElementLoader;
 import kyui.util.DataTransferable;
-import processing.core.PFont;
-import processing.core.PImage;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -5,18 +5,18 @@ import kyui.editor.Attribute;
 import kyui.editor.InspectorButton1;
 import kyui.editor.InspectorColorVarButton;
 import kyui.editor.InspectorRectButton;
-import kyui.element.LinearLayout;
-import kyui.element.LinearList;
-import kyui.element.TextBox;
-import kyui.element.ToggleButton;
-import kyui.util.*;
+import kyui.element.*;
+import kyui.util.DataTransferable;
+import kyui.util.HideInEditor;
+import kyui.util.Rect;
+import kyui.util.TypeChanger;
 import org.reflections.Reflections;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,9 +32,6 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
-import kyui.element.*;
-import processing.event.MouseEvent;
 public class ElementLoader {
   public static boolean isEditor=false;
   static ArrayList<String> loadedExternals=new ArrayList<>();

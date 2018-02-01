@@ -187,7 +187,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
     return super.mouseEvent(e, index);
   }
   public Node<Content> getNodeOverAbsolute() {
-    return (Node<Content>)KyUI.checkOverlayCondition((Element e) -> {
+    return (Node<Content>)KyUI.checkOverlayCondition((Element e, Vector2 pos) -> {
       return e instanceof Node && ((Node)e).Ref == this;
     });
   }
