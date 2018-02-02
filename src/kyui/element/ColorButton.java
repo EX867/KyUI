@@ -6,6 +6,7 @@ import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.event.MouseEventListener;
+import kyui.util.ColorExt;
 import kyui.util.DataTransferable;
 import kyui.util.Rect;
 import processing.core.PGraphics;
@@ -14,6 +15,7 @@ import processing.event.MouseEvent;
 import java.util.HashMap;
 public class ColorButton extends Button implements DataTransferable<Integer> {
   EventListener dataChangeListener;
+  public boolean selected=false;
   //modifiable values
   @Attribute(type=Attribute.COLOR)
   public int c=0xFFFFFFFF;
@@ -38,6 +40,9 @@ public class ColorButton extends Button implements DataTransferable<Integer> {
     fill(g, c);
     g.rect(-sizeX, -sizeY, sizeX, sizeY);
     g.popMatrix();
+    if (selected) {
+      ColorExt.drawIndicator(g, pos.left + 5, pos.top + 5, pos.right - 5, pos.bottom - 5, 4);
+    }
   }
   @Override
   public Integer get() {

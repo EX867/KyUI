@@ -100,7 +100,7 @@ public class Slider extends Element implements DataTransferable {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG)) {//only works with left event...
+    if (e.getButton() == KyUI.Ref.LEFT && (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG))) {//only works with left event...
       if (pressedL || e.getAction() == MouseEvent.PRESS) {
         requestFocus();
         float size=Math.max(1, getSize());

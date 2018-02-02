@@ -15,6 +15,10 @@ public class ColorPickerFull extends Element {
   boolean enableAlpha;
   @Attribute(setter="setEnableX", getter="getEnableX")
   boolean enableX;
+  @Attribute(setter="setSelectable")
+  protected boolean selectable=false;
+  public EventListener colorSelectListener;
+  public ColorButton selected=null;
   void setEnableAlpha(boolean v) {
     values[6].setEnabled(v);
   }
@@ -30,6 +34,19 @@ public class ColorPickerFull extends Element {
   public ColorPickerFull(String name) {
     super(name);
     init();
+  }
+  public void setSelectable(boolean v) {
+    selectable=v;
+    if (v) {
+      selected=recentButtons[0];
+      selected.selected=true;
+      selected.invalidate();
+    } else {
+      for (int a=0; a < recentButtons.length; a++) {
+        recentButtons[a].selected=false;
+        invalidate();
+      }
+    }
   }
   private void init() {
     colorPicker=new ColorPicker(getName() + ":colorPicker");
@@ -57,6 +74,15 @@ public class ColorPickerFull extends Element {
               }
             }
           }
+          colorSelectListener.onEvent(recentButtons[b]);
+          if (selectable) {
+            if (selected != null) {
+              selected.selected=false;
+              selected.invalidate();
+            }
+            selected=recentButtons[b];
+            selected.selected=true;
+          }
           colorPicker.invalidate();
           return false;
         }
@@ -67,6 +93,9 @@ public class ColorPickerFull extends Element {
       @Override
       public void onEvent(Element e) {
         recentButtons[0].c=colorPicker.selectedRGB;
+        if (selectable && recentButtons[0] == selected) {
+          colorSelectListener.onEvent(recentButtons[0]);
+        }
         recentButtons[0].invalidate();
       }
     });

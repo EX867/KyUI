@@ -5,6 +5,7 @@ import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
+import kyui.event.ItemSelectListener;
 import kyui.event.MouseEventListener;
 import kyui.loader.ElementLoader;
 import kyui.loader.LayoutLoader;
@@ -64,6 +65,7 @@ public class TabLayout extends Element {
   @Attribute(setter="setIntervalSize", layout=Attribute.SELF)
   protected int intervalSize;
   static int cnt=0;
+  public ItemSelectListener tabSelectListener;
   public EventListener addTabListener=(Element e) -> {
   };
   //in-class values
@@ -196,6 +198,9 @@ public class TabLayout extends Element {
     @Override
     public boolean onEvent(MouseEvent e, int index) {
       selectTab(index);
+      if(tabSelectListener!=null) {
+        tabSelectListener.onEvent(index);
+      }
       return true;
     }
   }

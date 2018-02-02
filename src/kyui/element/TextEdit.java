@@ -18,6 +18,7 @@ public class TextEdit extends Element {//no sliderX for now...
   private String text;//no use...! just meaning for string type one attribute...
   protected EditorString content;//real valueI for text.
   protected EventListener onTextChangeListener;
+  public EventListener onCursorChangeListener;
   public ArrayList<Filter> filters;
   public class Filter {
     String filter;
@@ -95,6 +96,31 @@ public class TextEdit extends Element {//no sliderX for now...
     lineNumSize=textSize * 2 + padding * 2;
     textFont=KyUI.fontText;
   }
+  public int getCursorLine() {
+    return content.line;
+  }
+  public int getCursorPoint() {
+    return content.point;
+  }
+  public void setCursorLine(int v) {
+    content.line=v;
+  }
+  public void setCursorPoint(int v) {
+    content.point=v;
+  }
+  public void setSelection(int sl, int sp, int el, int ep) {
+    content.selStartLine=sl;
+    content.selStartPoint=sp;
+    content.selEndLine=el;
+    content.selEndPoint=ep;
+    content.fixSelection();
+  }
+  public EditorString getContent() {//use only when needed...
+    return content;
+  }
+  public String getLine(int line) {
+    return content.getLine(line);
+  }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     if (e.getAction() == MouseEvent.PRESS) {
@@ -119,6 +145,9 @@ public class TextEdit extends Element {//no sliderX for now...
         clickPoint=content.point;
         clickLine=content.line;
         content.resetSelection();
+      }
+      if (onCursorChangeListener != null) {
+        onCursorChangeListener.onEvent(this);
       }
       invalidate();
       return false;
@@ -358,6 +387,9 @@ public class TextEdit extends Element {//no sliderX for now...
         }
         content.select(clickLine, clickPoint, content.line, content.point);
         moveToCursor();
+        if (onCursorChangeListener != null) {
+          onCursorChangeListener.onEvent(this);
+        }
         cursorOn=true;
         cursorFrame=20;
         invalidate();
