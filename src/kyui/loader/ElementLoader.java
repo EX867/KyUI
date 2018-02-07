@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import processing.data.XML;
 public class ElementLoader {
   public static boolean isEditor=false;
   static ArrayList<String> loadedExternals=new ArrayList<>();

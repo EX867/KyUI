@@ -157,6 +157,8 @@ public class DropDown extends Button implements DataTransferable<Integer> {
       }
       if (picker.size() == 0) return true;
       downButton.text=UP;
+      picker.setFixedSize((int)(pos.bottom - pos.top));
+      picker.onLayout();
       Rect screen=transformsAcc.getLast().trans(kyui.util.Transform.identity, new Rect(0, 0, KyUI.Ref.width, KyUI.Ref.height));
       Rect rect=new Rect(pos.left, pos.bottom, pos.right, pos.bottom + picker.getPreferredSize().y);
       if (screen.bottom - pos.bottom < pos.top - screen.top) {

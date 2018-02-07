@@ -17,7 +17,7 @@ public class TextEdit extends Element {//no sliderX for now...
   @Attribute(getter="getText", setter="setText")
   private String text;//no use...! just meaning for string type one attribute...
   protected EditorString content;//real valueI for text.
-  protected EventListener onTextChangeListener;
+  public EventListener onTextChangeListener;
   public EventListener onCursorChangeListener;
   public ArrayList<Filter> filters;
   public class Filter {

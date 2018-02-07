@@ -474,8 +474,7 @@ public class Element implements TreeNodeAction {
     if (relative) {
       transformMouse();
     }
-    int end=Math.min(children.size(), endClip);
-    for (int a=Math.max(0, startClip); a < end; a++) {
+    for (int a=Math.max(0, startClip); a < Math.min(children.size(), endClip); a++) {
       Element child=children.get(a);
       if (child.isEnabled() && child.isActive()) {
         if (!child.mouseEvent_(e, a, trigger)) {

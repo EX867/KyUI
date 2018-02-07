@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project default="build_jar" name="Create JAR-file">
+
+    <!-- Configuration -->
+    <property name="built_by" value="${user.name}"/>
+    <property name="version" value="0.1"/>
+
+    <!-- run the ant timestamp task -->
+    <tstamp/>
+
+    <!-- Compile the source files -->
+    <target name="compile" description="The compile task">
+        <mkdir dir="../../bin"/>
+        <javac srcdir="../../src" destdir="../../bin" classpath="" encoding="UTF-8" includeantruntime="false" source="1.8" target="1.8">
+            <compilerarg value="-XDignore.symbol.file"/>
+            <classpath>
+                <fileset dir="../../library" includes="*.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Clean the build directory -->
+    <target name="clean" description="Clean the build directory">
+        <delete dir="../../bin"/>
+        <delete file="../../../PositionWriter/PW2_0/code/KyUI.jar"/>
+    </target>
+
+    <!-- Build the jar -->
+    <target name="launcher" depends="compile" description="Build the launchable JAR">
+
+        <!-- With included source files -->
+        <jar destfile="../../../PositionWriter/PW2_0/data/KyUILauncher.jar">
+            <manifest>
+                <attribute name="Main-Class" value="kyui.editor.Main"/>
+                <attribute name="Implementation-Version" value="${version}-${DSTAMP}"/>
+                <attribute name="Built-By" value="${built_by}"/>
+                <attribute name="Created-By" value="${built_by}"/>
+                <attribute name="Built-Date" value="${TODAY}"/>
+            </manifest>
+
+            <!-- Compiled files -->
+            <fileset dir="../../bin"/>
+            <!-- include source files -->
+            <!--<fileset dir="../../src">-->
+            <!--<include name="**/*.java"/>-->
+            <!--</fileset>-->
+            <fileset dir="../../data"/>
+            <zipgroupfileset dir="../../library" includes="*.jar"/>
+        </jar>
+        <delete dir="../../bin"/>
+    </target>
+
+    <!--normal jar-->
+    <target name="build_jar" depends="compile" description="Build the JAR">
+
+        <!-- With included source files -->
+        <jar destfile="../../../PositionWriter/PW2_0/code/KyUI.jar">
+            <manifest>
+                <attribute name="Main-Class" value="kyui.editor.Main"/>
+                <attribute name="Class-Path" value="guava-21.0.jar"/>
+                <!--core.jar is not needed because this will run inside processing!-->
+                <attribute name="Implementation-Version" value="${version}-${DSTAMP}"/>
+                <attribute name="Built-By" value="${built_by}"/>
+                <attribute name="Created-By" value="${built_by}"/>
+                <attribute name="Built-Date" value="${TODAY}"/>
+            </manifest>
+            <fileset dir="../../bin"/>
+            <fileset dir="../../data"/>
+            <!--<zipgroupfileset dir="../../library" includes="javassist-3.21.0-GA.jar"/>-->
+            <!--<zipgroupfileset dir="../../library" includes="reflections-0.9.9.jar"/>-->
+            <zipgroupfileset dir="../../library" includes="SDrop.jar"/>
+        </jar>
+        <delete dir="../../bin"/>
+    </target>
+</project>

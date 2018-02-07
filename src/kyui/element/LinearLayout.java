@@ -169,6 +169,7 @@ public class LinearLayout extends Element {
     if (children.size() != 0) {
       childrenSize-=intervalSize;
     }
+    setOffset(offset);
   }
   @Override
   public void render(PGraphics g) {

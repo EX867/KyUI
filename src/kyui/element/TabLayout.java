@@ -68,6 +68,7 @@ public class TabLayout extends Element {
   public ItemSelectListener tabSelectListener;
   public EventListener addTabListener=(Element e) -> {
   };
+  public ItemSelectListener tabRemoveListener;
   //in-class values
   public int selection=0;
   protected TabButton defaultTab;
@@ -125,8 +126,9 @@ public class TabLayout extends Element {
   }
   public void attachExternalFrame(FrameLayout frame) {//this can used when only frame has same children count with contentLayout (say 0!)
     if (frame.children.size() != contentLayout.children.size()) {
-      throw new RuntimeException("[KyUI] attached frameLayout's count is not same with contentLayout's count.");
+      throw new RuntimeException("[KyUI] attached frameLayout's count is not same with contentLayout's count. (frame : " + frame.children.size() + ", content : " + contents.size() + ")");
     }
+    frame.children.get(0).setEnabled(false);//disable the first one!
     if (frame == linkLayout.children.get(1)) {
       contentLayout=frame;
       contentLayout.setEnabled(true);
@@ -134,16 +136,19 @@ public class TabLayout extends Element {
       contentLayout.setEnabled(false);
       contentLayout=frame;
     }
+    contents=contentLayout.children;
   }
   public void addTab(String text, Element content) {
     addTab(KyUI.INF, text, content);
   }
-  public Element addTabFromXml(String text, String path, @Nullable LinearList colorList) {
-    XML xml=KyUI.Ref.loadXML(path);
+  public Element addTabFromXmlPath(String text, XML xml, String path, LinearList colorList) {
+    return addTabFromXml(text, xml, path.replaceAll("\\\\", "/").substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".")), colorList);
+  }
+  public Element addTabFromXml(String text, XML xml, String name, @Nullable LinearList colorList) {
     if (xml == null) {
       return null;
     }
-    FrameLayout frame=new FrameLayout(getName() + ":" + path.replaceAll("\\\\", "/").substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".")));
+    FrameLayout frame=new FrameLayout(getName() + ":" + name);
     LayoutLoader.loadXML(frame, xml, null, colorList);
     addTab(KyUI.INF, text, frame);
     return frame;
@@ -183,8 +188,16 @@ public class TabLayout extends Element {
     idToIndex.remove(idToIndex.get(((TabLayoutPressListener)((TabButton)tabs.get(index)).getPressListener()).id));
     tabLayout.removeChild(index);
     //
-    if (selection == index) selectTab(0);
-    else if (selection > index) selectTab(selection - 1);
+    if (selection == index) {
+      if (index >= tabs.size() - 1) {
+        selectTab(selection - 1);
+      } else {
+        selectTab(selection + 1);
+      }
+    }
+    if (selection > index && selection != 0) {
+      selection--;
+    }
     for (int a=index; a < tabs.size(); a++) {
       idToIndex.put(((TabLayoutPressListener)((TabButton)tabs.get(a)).getPressListener()).id, a);
     }
@@ -198,9 +211,6 @@ public class TabLayout extends Element {
     @Override
     public boolean onEvent(MouseEvent e, int index) {
       selectTab(index);
-      if(tabSelectListener!=null) {
-        tabSelectListener.onEvent(index);
-      }
       return true;
     }
   }
@@ -212,13 +222,24 @@ public class TabLayout extends Element {
     }
     selection=selection_;
     ((TabButton)tabs.get(selection)).edgeColor=tabColor1;
-    contents.get(selection).setEnabled(true);
+    if (selection != 0) {
+      contents.get(selection).setEnabled(true);
+    }
+    if (tabSelectListener != null) {
+      tabSelectListener.onEvent(selection);
+    }
     invalidate();
+  }
+  public void setTabName(int index, String text) {
+    ((TabButton)tabLayout.children.get(index + 1)).text=text;
   }
   public void setTabNames(String[] texts) {
     for (int a=1; a <= texts.length && a < tabLayout.children.size(); a++) {
       ((TabButton)tabLayout.children.get(a)).text=texts[a - 1];
     }
+  }
+  public int getTabCount() {
+    return tabLayout.children.size() - 1;
   }
   public void setMode(LinearLayout.Behavior mode) {
     this.mode=mode;
@@ -335,7 +356,7 @@ public class TabLayout extends Element {
       xButton.bgColor=ColorExt.brighter(bgColor, -10);
       xButton.textOffsetY=-textSize / 4;
       addChild(xButton);
-      xButton.setPressListener(new TabXButtonListener(this));
+      xButton.setPressListener(new TabXButtonListener());
     }
     public void render(PGraphics g) {
       if (this == defaultTab) {
@@ -423,13 +444,13 @@ public class TabLayout extends Element {
       }
     }
     class TabXButtonListener implements MouseEventListener {
-      TabButton Ref;
-      public TabXButtonListener(TabButton t) {
-        Ref=t;
-      }
       public boolean onEvent(MouseEvent e, int index) {
         if (!ElementLoader.isEditor) {
-          removeTab(tabs.indexOf(Ref) - 1);
+          index=tabs.indexOf(TabButton.this);
+          if (tabRemoveListener != null) {
+            tabRemoveListener.onEvent(index - 1);
+          }
+          removeTab(index - 1);
         }
         return false;
       }

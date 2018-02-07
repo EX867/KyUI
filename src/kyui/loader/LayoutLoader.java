@@ -270,19 +270,54 @@ public class LayoutLoader {
       node=node_;
     }
   }
-/*
-<Data>
-  <layout>//xml
-    <kyui.element.Button
-      bgColor=0xFF323232(10)>
-    </>
-  </layout>
-  <color>
-    <VarName>0xFF323232</VarName>
-  </color>
-  <shortcut>
-    <...>
-  </shortcut>
-</Data>
- */
+  /*
+  <Data>
+    <layout>//xml
+      <kyui.element.Button
+        bgColor=0xFF323232(10)>
+      </>
+    </layout>
+    <color>
+      <VarName>0xFF323232</VarName>
+    </color>
+    <shortcut>
+      <...>
+    </shortcut>
+  </Data>
+   */
+  public static XML saveElementProperties(String[] datas) {
+    XML xml=new XML("data");
+    for (String data : datas) {
+      try {
+        String[] tokens=KyUI.Ref.split(data, ".");
+        if (tokens.length != 2) {
+          continue;
+        }
+        Element e=KyUI.get(tokens[0]);
+        Attribute.Editor ed=ElementLoader.attributes.get(e.getClass()).getAttribute(tokens[1]);
+        if (ed != null) {
+          xml.addChild(data).setContent(ed.getField(e).toString());
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return xml;
+  }
+  public static void loadElementProperties(XML xml) {
+    XML[] datas=xml.getChildren();
+    for (XML dat : datas) {
+      try {
+        String[] tokens=KyUI.Ref.split(dat.getName(), ".");
+        if (tokens.length != 2) {
+          continue;
+        }
+        Element e=KyUI.get(tokens[0]);
+        Attribute.Editor ed=ElementLoader.attributes.get(e.getClass()).getAttribute(tokens[1]);
+        ed.setField(e, castFromString(ed.field.getType(), dat.getContent()));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
 }

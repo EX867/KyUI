@@ -18,9 +18,17 @@ public class Test extends PApplet {
     KyUI.start(this);
     ElementLoader.loadOnStart();
     KyUI.add(new TabLayout("asdf", new Rect(0, 0, 800, 800)));
-    Element f=KyUI.<TabLayout>get2("asdf").addTabFromXml("A", "C:/Users/user/Documents/[Projects]/KyUI/layout_partial_layout.xml", null);
+    TabLayout tab=KyUI.<TabLayout>get2("asdf");
+    tab.enableX=true;
+    tab.tabRemoveListener=(int index)->{
+      System.out.println(index);
+    };
+    for(int a=0;a<20;a++){
+      tab.addTab(a+"", new Element(a+""));
+    }
+    //Element f=KyUI.<TabLayout>get2("asdf").addTabFromXml("A", "C:/Users/user/Documents/[Projects]/KyUI/layout_partial_layout.xml", null);
     KyUI.changeLayout();
-//    KyUI.getRoot().runRecursively((Element e) -> {
+    //    KyUI.getRoot().runRecursively((Element e) -> {
     //      System.out.println(e.getName() + " : " + e.pos+" "+e.children.size());
     //    });
   }

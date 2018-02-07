@@ -23,6 +23,8 @@ public class TextBox extends TextEdit implements DataTransferable {
   @Attribute
   public String rightText="";
   @Attribute
+  public int rightTextSize=15;
+  @Attribute
   public boolean error=false;
   //...?
   public int strokeWeight=6;
@@ -201,7 +203,7 @@ public class TextBox extends TextEdit implements DataTransferable {
     if (!rightText.isEmpty()) {
       g.fill(textColor);
       g.textAlign(PApplet.RIGHT, PApplet.CENTER);
-      g.textSize(Math.max(1, textSize / 2));
+      g.textSize(Math.max(1,rightTextSize));
       g.text(rightText, pos.right - textSize, centerY + offsetY);
     }
     //g.textFont(KyUI.fontMain);
