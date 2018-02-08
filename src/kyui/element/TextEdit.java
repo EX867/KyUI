@@ -38,7 +38,7 @@ public class TextEdit extends Element {//no sliderX for now...
     }
   }
   //modifiable values
-  @Attribute
+  //@Attribute
   public PFont textFont;
   @Attribute
   public String hint="";//this is one-line hint if text is empty.
@@ -181,7 +181,7 @@ public class TextEdit extends Element {//no sliderX for now...
     content.setCursorLine(Math.max(Math.min(offsetToLine(offsetY - padding + KyUI.mouseGlobal.getLast().y - pos.top), content.lines() - 1), 0));
     PGraphics cg=KyUI.cacheGraphics;
     cg.textFont(textFont);
-    cg.textSize(Math.max(1, textSize * transformsAcc.getLast().scale));//just using function...
+    cg.textSize(KyUI.scaleGlobal*Math.max(1, textSize * transformsAcc.getLast().scale));//just using function...
     float mouseX=/*offsetX+*/KyUI.mouseGlobal.getLast().x - pos.left - padding - lineNumSize;
     String line=content.getLine(content.line);
     int point=0;//mid

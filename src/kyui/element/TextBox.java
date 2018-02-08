@@ -73,6 +73,7 @@ public class TextBox extends TextEdit implements DataTransferable {
     padding=textSize;
     lineNumSize=0;
     errorColor=KyUI.Ref.color(255, 0, 0);
+    textFont=KyUI.fontMain;
   }
   public TextBox setNumberOnly(NumberType v) {//default true...
     numberFilter.condition=false;
@@ -138,6 +139,7 @@ public class TextBox extends TextEdit implements DataTransferable {
   }
   @Override
   public void render(PGraphics g) {
+    g.textFont(textFont);
     //draw basic form
     g.strokeWeight(strokeWeight);
     cacheRect.set(pos.left + strokeWeight / 2, pos.top + strokeWeight / 2, pos.right - strokeWeight / 2, pos.bottom - strokeWeight / 2);
@@ -203,11 +205,12 @@ public class TextBox extends TextEdit implements DataTransferable {
     if (!rightText.isEmpty()) {
       g.fill(textColor);
       g.textAlign(PApplet.RIGHT, PApplet.CENTER);
-      g.textSize(Math.max(1,rightTextSize));
+      g.textSize(Math.max(1, rightTextSize));
       g.text(rightText, pos.right - textSize, centerY + offsetY);
     }
     //g.textFont(KyUI.fontMain);
     g.noStroke();
+    g.textFont(KyUI.fontMain);
     g.textAlign(PApplet.CENTER, PApplet.CENTER);
   }
   @Override
