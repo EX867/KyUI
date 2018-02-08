@@ -68,6 +68,7 @@ public class FileDrop extends Element implements DataTransferable<File> {
     if (file == null) {
       g.fill(fgColor);
       g.textSize(Math.max(1, textSize));
+      g.textLeading(Math.max(1, textSize));
       g.text(hint, (pos.left + pos.right) / 2, (pos.top + pos.bottom) / 2);
     } else {
       g.fill(fgColor);

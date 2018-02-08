@@ -5,11 +5,16 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 public final class CachingFrame extends Element {
   public PGraphics display;
-  boolean invalidated=false;
+  public boolean invalidated=false;
+  public int alpha=0;
   public CachingFrame(String name, Rect pos_) {
     super(name);
     pos=pos_;
     display=KyUI.Ref.createGraphics((int)(pos.right - pos.left), (int)(pos.bottom - pos.top));
+  }
+  public CachingFrame setAlpha(int a){
+    alpha=a;
+    return this;
   }
   @Override
   synchronized void render_(PGraphics g) {

@@ -126,7 +126,7 @@ public class KyUI {
   public static HashMap<String, Shortcut> shortcutsByName=new HashMap<String, Shortcut>(199);
   public static LinkedList<Shortcut> shortcuts=new LinkedList<Shortcut>();
   // graphics
-  public static int LAYER_ALPHA=50;
+  //public static boolean DRAW_ALL_LAYERS=false;
   public static PGraphics cacheGraphics;
   public static long drawStart=0;// these 3 parameters used to measure elapsed time.
   public static long drawEnd=0;
@@ -346,9 +346,11 @@ public class KyUI {
     synchronized (updater) {
       boolean started=false;
       for (CachingFrame root : roots) {
-        if(started){
-          g.fill(0,LAYER_ALPHA);
-          g.rect(0,0,g.width,g.height);
+        if (started) {
+          if (root.alpha != 0) {
+            g.fill(0, root.alpha);
+            g.rect(0, 0, g.width, g.height);
+          }
         }
         root.renderReal(g);//render all...
         started=true;
