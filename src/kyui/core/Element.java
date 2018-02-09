@@ -1,6 +1,7 @@
 package kyui.core;
 import kyui.editor.Attribute;
 import kyui.element.TreeGraph;
+import kyui.event.ExtendedRenderer;
 import kyui.event.TreeNodeAction;
 import kyui.util.*;
 import processing.core.PApplet;
@@ -31,7 +32,9 @@ public class Element implements TreeNodeAction {
           KyUI.err("children.size() already reached max valueI.");
           //return;//some classes can behave strange, not refuse them only put error.
         }
-        KyUI.addElement(data.element);
+        if (!data.element.name.isEmpty()) {
+          KyUI.addElement(data.element);
+        }
         parent.children.add(Math.min(data.index, parent.children.size()), data.element);
         data.element.parents.add(parent);
         data.element.addedTo(parent);//...bad thing one more...
@@ -42,14 +45,23 @@ public class Element implements TreeNodeAction {
           return;
         }
         Element element=parent.children.get(index);
-        element.parents.remove(this);
+        element.parents.remove(parent);
         parent.children.remove(index);
-        if (element.parents.size() == 0) KyUI.removeElement(element.getName());
+        if (!element.name.isEmpty()) {
+          if (element.parents.size() == 0) KyUI.removeElement(element.getName());
+        }
       } else if (data_raw instanceof ReorderChildData) {
         ReorderChildData data=(ReorderChildData)data_raw;
-        Element temp=parent.children.get(data.a);
-        parent.children.set(data.a, parent.children.get(data.b));
-        parent.children.set(data.b, temp);
+        if (data.b > data.a) {
+          data.b--;
+        }
+        if (data.a < 0 || data.b < 0 || data.a >= parent.children.size() || data.b >= parent.children.size()) {
+          return;
+        }
+        //remove a and insert b
+        Element e=parent.children.get(data.a);
+        parent.children.remove(data.a);
+        parent.children.add(data.b, e);
       } else if (data_raw == null) {
         parent.onLayout();
         parent.invalidate();
@@ -100,6 +112,9 @@ public class Element implements TreeNodeAction {
   public int margin=0;
   @Attribute(layout=Attribute.SELF)
   public int padding=0;
+  @Attribute
+  public int overlayOnDrag=0;
+  protected ExtendedRenderer dropOverlayRenderer;
   //
   protected int startClip=0;//used in rendering or
   protected int endClip=KyUI.INF;
@@ -133,7 +148,9 @@ public class Element implements TreeNodeAction {
   //
   public Element(String name_) {
     name=name_;
-    KyUI.addElement(this);
+    if (!name.isEmpty()) {
+      KyUI.addElement(this);
+    }
   }
   //children modify
   public final void addChild(Element object) {
@@ -213,7 +230,9 @@ public class Element implements TreeNodeAction {
   public void setDescription(String text) {
     if (text.isEmpty()) {
       if (description != null) {
-        KyUI.removeElement(description.getName());
+        if (!name.isEmpty()) {
+          KyUI.removeElement(description.getName());
+        }
         description=null;
       }
     }
@@ -329,11 +348,12 @@ public class Element implements TreeNodeAction {
   }
   //===rendering===//
   void render_(PGraphics g) {
-    boolean renderFlag_=renderFlag;
+    boolean dropEnd=KyUI.isDropEnd(this);
+    renderFlag=renderFlag || dropEnd;
     if (clipping) {
       clipRectRender(g);
     }
-    if (renderFlag_) {
+    if (renderFlag) {
       render(g);
     }
     if (relative) {
@@ -346,6 +366,15 @@ public class Element implements TreeNodeAction {
     //    if (renderFlag_) {
     //      renderAfter(g);
     //    }
+    if (dropEnd) {
+      if (overlayOnDrag != 0) {
+        g.fill(0, overlayOnDrag);
+        pos.render(g);
+      }
+      if (dropOverlayRenderer != null) {
+        dropOverlayRenderer.render(g);
+      }
+    }
     if (clipping) {
       removeClipRender(g);
     }

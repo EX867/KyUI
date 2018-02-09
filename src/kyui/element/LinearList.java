@@ -1,9 +1,11 @@
 package kyui.element;
 import kyui.core.Attributes;
+import kyui.core.DropMessenger;
 import kyui.core.Element;
 import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
+import kyui.event.ExtendedRenderer;
 import kyui.event.ItemSelectListener;
 import kyui.event.MouseEventListener;
 import kyui.util.ColorExt;
@@ -14,12 +16,14 @@ import processing.core.PGraphics;
 import processing.event.MouseEvent;
 
 import java.util.List;
+import java.util.function.BiPredicate;
 public class LinearList extends Element {
   public int strokeWeight=4;
   protected DivisionLayout linkLayout;
   public LinearLayout listLayout;//NOOOO!!!!
   protected RangeSlider slider;
   protected ItemSelectListener selectListener;
+  public BiPredicate<Integer, Integer> reorderListener;
   protected SelectableButton selection=null;
   protected SelectableButton pressItem;
   SelectableButton pressItemOld;
@@ -71,7 +75,53 @@ public class LinearList extends Element {
     });
     bgColor=KyUI.Ref.color(127);
     fgColor=50;
+    dropOverlayRenderer=new ExtendedRenderer() {
+      @Override
+      public void render(PGraphics g) {
+        int index=getReorderIndex(KyUI.mouseGlobal.getLast());
+        g.noFill();
+        g.strokeWeight(strokeWeight);
+        g.stroke(0);
+        if (direction == Attributes.Direction.HORIZONTAL) {
+          float lineY=pos.top + listLayout.padding - listLayout.offset + index * (listLayout.fixedSize + listLayout.padding);
+          if (lineY > pos.top && lineY < pos.bottom) {
+            g.rect(pos.left + 20, lineY - 10, pos.right - 20, lineY + 10);
+          }
+        } else if (direction == Attributes.Direction.VERTICAL) {
+          float lineY=pos.top + listLayout.padding - listLayout.offset + index * (listLayout.fixedSize + listLayout.padding);
+          if (lineY > pos.top && lineY < pos.bottom) {
+            g.rect(pos.left + 20, lineY - 10, pos.right - 20, lineY + 10);
+          }
+        }
+        g.noStroke();
+      }
+    };
     addChild(linkLayout);
+  }
+  public void enableReordering() {
+    KyUI.addDragAndDrop(this, this, (DropMessenger messenger, MouseEvent end, int endIndex) -> {
+      final int a=messenger.startIndex;
+      KyUI.checkOverlayCondition((Element e, Vector2 pos) -> {
+        if (e == linkLayout || (e instanceof SelectableButton && ((SelectableButton)e).Ref == LinearList.this)) {
+          int b=getReorderIndex(pos);
+          if (reorderListener == null || reorderListener.test(a, b)) {
+            listLayout.reorderChild(a, b);//move a to b
+            onLayout();
+          }
+          return true;
+        }
+        return false;
+      });
+    });
+  }
+  int getReorderIndex(Vector2 mouse) {
+    int index=0;
+    if (direction == Attributes.Direction.VERTICAL) {
+      index=(int)((mouse.y + (listLayout.fixedSize + listLayout.padding) / 2 - (pos.top + listLayout.padding - listLayout.offset))) / (listLayout.fixedSize + listLayout.padding);
+    } else if (direction == Attributes.Direction.HORIZONTAL) {
+      index=(int)((mouse.x + (listLayout.fixedSize + listLayout.padding) / 2 - (pos.left + listLayout.padding - listLayout.offset))) / (listLayout.fixedSize + listLayout.padding);
+    }
+    return Math.max(Math.min(index, listLayout.children.size() - 1), 0);
   }
   public void addItem(String text) {
     SelectableButton btn=new SelectableButton(getName() + ":" + count);
@@ -170,6 +220,8 @@ public class LinearList extends Element {
         pressItemOld=pressItem;
       }
       pressItem=null;
+    } else if (e.getAction() == MouseEvent.WHEEL) {
+      invalidate();
     }
     return true;
   }
@@ -297,6 +349,10 @@ public class LinearList extends Element {
       if (Ref != null) {
         if (e.getAction() == MouseEvent.PRESS) {
           Ref.pressItem=this;
+        } else if (e.getAction() == MouseEvent.DRAG) {
+          if (KyUI.dropMessenger == null && !pos.contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y) && pressedL && Ref.droppableStart) {
+            KyUI.dropStart(Ref, e, index, getName(), text);
+          }
         }
       }
       return super.mouseEvent(e, index);

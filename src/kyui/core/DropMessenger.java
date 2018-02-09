@@ -9,6 +9,7 @@ public class DropMessenger extends Element {
   public int startIndex;
   public String message;
   public String displayText;
+  public CachingFrame root;
   //
   public int textSize=20;
   //
@@ -23,13 +24,14 @@ public class DropMessenger extends Element {
     }
   };
   protected Visual visual=defaultVisual;
-  public DropMessenger(String name, Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
+  public DropMessenger(String name, Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_, CachingFrame root_) {//send root to in invalidate!
     super(name);
     start=start_;
     startEvent=startEvent_;
     startIndex=startIndex_;
     message=message_;
     displayText=displayText_;
+    root=root_;
     padding=10;
     KyUI.cacheGraphics.textSize(textSize);//is this making sync error?
     float hwidth=KyUI.cacheGraphics.textWidth(displayText) / 2 + padding;
@@ -51,7 +53,7 @@ public class DropMessenger extends Element {
       visual=v;
     }
   }
-   @Override
+  @Override
   public boolean mouseEvent(MouseEvent e, int index) {
     float hwidth=(pos.right - pos.left) / 2;
     float hheight=(pos.bottom - pos.top) / 2;
@@ -59,6 +61,9 @@ public class DropMessenger extends Element {
     if (e.getAction() == MouseEvent.PRESS || e.getAction() == MouseEvent.DRAG) {
       requestFocus();
       invalidate();
+      if (root != null) {
+        root.invalidated=true;
+      }
     } else if (e.getAction() == MouseEvent.RELEASE) {
       KyUI.dropLayer.removeChild(getName());
       KyUI.removeLayer();

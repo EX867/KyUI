@@ -27,10 +27,8 @@ import java.util.function.Consumer;
 //===To ADD list===//
 //ADD>>optimize mouseEvent and rendering chain!! especially clipping...
 //[Editor]ADD>>search elements in editor (later)
-//ADD>>drag and drop overlay !!!**
 //ADD>>match_parent and layout attribute
 //FIX>>refactor loaders!!! generalize colorVariable to value.
-//FIX>>TextBox cursor speed problem
 public class KyUI {
   //
   public static PApplet Ref;
@@ -86,12 +84,13 @@ public class KyUI {
     mouseClick.add(new Vector2());
     mouseGlobal.add(new Vector2());
   }
-  public static final int GESTURE_THRESHOLD=13;
-  public static final int WHEEL_COUNT=25;
-  public static HashMap<String, DropEventListener> dropEvents=new HashMap<String, DropEventListener>();//dnd - internal
+  public static int DOUBLE_CLICK_INTERVAL=400;
+  public static int GESTURE_THRESHOLD=13;
+  public static int WHEEL_COUNT=25;
+  public static HashMap<ElementPair, DropEventListener> dropEvents=new HashMap<>();//dnd - internal
   public static DropMessenger dropMessenger;//
   public static CachingFrame dropLayer;
-  public static HashMap<String, FileDropEventListener> dropEventsExternal=new HashMap<String, FileDropEventListener>();//dnd - external
+  public static HashMap<Element, FileDropEventListener> dropEventsExternal=new HashMap<>();//dnd - external
   static CachingFrame dropLayerExternal;
   static SDrop drop;//drop from outside is handled not like drop between elements...this is my limit of abstraction...
   public static boolean draggingExternal=false;//used when checking this moueEvent is external drag and drop.
@@ -377,6 +376,7 @@ public class KyUI {
     }
     public void loop() {
       synchronized (updater) {
+        //System.out.println("start "+frameCount);
         //empty EventQueue.
         while (EventQueue.size() > 0) {
           Event e=EventQueue.pollFirst();
@@ -410,6 +410,7 @@ public class KyUI {
           currentDescription=null;
         }
       }
+      //System.out.println("end "+frameCount);
       frameCount++;
     }
   }
@@ -528,7 +529,7 @@ public class KyUI {
     }, null);
   }
   public static void dropStart(Element start_, MouseEvent startEvent_, int startIndex_, String message_, String displayText_) {
-    dropMessenger=new DropMessenger("KyUI:messenger", start_, startEvent_, startIndex_, message_, displayText_);
+    dropMessenger=new DropMessenger("KyUI:messenger", start_, startEvent_, startIndex_, message_, displayText_, roots.getLast());
     dropMessenger.setVisual(start_.dropVisual);
     dropLayer.addChild(dropMessenger);
     addLayer(dropLayer);
@@ -536,32 +537,54 @@ public class KyUI {
       handleEvent(startEvent_);
     }, null);
   }
+  public static boolean isDropEnd(Element end) {
+    if (!end.droppableEnd) return false;
+    return getDropEvent(end) != null;
+  }
   public static void dropEnd(Element end, MouseEvent endEvent, int endIndex) {
     if (!end.droppableEnd) return;//this is : ignoring. so please check this thing
     if (dropMessenger != null) {
-      if (end.droppableEnd) {
-        DropEventListener de=getDropEvent(end);
-        if (de != null) {
-          DropMessenger dm=dropMessenger;
-          taskManager.addTask((n) -> {
-            de.onEvent(dm, endEvent, endIndex);
-          }, null);
-        }
+      DropEventListener de=getDropEvent(end);
+      if (de != null) {
+        DropMessenger dm=dropMessenger;
+        taskManager.addTask((n) -> {
+          de.onEvent(dm, endEvent, endIndex);
+        }, null);
       }
       dropMessenger=null;
     }
   }
+  static class ElementPair {
+    Element start;
+    Element end;
+    ElementPair(Element start_, Element end_) {
+      start=start_;
+      end=end_;
+    }
+    @Override
+    public int hashCode() {
+      return start.hashCode() + end.hashCode() * 17;
+    }
+    @Override
+    public boolean equals(Object other) {
+      if (other instanceof ElementPair) {
+        ElementPair e=(ElementPair)other;
+        return e.start == start && e.end == end;
+      }
+      return false;
+    }
+  }
   public static void addDragAndDrop(Element start, Element end, DropEventListener listener) {
-    dropEvents.put(start.getName() + "->" + end.getName(), listener);
+    dropEvents.put(new ElementPair(start, end), listener);
     start.droppableStart=true;
     end.droppableEnd=true;
   }
   public static void addDragAndDrop(Element end, FileDropEventListener listener) {
-    dropEventsExternal.put(end.getName(), listener);
+    dropEventsExternal.put(end, listener);
   }
   public static DropEventListener getDropEvent(Element end) {
     if (dropMessenger == null) return null;
-    return dropEvents.get(dropMessenger.start.getName() + "->" + end.getName());
+    return dropEvents.get(new ElementPair(dropMessenger.start, end));
   }
   public static class Shortcut {
     public Key key;

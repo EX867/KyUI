@@ -1,6 +1,8 @@
 package kyui.test;
 import kyui.core.Element;
 import kyui.core.KyUI;
+import kyui.element.FileSelectorButton;
+import kyui.element.LinearList;
 import kyui.element.TabLayout;
 import kyui.loader.ElementLoader;
 import kyui.util.Rect;
@@ -16,17 +18,27 @@ public class Test extends PApplet {
   }
   public void setup() {
     KyUI.start(this);
-    ElementLoader.loadOnStart();
-    KyUI.add(new TabLayout("asdf", new Rect(0, 0, 800, 800)));
-    TabLayout tab=KyUI.<TabLayout>get2("asdf");
-    tab.enableX=true;
-    tab.tabRemoveListener=(int index)->{
-      System.out.println(index);
-    };
-    for(int a=0;a<20;a++){
-      tab.addTab(a+"", new Element(a+""));
-    }
+    //ElementLoader.loadOnStart();
+    //    KyUI.add(new TabLayout("asdf", new Rect(0, 0, 800, 800)));
+    //    TabLayout tab=KyUI.<TabLayout>get2("asdf");
+    //    tab.enableX=true;
+    //    tab.tabRemoveListener=(int index)->{
+    //      System.out.println(index);
+    //    };
+    //    for(int a=0;a<20;a++){
+    //      tab.addTab(a+"", new Element(a+""));
+    //    }
     //Element f=KyUI.<TabLayout>get2("asdf").addTabFromXml("A", "C:/Users/user/Documents/[Projects]/KyUI/layout_partial_layout.xml", null);
+    LinearList asdf=new LinearList("asdf", new Rect(0, 0, 800, 800));
+    KyUI.add(asdf);
+    //    asdf.overlayOnDrag=50;
+    //    asdf.enableReordering();
+    //    for (int a=0; a < 20; a++) {
+    //      asdf.addItem(a + "");
+    //    }
+    FileSelectorButton.listDirectory(asdf, new java.io.File("C:/Users/user/Documents"), (java.io.File file) -> {
+      System.out.println(file.getAbsolutePath());
+    });
     KyUI.changeLayout();
     //    KyUI.getRoot().runRecursively((Element e) -> {
     //      System.out.println(e.getName() + " : " + e.pos+" "+e.children.size());
