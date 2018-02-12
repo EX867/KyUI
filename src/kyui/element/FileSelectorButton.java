@@ -7,11 +7,13 @@ import java.util.function.Consumer;
 
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
+import processing.core.PFont;
 public class FileSelectorButton extends LinearList.SelectableButton {
   long lastClicked=0;
   boolean doubleClickReady=false;
   public File file;
   public Consumer<File> doubleClickListener;
+  public static PFont fileTextFont=null;
   protected FileSelectorButton(String name) {//cannot be accessed by name!
     super("");
   }
@@ -68,15 +70,21 @@ public class FileSelectorButton extends LinearList.SelectableButton {
     if (files == null) {
       return;
     }
+    if (fileTextFont == null) {
+      fileTextFont=KyUI.fontText;
+    }
     list.listLayout.children.clear();//you can clear because probably that list is file list!
     File parentFile=file.getParentFile();
     if (parentFile != null) {
       FileSelectorButton parent=new FileSelectorButton("", parentFile, doubleClickListener);
       parent.text="/..";
+      parent.textFont=fileTextFont;
       list.listLayout.addChild(parent);
     }
     for (File f : files) {
-      list.listLayout.addChild(new FileSelectorButton("", f, doubleClickListener));
+      FileSelectorButton btn=new FileSelectorButton("", f, doubleClickListener);
+      btn.textFont=fileTextFont;
+      list.listLayout.addChild(btn);
     }
     KyUI.taskManager.executeAll();
     list.afterModify();

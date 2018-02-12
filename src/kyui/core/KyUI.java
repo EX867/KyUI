@@ -49,12 +49,12 @@ public class KyUI {
     @Override
     public void execute(Object data_raw) {
       if (data_raw == null) {//remove
-        roots.pollLast();
-        if (roots.size() == 0) {
+        if (roots.size() <= 1) {
           System.err.println("there is some error!");
-          return;
+        } else {
+          roots.pollLast();
+          roots.peekLast().renderFlag=true;
         }
-        roots.peekLast().renderFlag=true;
       } else {
         CachingFrame root=(CachingFrame)data_raw;
         roots.addLast(root);
@@ -101,11 +101,11 @@ public class KyUI {
         DropEvent de=(DropEvent)data_;
         mouseGlobal.getLast().set(de.x() / scaleGlobal, de.y() / scaleGlobal);
         Element target=roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, (Element e, Vector2 pos) -> {
-          return (KyUI.dropEventsExternal.containsKey(e.getName()));
+          return (KyUI.dropEventsExternal.containsKey(e));
         });//if overlay, setup overlay.
         if (target != null) {
           KyUI.log("drop target : " + target.getName());
-          dropEventsExternal.get(target.getName()).onEvent(de);
+          dropEventsExternal.get(target).onEvent(de);
         }
       }
     }

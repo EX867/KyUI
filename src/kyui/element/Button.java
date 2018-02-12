@@ -9,6 +9,7 @@ import kyui.util.Rect;
 import kyui.util.Vector2;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
+import processing.core.PFont;
 public class Button extends Element {
   protected MouseEventListener pressListener;
   //modifiable values
@@ -18,6 +19,7 @@ public class Button extends Element {
   public int textSize=15;
   @Attribute
   public String text="Button";
+  public PFont textFont;
   @Attribute(layout=Attribute.SELF)
   public Attributes.Rotation rotation=Attributes.Rotation.UP;
   //in-class values
@@ -36,6 +38,7 @@ public class Button extends Element {
     bgColor=KyUI.Ref.color(50);
     textColor=KyUI.Ref.color(255);
     padding=10;
+    textFont=KyUI.fontMain;
   }
   public void setPressListener(MouseEventListener el) {
     pressListener=el;
@@ -62,6 +65,7 @@ public class Button extends Element {
   }
   protected void drawContent(PGraphics g, int textC) {
     g.fill(textC);
+    g.textFont(textFont);
     g.textSize(Math.max(1, textSize));
     g.textLeading(Math.max(1, textSize));
     g.pushMatrix();
@@ -75,6 +79,7 @@ public class Button extends Element {
     if (!text.isEmpty()) {
       g.text(text, 0, 0);
     }
+    g.textFont(KyUI.fontMain);
     g.popMatrix();
   }
   @Override
@@ -110,7 +115,7 @@ public class Button extends Element {
   }
   @Override
   public Vector2 getPreferredSize() {
-    KyUI.cacheGraphics.textFont(KyUI.fontMain);
+    KyUI.cacheGraphics.textFont(textFont);
     KyUI.cacheGraphics.textSize(textSize);
     if (rotation == Attributes.Rotation.UP || rotation == Attributes.Rotation.DOWN) {
       return new Vector2(KyUI.cacheGraphics.textWidth(text) + padding * 2, textSize + padding * 2);

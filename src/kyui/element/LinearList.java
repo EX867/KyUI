@@ -35,6 +35,7 @@ public class LinearList extends Element {
   public int fgColor;
   @Attribute(layout=Attribute.SELF)
   public Attributes.Direction direction=Attributes.Direction.VERTICAL;
+  boolean selfReorder=false;
   //temp values
   Rect cacheRect=new Rect();
   public LinearList(String name) {
@@ -113,8 +114,10 @@ public class LinearList extends Element {
         return false;
       });
     });
+    selfReorder=true;
+    listLayout.draggable=false;
   }
-  int getReorderIndex(Vector2 mouse) {
+  public int getReorderIndex(Vector2 mouse) {
     int index=0;
     if (direction == Attributes.Direction.VERTICAL) {
       index=(int)((mouse.y + (listLayout.fixedSize + listLayout.padding) / 2 - (pos.top + listLayout.padding - listLayout.offset))) / (listLayout.fixedSize + listLayout.padding);
@@ -236,7 +239,7 @@ public class LinearList extends Element {
   }
   @Override
   public void startDrop(MouseEvent e, int index) {
-    if (pressItem != null) {
+    if (pressItem != null && !selfReorder) {//selfreordering makes dropstart
       KyUI.dropStart(this, e, index, pressItem.getName(), pressItem.text);
     }
   }
@@ -331,7 +334,8 @@ public class LinearList extends Element {
       float height=(pos.bottom - pos.top);
       if (overlap > textSize && overlap > 0) {//this can not be correct.
         g.fill(ColorExt.scale(textColor, overlap / height));
-        g.textSize(textSize);
+        g.textFont(textFont);
+        g.textSize(Math.max(1, textSize));
         g.pushMatrix();
         g.translate((pos.left + pos.right) / 2 + textOffsetX, (pos.top + pos.bottom) / 2 + textOffsetY);
         for (int a=1; a <= rotation.ordinal(); a++) {
@@ -341,6 +345,7 @@ public class LinearList extends Element {
           g.scale(1, (overlap / height));
         }
         g.text(text, 0, 0);
+        g.textFont(KyUI.fontMain);
         g.popMatrix();
       }
     }
@@ -350,7 +355,7 @@ public class LinearList extends Element {
         if (e.getAction() == MouseEvent.PRESS) {
           Ref.pressItem=this;
         } else if (e.getAction() == MouseEvent.DRAG) {
-          if (KyUI.dropMessenger == null && !pos.contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y) && pressedL && Ref.droppableStart) {
+          if (Ref.selfReorder && KyUI.dropMessenger == null && !pos.contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y) && pressedL && Ref.droppableStart) {
             KyUI.dropStart(Ref, e, index, getName(), text);
           }
         }

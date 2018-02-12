@@ -36,6 +36,7 @@ public class Test extends PApplet {
     //    for (int a=0; a < 20; a++) {
     //      asdf.addItem(a + "");
     //    }
+    asdf.setFixedSize(30);
     FileSelectorButton.listDirectory(asdf, new java.io.File("C:/Users/user/Documents"), (java.io.File file) -> {
       System.out.println(file.getAbsolutePath());
     });

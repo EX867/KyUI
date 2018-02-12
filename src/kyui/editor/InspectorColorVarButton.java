@@ -95,7 +95,7 @@ public class InspectorColorVarButton extends InspectorButton1<Integer, ColorButt
       }
     });
     addChild(vars);
-    reorderChild(0, 1);
+    reorderChild(0, 2);
   }
   @Override
   public void onLayout() {
