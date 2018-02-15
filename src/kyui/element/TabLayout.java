@@ -182,22 +182,19 @@ public class TabLayout extends Element {
     }
   }
   public void removeTab(int index) {
+    if (tabRemoveListener != null) {
+      tabRemoveListener.onEvent(index);
+    }
     index++;
     if (index < 0 || index >= tabs.size()) return;
     contentLayout.removeChild(index);
     idToIndex.remove(idToIndex.get(((TabLayoutPressListener)((TabButton)tabs.get(index)).getPressListener()).id));
     tabLayout.removeChild(index);
     //
-    if (selection == index) {
-      if (index >= tabs.size() - 1) {
-        selectTab(selection - 1);
-      } else {
-        selectTab(selection + 1);
-      }
-    }
-    if (selection > index && selection != 0) {
-      selection--;
-    }
+    int ind=index;
+    KyUI.taskManager.addTask((o) -> {
+        selectTab(Math.max(Math.min(selection,tabs.size()-1),0));
+    }, null);
     for (int a=index; a < tabs.size(); a++) {
       idToIndex.put(((TabLayoutPressListener)((TabButton)tabs.get(a)).getPressListener()).id, a);
     }
@@ -447,9 +444,6 @@ public class TabLayout extends Element {
       public boolean onEvent(MouseEvent e, int index) {
         if (!ElementLoader.isEditor) {
           index=tabs.indexOf(TabButton.this);
-          if (tabRemoveListener != null) {
-            tabRemoveListener.onEvent(index - 1);
-          }
           removeTab(index - 1);
         }
         return false;

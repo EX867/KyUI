@@ -176,7 +176,8 @@ public class Element implements TreeNodeAction {
   @Override
   public boolean equals(Object other) {
     if (other instanceof Element) {
-      return ((Element)other).name.equals(name);
+      return other == this;
+      //      return ((Element)other).name.equals(name);
     } else if (other instanceof String) {
       return other.equals(name);
     }

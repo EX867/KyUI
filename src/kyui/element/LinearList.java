@@ -86,12 +86,12 @@ public class LinearList extends Element {
         if (direction == Attributes.Direction.HORIZONTAL) {
           float lineY=pos.top + listLayout.padding - listLayout.offset + index * (listLayout.fixedSize + listLayout.padding);
           if (lineY > pos.top && lineY < pos.bottom) {
-            g.rect(pos.left + 20, lineY - 10, pos.right - 20, lineY + 10);
+            g.rect(pos.left + 20, lineY - 5, pos.right - 20, lineY + 5);
           }
         } else if (direction == Attributes.Direction.VERTICAL) {
           float lineY=pos.top + listLayout.padding - listLayout.offset + index * (listLayout.fixedSize + listLayout.padding);
           if (lineY > pos.top && lineY < pos.bottom) {
-            g.rect(pos.left + 20, lineY - 10, pos.right - 20, lineY + 10);
+            g.rect(pos.left + 20, lineY - 5, pos.right - 20, lineY + 5);
           }
         }
         g.noStroke();
@@ -103,7 +103,7 @@ public class LinearList extends Element {
     KyUI.addDragAndDrop(this, this, (DropMessenger messenger, MouseEvent end, int endIndex) -> {
       final int a=messenger.startIndex;
       KyUI.checkOverlayCondition((Element e, Vector2 pos) -> {
-        if (e == linkLayout || (e instanceof SelectableButton && ((SelectableButton)e).Ref == LinearList.this)) {
+        if (isListItem(e)) {
           int b=getReorderIndex(pos);
           if (reorderListener == null || reorderListener.test(a, b)) {
             listLayout.reorderChild(a, b);//move a to b
@@ -125,6 +125,9 @@ public class LinearList extends Element {
       index=(int)((mouse.x + (listLayout.fixedSize + listLayout.padding) / 2 - (pos.left + listLayout.padding - listLayout.offset))) / (listLayout.fixedSize + listLayout.padding);
     }
     return Math.max(Math.min(index, listLayout.children.size() - 1), 0);
+  }
+  public boolean isListItem(Element e) {
+    return e == linkLayout || (e instanceof SelectableButton && ((SelectableButton)e).Ref == LinearList.this);
   }
   public void addItem(String text) {
     SelectableButton btn=new SelectableButton(getName() + ":" + count);
@@ -240,7 +243,7 @@ public class LinearList extends Element {
   @Override
   public void startDrop(MouseEvent e, int index) {
     if (pressItem != null && !selfReorder) {//selfreordering makes dropstart
-      KyUI.dropStart(this, e, index, pressItem.getName(), pressItem.text);
+      KyUI.dropStart(this, e, getItems().indexOf(pressItem), pressItem.getName(), pressItem.text);
     }
   }
   void afterModify() {
@@ -356,7 +359,7 @@ public class LinearList extends Element {
           Ref.pressItem=this;
         } else if (e.getAction() == MouseEvent.DRAG) {
           if (Ref.selfReorder && KyUI.dropMessenger == null && !pos.contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y) && pressedL && Ref.droppableStart) {
-            KyUI.dropStart(Ref, e, index, getName(), text);
+            KyUI.dropStart(Ref, e, Ref.getItems().indexOf(this), getName(), text);
           }
         }
       }

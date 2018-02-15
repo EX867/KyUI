@@ -48,6 +48,7 @@ public class FileSelectorButton extends LinearList.SelectableButton {
             }
           }
         }
+        doubleClickReady=false;
       } else {
         doubleClickReady=true;
       }
