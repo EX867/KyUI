@@ -301,6 +301,10 @@ public class Main extends PApplet {
     //    System.out.println("frame end : " + frameCount);
   }
   @Override
+  public void keyPressed(KeyEvent e) {
+    KyUI.preventFromExit(this, e);
+  }
+  @Override
   protected void handleKeyEvent(KeyEvent e) {
     super.handleKeyEvent(e);
     KyUI.handleEvent(e);

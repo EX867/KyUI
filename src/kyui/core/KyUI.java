@@ -415,6 +415,13 @@ public class KyUI {
     }
   }
   //
+  public static void preventFromExit(PApplet sketch, KeyEvent event) {
+    if (event.getAction() == KeyEvent.PRESS) {
+      if (sketch.key == PApplet.ESC) {
+        sketch.key=0;
+      }
+    }
+  }
   public static void handleEvent(Event e) {
     EventQueue.addLast(e);
   }
