@@ -4,6 +4,7 @@ import kyui.core.KyUI;
 import kyui.editor.Attribute;
 import kyui.event.EventListener;
 import kyui.util.Rect;
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class RangeSlider extends Button {
@@ -27,6 +28,7 @@ public class RangeSlider extends Button {
   private float clickOffset=0;
   private float childrenSize=0;
   private float clickScrollMax=0;
+  public static int sensitivity=5;
   public RangeSlider(String name) {
     super(name);
     init();
@@ -95,7 +97,7 @@ public class RangeSlider extends Button {
   }
   @Override
   public boolean mouseEvent(MouseEvent e, int index) {
-    if (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG)) {
+    if (e.getButton() == PApplet.LEFT && (e.getAction() == MouseEvent.PRESS || (pressedL && e.getAction() == MouseEvent.DRAG))) {
       requestFocus();
       float value=0;
       float size=getSize();
@@ -122,6 +124,16 @@ public class RangeSlider extends Button {
       if (pressedL) {
         invalidate();
         return false;
+      }
+    } else if (e.getAction() == MouseEvent.WHEEL) {
+      if (pos.contains(KyUI.mouseGlobal.getLast().x, KyUI.mouseGlobal.getLast().y)) {
+        float size=getSize();
+        sliderRatio=sliderRatio + e.getCount() * sensitivity / size;
+        sliderRatio=Math.min(Math.max(sliderRatio, 0), (size - sliderLength) / size);
+        if (adjustListener != null) {
+          adjustListener.onEvent(this);
+        }
+        invalidate();
       }
     }
     return true;

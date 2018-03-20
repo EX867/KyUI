@@ -139,6 +139,15 @@ public class Element implements TreeNodeAction {
   protected boolean entered=false;
   protected boolean pressedL=false;//this parameter indicates this element have been pressed left.
   protected boolean pressedR=false;//this parameter indicates this element have been pressed right.
+  public boolean isPressedL(){
+    return pressedL;
+  }
+  public boolean isPressedR(){
+    return pressedR;
+  }
+  public boolean isEntered(){
+    return entered;
+  }
   protected Rect clipRect;
   //control flow
   protected boolean skipPress=false;
