@@ -66,9 +66,9 @@ public class RangeSlider extends Button {
   }
   private float getSize() {
     if (direction == Attributes.Direction.VERTICAL) {
-      return pos.bottom - pos.top;
+      return pos.bottom - pos.top - 2 * strokeWeight;
     } else if (direction == Attributes.Direction.HORIZONTAL) {
-      return pos.right - pos.left;
+      return pos.right - pos.left - 2 * strokeWeight;
     }
     return 1;
   }
@@ -80,16 +80,17 @@ public class RangeSlider extends Button {
     }
     fill(g, sliderBgColor);
     pos.render(g);
+    float sliderLength=Math.max(2, this.sliderLength);
     if (direction == Attributes.Direction.VERTICAL) {
-      float sliderPoint=pos.top + (pos.bottom - pos.top) * sliderRatio;
+      float sliderPoint=pos.top + strokeWeight + getSize() * sliderRatio;
       float sliderPointXm=(float)(pos.right + pos.left) / 2;
       float sliderSizeX=(float)(pos.right - pos.left) / 2 - strokeWeight;
-      cacheRect.set(sliderPointXm - sliderSizeX, sliderPoint + strokeWeight, sliderPointXm + sliderSizeX, sliderPoint + sliderLength - strokeWeight);
+      cacheRect.set(sliderPointXm - sliderSizeX, sliderPoint, sliderPointXm + sliderSizeX, sliderPoint + sliderLength);
     } else if (direction == Attributes.Direction.HORIZONTAL) {
-      float sliderPoint=pos.left + (pos.right - pos.left) * sliderRatio;
+      float sliderPoint=pos.left + strokeWeight + getSize() * sliderRatio;
       float sliderPointXm=(float)(pos.bottom + pos.top) / 2;
       float sliderSizeX=(float)(pos.bottom - pos.top) / 2 - strokeWeight;
-      cacheRect.set(sliderPoint + strokeWeight, sliderPointXm - sliderSizeX, sliderPoint + sliderLength - strokeWeight, sliderPointXm + sliderSizeX);//same...
+      cacheRect.set(sliderPoint, sliderPointXm - sliderSizeX, sliderPoint + sliderLength, sliderPointXm + sliderSizeX);//same...
     }
     g.noStroke();
     g.fill(getDrawBgColor(g));
@@ -102,10 +103,10 @@ public class RangeSlider extends Button {
       float value=0;
       float size=getSize();
       if (direction == Attributes.Direction.HORIZONTAL) {
-        value=(KyUI.mouseGlobal.getLast().x - pos.left - sliderLength / 2);
+        value=(KyUI.mouseGlobal.getLast().x - (pos.left + strokeWeight) - sliderLength / 2);
         //value=(KyUI.mouseGlobal.x - KyUI.mouseClick.x) * KyUI.scaleGlobal;
       } else if (direction == Attributes.Direction.VERTICAL) {
-        value=(KyUI.mouseGlobal.getLast().y - pos.top - sliderLength / 2);
+        value=(KyUI.mouseGlobal.getLast().y - (pos.top + strokeWeight) - sliderLength / 2);
         //value=(KyUI.mouseGlobal.y - KyUI.mouseClick.y) * KyUI.scaleGlobal;
       }
       if (size == 0) {
