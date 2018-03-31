@@ -565,8 +565,14 @@ public class Element implements TreeNodeAction {
   }
   //
   final void keyEvent_(KeyEvent e) {
+    if (relative) {
+      transformMouse();
+    }
     for (Element child : children) {
       if (child.isActive() && child.isEnabled()) child.keyEvent_(e);
+    }
+    if (relative) {
+      transformMouseAfter();
     }
     keyEvent(e);
   }

@@ -17,7 +17,9 @@ public class ColorPickerFull extends Element {
   boolean enableX;
   @Attribute(setter="setSelectable")
   protected boolean selectable=false;
-  public EventListener colorSelectListener;
+  public EventListener colorSelectListener=(e)->{
+
+  };
   public ColorButton selected=null;
   void setEnableAlpha(boolean v) {
     values[6].setEnabled(v);

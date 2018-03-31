@@ -19,10 +19,10 @@ public class Description extends Element {
     float hWidth=size.x / 2;
     e.pos.set(centerX - hWidth, parent.pos.bottom, centerX + hWidth, parent.pos.bottom + size.y);
     if (e.pos.right > x2) {
-      e.pos.translate(e.pos.right - x2, 0);
+      e.pos.translate(x2 - e.pos.right, 0);
     }
     if (e.pos.left < x1) {
-      e.pos.translate(e.pos.left, x1);
+      e.pos.translate(e.pos.left - x1, 0);
     }
   };
   Description(String name) {//used in KyUI
