@@ -19,7 +19,7 @@ public class Element implements TreeNodeAction {
   public List<Element> children=new ArrayList<Element>();// all of elements can be viewgroup. for example, each items of listview are element and viewgroup too..
   protected int children_max=987654321;
   //tasks
-  static class ModifyChildrenTask implements Task {
+  protected static class ModifyChildrenTask implements Task {
     Element parent;
     public ModifyChildrenTask(Element parent_) {
       parent=parent_;
@@ -68,24 +68,24 @@ public class Element implements TreeNodeAction {
       }
     }
   }
-  ModifyChildrenTask modifyChildrenTask=new ModifyChildrenTask(this);//task for this object.
-  class AddChildData {
-    int index;
-    Element element;
+  protected ModifyChildrenTask modifyChildrenTask=new ModifyChildrenTask(this);//task for this object.
+  protected static class AddChildData {
+    public int index;
+    public Element element;
     public AddChildData(int index_, Element element_) {
       element=element_;
       index=index_;
     }
   }
-  class RemoveChildData {
-    Element element;
+  protected static class RemoveChildData {
+    public Element element;
     public RemoveChildData(Element element_) {
       element=element_;
     }
   }
-  class ReorderChildData {
-    int a;
-    int b;
+  protected static class ReorderChildData {
+    public int a;
+    public int b;
     public ReorderChildData(int a_, int b_) {
       a=a_;
       b=b_;
