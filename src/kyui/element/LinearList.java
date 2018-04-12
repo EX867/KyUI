@@ -126,6 +126,9 @@ public class LinearList extends Element {
     }
     return Math.max(Math.min(index, listLayout.children.size() - 1), 0);
   }
+  public SelectableButton getSelection(){
+    return selection;
+  }
   public boolean isListItem(Element e) {
     return e == linkLayout || (e instanceof SelectableButton && ((SelectableButton)e).Ref == LinearList.this);
   }
