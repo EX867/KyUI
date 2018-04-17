@@ -55,7 +55,7 @@ public class AlterLinearLayout extends Element {
         totalSize+=size[a];
       }
     }
-    totalSize+=interval * (childrenCount - 1);
+    totalSize+=interval * (childrenCount - 1) + padding * (childrenCount + 1);
     float staticSize=(selfSize - totalSize) / staticChildrenCount;
     for (int a=0; a < children.size(); a++) {
       if (children.get(a).isEnabled()) {
