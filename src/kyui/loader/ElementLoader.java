@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import processing.data.XML;
 public class ElementLoader {
   public static boolean isEditor=false;
@@ -70,7 +71,20 @@ public class ElementLoader {
         String line=read.readLine();//line means one path.
         while (line != null) {
           if (line.length() != 0) {
-            loadExternal(line);
+            File f=new File(line);
+            if (f.isFile()) {
+              loadExternal(line);
+            } else if (f.isDirectory()) {
+              File[] flist=f.listFiles();
+              for (File ff : flist) {
+                String path=ff.getAbsolutePath().replace("\\", "/");
+                if (path.substring(path.lastIndexOf(".") + 1, path.length()).equals("jar")) {
+                  loadExternal(path);
+                }
+              }
+            } else {
+              KyUI.err("ElementLoader : load failed : " + f.getAbsolutePath() + " : file not exists!");
+            }
           }
           line=read.readLine();
         }
@@ -98,15 +112,8 @@ public class ElementLoader {
     KyUI.log("ElementLoader - stored external jar data to " + externalDataPath + " successfully!");
   }
   public static void loadExternal(String path) {//https://stackoverflow.com/questions/11016092/how-to-load-classes-at-runtime-from-a-folder-or-jar
-    if (path.trim().isEmpty()) {
-      return;
-    }
     KyUI.log("");
     KyUI.log("ElementLoader - load start : " + path);
-    if (!new File(path).isFile()) {
-      KyUI.err("ElementLoader : load failed : " + path + " : file not exists!");
-      return;
-    }
     if (!loadedExternals.contains(path)) {
       loadedExternals.add(path);
       exportExternals();
@@ -118,7 +125,8 @@ public class ElementLoader {
       JarFile jarFile=new JarFile(path);
       Enumeration<JarEntry> e=jarFile.entries();
       URL[] urls={new URL("jar:file:" + path + "!/")};
-      URLClassLoader cl=URLClassLoader.newInstance(urls);
+      //URLClassLoader cl=URLClassLoader.newInstance(urls);
+      addSoftwareLibrary(new File(path));
       while (e.hasMoreElements()) {
         JarEntry je=e.nextElement();
         //KyUI.log("ElementLoader - checking... " + je.getName());
@@ -131,7 +139,13 @@ public class ElementLoader {
         try {
           c=Class.forName(className);//has problem.
         } catch (ClassNotFoundException ee) {
-          c=cl.loadClass(className);
+          //          try {
+          //c=cl.loadClass(className);
+          KyUI.log("ElementLoader - loading class " + className);
+          //          } catch (NoClassDefFoundError eee) {
+          //            System.err.println(className + " is not found!");
+          //            Class.forName("com.karnos.commandscript.Difference");
+          //          }
         }
         if (c != null) {
           if (Element.class.isAssignableFrom(c) && !classes.containsKey(c.getName())) {
@@ -146,6 +160,11 @@ public class ElementLoader {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+  public static void addSoftwareLibrary(File file) throws Exception {//https://stackoverflow.com/questions/1010919/adding-files-to-java-classpath-at-runtime
+    Method method=URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+    method.setAccessible(true);
+    method.invoke(ClassLoader.getSystemClassLoader(), new Object[]{file.toURI().toURL()});
   }
   public static void loadInternal() {
     KyUI.log("");
@@ -163,7 +182,7 @@ public class ElementLoader {
   public static void loadClass(Class<? extends Element> c) throws Exception {//assert no duplication
     if (!Modifier.isAbstract(c.getModifiers()) && c.getAnnotation(HideInEditor.class) == null) {
       classes.put(c.getName(), c);
-      KyUI.log("ElementLoader - loading... " + c.getTypeName());
+      //KyUI.log("ElementLoader - loading... " + c.getTypeName());
       types.add(c);
       elementList.addItem(new ElementImage(c));
       attributes.put(c, new AttributeSet(getAttributeFields(c)));

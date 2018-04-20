@@ -1,6 +1,7 @@
 package kyui.core;
 import kyui.editor.Attribute;
 import kyui.element.TreeGraph;
+import kyui.event.EventListener;
 import kyui.event.ExtendedRenderer;
 import kyui.event.TreeNodeAction;
 import kyui.util.*;
@@ -102,7 +103,7 @@ public class Element implements TreeNodeAction {
   @Attribute(setter="setActive", getter="isActive", layout=Attribute.NONE)
   private boolean active=true;// this parameter controls object control (use inputs)
   @Attribute(setter="setPosition", layout=Attribute.NONE)//setPosition includes layout.
-  public Rect pos=new Rect(0, 0, 0, 0);
+  public Rect pos=new Rect(0, 0, 0, 0);//you should not write this directly except constructor!!  this will make errors sometimes.
   Description description;
   @Attribute(setter="setDescription", getter="getDescription")
   private String desc="";//dummy var
@@ -115,6 +116,9 @@ public class Element implements TreeNodeAction {
   @Attribute
   public int overlayOnDrag=0;
   protected ExtendedRenderer dropOverlayRenderer;
+  //
+  public EventListener setPositionListener=(e) -> {
+  };
   //
   protected int startClip=0;//used in rendering or
   protected int endClip=KyUI.INF;
@@ -139,13 +143,13 @@ public class Element implements TreeNodeAction {
   protected boolean entered=false;
   protected boolean pressedL=false;//this parameter indicates this element have been pressed left.
   protected boolean pressedR=false;//this parameter indicates this element have been pressed right.
-  public boolean isPressedL(){
+  public boolean isPressedL() {
     return pressedL;
   }
-  public boolean isPressedR(){
+  public boolean isPressedR() {
     return pressedR;
   }
-  public boolean isEntered(){
+  public boolean isEntered() {
     return entered;
   }
   protected Rect clipRect;
@@ -201,6 +205,11 @@ public class Element implements TreeNodeAction {
     pos=rect;
     //pos.set(rect);
     localLayout();
+    setPositionListener.onEvent(this);
+  }
+  public void setPositionWithoutInvalidate(Rect rect) {
+    pos=rect;
+    setPositionListener.onEvent(this);
   }
   public void onLayout() {
     //update children.pos here.

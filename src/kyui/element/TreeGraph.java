@@ -68,6 +68,7 @@ public class TreeGraph<Content extends TreeNodeAction> extends RelativeFrame {//
     nodes=new ArrayList<Node<Content>>();
     selection=null;
     root=new Node(getName() + ":root", 0);
+    root.setPositionWithoutInvalidate(defaultRootPos.clone());
     root.pos=(defaultRootPos.clone());
     root.text=rootText;
     nodes.add(root);

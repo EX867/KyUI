@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Data>
   <layout>
-    <kyui.element.TabLayout active="true" bgColor="0" buttonEdgeRotation="UP" buttonRotation="UP" desc="" edgeSize="15" enableAdd="true" enableX="true" enabled="true" fixedSize="60" intervalSize="0" margin="0" mode="DYNAMIC" name="TabLayout0_13301" padding="3" pos="[(200.0, 200.0)~(800.0, 800.0)]" rotation="UP" tabBgColor="-13487566" tabColor1="-16111416" tabColor2="-14803361" tabSize="90" textColor="-1" textSize="60" visible="true">
-      <kyui.element.TextBox active="true" bgColor="-8421505" blankLines="6" desc="" enabled="true" error="false" errorColor="-65536" fgColor="50" hint="" hintColor="-1775095246" lineNumBgColor="40" lineNumColor="-1" lineNumSize="0" margin="0" name="TextBox1_13330" numberOnly="INTEGER" padding="20" pos="[(203.0, 293.0)~(797.0, 797.0)]" rightText="" selectionColor="-13487411" text="" textColor="50" textFont="processing.core.PFont@3a237b1e" textSize="20" title="" visible="true"/>
-      <kyui.element.TextBox active="true" bgColor="-8421505" blankLines="6" desc="" enabled="false" error="false" errorColor="-65536" fgColor="50" hint="" hintColor="-1775095246" lineNumBgColor="40" lineNumColor="-1" lineNumSize="0" margin="0" name="TextBox2_13360" numberOnly="INTEGER" padding="20" pos="[(203.0, 293.0)~(797.0, 797.0)]" rightText="" selectionColor="-13487411" text="" textColor="50" textFont="processing.core.PFont@5ae49861" textSize="20" title="" visible="true"/>
-    </kyui.element.TabLayout>
+    <kyui.element.DivisionLayout active="true" bgColor="-1" desc="" enabled="true" interval="0.0" inverse="false" margin="0" mode="PROPORTIONAL" name="DivisionLayout2_9330" overlayOnDrag="0" padding="5" pos="[(200.0, 200.0)~(1600.0, 1000.0)]" rotation="UP" value="0.5" visible="true">
+      <pw2.element.ugens.AutoFaderControl active="true" bgColor="-10461088" desc="" enabled="true" margin="0" name="AutoFaderControl1_9283" overlayOnDrag="0" padding="0" pos="[(205.0, 205.0)~(1595.0, 599.0)]" visible="true"/>
+      <pw2.element.ugens.TDCompControl active="true" bgColor="-10461088" desc="" enabled="true" margin="0" name="TDCompControl3_9342" overlayOnDrag="0" padding="0" pos="[(205.0, 602.0)~(1595.0, 995.0)]" visible="true"/>
+    </kyui.element.DivisionLayout>
   </layout>
   <color/>
   <shortcut/>

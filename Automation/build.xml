@@ -46,6 +46,7 @@
             <!--</fileset>-->
             <fileset dir="../data"/>
             <zipgroupfileset dir="../library" includes="*.jar"/>
+            <zipgroupfileset dir="C:/Users/user/Documents/Processing/libraries/beads/library" includes="*.jar"/>
         </jar>
         <delete dir="../bin"/>
     </target>
