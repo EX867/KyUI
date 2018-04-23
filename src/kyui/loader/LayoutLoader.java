@@ -195,8 +195,8 @@ public class LayoutLoader {
       //add children
       XML[] children=cur.xml.getChildren();
       for (XML x : children) {
-        //System.out.println(cur.xml.getName() + " has child " + x.getName());
-        if (!x.getName().equals("#text")) {
+        if (x.getName().length() > 0 && x.getName().charAt(0) != '#') {
+          //System.out.println(cur.xml.getName() + " has child " + x.getName());
           queue.addLast(new ElementLoadData(cur, x, node));
         }
       }
