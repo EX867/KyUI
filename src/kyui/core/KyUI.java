@@ -34,6 +34,7 @@ public class KyUI {
   public static PApplet Ref;
   private static boolean ready=false;
   private static boolean end=false;
+  public static boolean log=true;
   public static boolean externalLog=false;
   static boolean MONO_THREAD=false;
   // object control
@@ -155,7 +156,7 @@ public class KyUI {
   private KyUI() {//WARNING! names must not contains ':' and "->".
   }
   public static void start(PApplet ref) {
-    start(ref, 30, false);
+    start(ref, 30, true);
   }
   @SuppressWarnings("unchecked")
   public static void start(PApplet ref, int rate, boolean mono) {
@@ -342,18 +343,18 @@ public class KyUI {
     drawStart=drawEnd;
     g.imageMode(PApplet.CENTER);
     g.rectMode(PApplet.CORNERS);
-    synchronized (updater) {
-      boolean started=false;
-      for (CachingFrame root : roots) {
-        if (started) {
-          if (root.alpha != 0) {
-            g.fill(0, root.alpha);
-            g.rect(0, 0, g.width, g.height);
-          }
+    //synchronized (updater) {//no multi thread!!!
+    boolean started=false;
+    for (CachingFrame root : roots) {
+      if (started) {
+        if (root.alpha != 0) {
+          g.fill(0, root.alpha);
+          g.rect(0, 0, g.width, g.height);
         }
-        root.renderReal(g);//render all...
-        started=true;
       }
+      root.renderReal(g);//render all...
+      started=true;
+      //}
       descriptionLayer.renderReal(g);
     }
     drawEnd=System.currentTimeMillis();
@@ -375,7 +376,7 @@ public class KyUI {
       cacheGraphics.endDraw();
     }
     public void loop() {
-      synchronized (updater) {
+      synchronized (this) {
         //System.out.println("start "+frameCount);
         //empty EventQueue.
         while (EventQueue.size() > 0) {
@@ -687,6 +688,7 @@ public class KyUI {
   }
   static java.io.PrintWriter write;
   public static void log(String text) {
+    if (!log) return;
     System.out.println("[KyUI] " + text);
     if (logEvent != null) {
       logEvent.accept(text);
@@ -700,6 +702,7 @@ public class KyUI {
     }
   }
   public static void err(String text) {
+    if (!log) return;
     System.err.println("[KyUI : " + frameCount + "] " + text);
     if (logEvent != null) {
       logEvent.accept(text);
