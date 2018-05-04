@@ -12,6 +12,7 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 public class TextEdit extends Element {//no sliderX for now...
   protected RangeSlider slider;//if not null, it will work.
   @Attribute(getter="getText", setter="setText")
@@ -19,6 +20,8 @@ public class TextEdit extends Element {//no sliderX for now...
   protected EditorString content;//real valueI for text.
   public EventListener onTextChangeListener;
   public EventListener onCursorChangeListener;
+  public BiConsumer<TextEdit,KeyEvent> keyEventPost=(a,b)->{
+  };
   public ArrayList<Filter> filters;
   public class Filter {
     String filter;
@@ -59,10 +62,10 @@ public class TextEdit extends Element {//no sliderX for now...
   @Attribute(type=Attribute.COLOR)
   public int selectionColor;
   //temp values
-  protected int clickLine=0;
-  protected int clickPoint=0;
-  protected float offsetY=0;
-  protected float offsetX=0;
+  public int clickLine=0;
+  public int clickPoint=0;
+  public float offsetY=0;
+  public float offsetX=0;
   protected Rect cacheRect=new Rect();
   protected boolean cursorOn=true;
   protected int cursorFrame=0;
@@ -181,7 +184,7 @@ public class TextEdit extends Element {//no sliderX for now...
     content.setCursorLine(Math.max(Math.min(offsetToLine(offsetY - padding + KyUI.mouseGlobal.getLast().y - pos.top), content.lines() - 1), 0));
     PGraphics cg=KyUI.cacheGraphics;
     cg.textFont(textFont);
-    cg.textSize(KyUI.scaleGlobal*Math.max(1, textSize * transformsAcc.getLast().scale));//just using function...
+    cg.textSize(KyUI.scaleGlobal * Math.max(1, textSize * transformsAcc.getLast().scale));//just using function...
     float mouseX=/*offsetX+*/KyUI.mouseGlobal.getLast().x - pos.left - padding - lineNumSize;
     String line=content.getLine(content.line);
     int point=0;//mid
@@ -312,6 +315,7 @@ public class TextEdit extends Element {//no sliderX for now...
         pkey='a';//...
       }
       //pkey=e.getKey();
+      keyEventPost.accept(this, e);
     }
   }
   protected void textChange() {
