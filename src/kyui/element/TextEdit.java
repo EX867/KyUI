@@ -186,6 +186,7 @@ public class TextEdit extends Element {//no sliderX for now...
     cg.textFont(textFont);
     cg.textSize(KyUI.scaleGlobal * Math.max(1, textSize * transformsAcc.getLast().scale));//just using function...
     float mouseX=/*offsetX+*/KyUI.mouseGlobal.getLast().x - pos.left - padding - lineNumSize;
+    mouseX=mouseX*KyUI.scaleGlobal;
     String line=content.getLine(content.line);
     int point=0;//mid
     int low=1;
