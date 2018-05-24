@@ -274,8 +274,8 @@ public class KyUI {
     updater_interval=1000 / rate;
   }
   public static void addLayer(CachingFrame root) {
-    root.clear();
-    taskManager.addTask(modifyLayerTask, root);
+      root.clear();
+      taskManager.addTask(modifyLayerTask, root);
   }
   public static void removeLayer() {
     taskManager.executeAll();
@@ -345,7 +345,8 @@ public class KyUI {
     g.rectMode(PApplet.CORNERS);
     //synchronized (updater) {//no multi thread!!!
     boolean started=false;
-    for (CachingFrame root : roots) {
+    for (int a=0;a<roots.size();a++) {
+      CachingFrame root=roots.get(a);
       if (started) {
         if (root.alpha != 0) {
           g.fill(0, root.alpha);
@@ -390,8 +391,8 @@ public class KyUI {
         KyUI.taskManager.executeAll();
         roots.getLast().update_();
         //rendering
-        for (CachingFrame root : roots) {
-          root.render_(null);
+        for (int a=0;a<roots.size();a++) {
+          roots.get(a).render_(null);
         }
         //description
         if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
