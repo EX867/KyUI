@@ -13,14 +13,14 @@ import processing.core.PGraphics;
 import processing.event.MouseEvent;
 public class DropDown extends Button implements DataTransferable<Integer> {
   EventListener dataChangeListener;
-  public static String DOWN="\u25BE";
-  public static String UP="\u25B4";
-  protected Button downButton;
-  protected LinearList picker;
-  protected ItemSelectListener selectListener;
-  protected CachingFrame downLayer;
+  public static String DOWN = "\u25BE";
+  public static String UP = "\u25B4";
+  public Button downButton;
+  public LinearList picker;
+  public ItemSelectListener selectListener;
+  public CachingFrame downLayer;
   protected Button pickerCancel;
-  int selectedIndex=0;
+  int selectedIndex = 0;
   MouseEventListener pressListener2;
   //
   public DropDown(String name) {
@@ -31,41 +31,58 @@ public class DropDown extends Button implements DataTransferable<Integer> {
     super(name, pos_);
     init();
   }
+  public void resize(int width, int height) {
+    downLayer.resize(width, height);
+  }
   private void init() {
-    picker=new LinearList(getName() + ":picker");
-    downButton=new Button(getName() + ":downButton");
-    pickerCancel=new Button(getName() + ":pickerCancel");
+    picker = new LinearList(getName() + ":picker");
+    downButton = new Button(getName() + ":downButton");
+    pickerCancel = new Button(getName() + ":pickerCancel");
     picker.setFixedSize(40);
-    downButton.bgColor=0;
-    downButton.text=DOWN;
+    downButton.bgColor = 0;
+    downButton.text = DOWN;
     super.setPressListener(new DropButtonListener());
     picker.setSelectListener(new DropDownClickListener());
     addChild(downButton);
-    downLayer=KyUI.getNewLayer();
+    downLayer = KyUI.getNewLayer();
     downLayer.addChild(pickerCancel);
     pickerCancel.addChild(picker);
-    pickerCancel.text="";
+    pickerCancel.text = "";
     pickerCancel.setPosition(new Rect(0, 0, KyUI.Ref.width, KyUI.Ref.height));
     pickerCancel.setPressListener(new MouseEventListener() {
       @Override
       public boolean onEvent(MouseEvent e, int index) {
         KyUI.removeLayer();
-        downButton.text=DOWN;
+        downButton.text = DOWN;
         return false;
       }
     });
-    pickerCancel.bgColor=0;
+    pickerCancel.bgColor = 0;
   }
   @Override
   public void setPressListener(MouseEventListener el) {
-    pressListener2=el;
+    pressListener2 = el;
   }
   public void setSelectListener(ItemSelectListener l) {
-    selectListener=l;
+    selectListener = l;
   }
   //picker functions.
   public LinearList getPicker() {
     return picker;
+  }
+  @Override public void setBgColor(int c) {
+    super.setBgColor(c);
+    int alpha = (c >> 24) & 0XFF;
+    picker.fgColor = c;
+    picker.setBgColor(KyUI.Ref.color(picker.bgColor, alpha));
+    for (Element e : picker.listLayout.children) {
+      e.setBgColor(c);
+      if (alpha != 255 && e instanceof LinearList.SelectableButton) {
+        ((LinearList.SelectableButton)e).textColor = KyUI.Ref.color(((LinearList.SelectableButton)e).textColor, 254);
+      }
+    }
+    picker.slider.setBgColor(KyUI.Ref.color(picker.slider.bgColor, alpha));
+    picker.slider.fgColor = KyUI.Ref.color(c, alpha);
   }
   public void addItem(LinearList.SelectableButton e) {
     picker.addItem(e);
@@ -109,36 +126,36 @@ public class DropDown extends Button implements DataTransferable<Integer> {
   @Override
   public void onLayout() {
     float size;
-    downButton.rotation=rotation;
+    downButton.rotation = rotation;
     if (rotation.ordinal() % 2 == 0) {
-      size=(pos.bottom - pos.top);
+      size = (pos.bottom - pos.top);
     } else {
-      size=(pos.right - pos.left);
+      size = (pos.right - pos.left);
     }
-    float x=0, y=0;
+    float x = 0, y = 0;
     if (rotation == Attributes.Rotation.UP) {
-      x=pos.right - size / 2;
-      y=(pos.top + pos.bottom) / 2;
+      x = pos.right - size / 2;
+      y = (pos.top + pos.bottom) / 2;
     } else if (rotation == Attributes.Rotation.RIGHT) {
-      x=(pos.left + pos.right) / 2;
-      y=pos.bottom - size / 2;
+      x = (pos.left + pos.right) / 2;
+      y = pos.bottom - size / 2;
     } else if (rotation == Attributes.Rotation.DOWN) {
-      x=pos.left + size / 2;
-      y=(pos.top + pos.bottom) / 2;
+      x = pos.left + size / 2;
+      y = (pos.top + pos.bottom) / 2;
     } else if (rotation == Attributes.Rotation.LEFT) {
-      x=(pos.left + pos.right) / 2;
-      y=pos.top + size / 2;
+      x = (pos.left + pos.right) / 2;
+      y = pos.top + size / 2;
     }
     downButton.setPosition(new Rect(x, y, x, y));
   }
   @Override
   public void render(PGraphics g) {
-    textOffsetX=0;
-    downButton.textOffsetY=-downButton.textSize / 4;
+    textOffsetX = 0;
+    downButton.textOffsetY = -downButton.textSize / 4;
     if (rotation.ordinal() % 2 == 0) {
-      textOffsetX-=(pos.bottom - pos.top) / 3;
+      textOffsetX -= (pos.bottom - pos.top) / 3;
     } else {
-      textOffsetX-=(pos.right - pos.left) / 3;
+      textOffsetX -= (pos.right - pos.left) / 3;
     }
     super.render(g);
   }
@@ -156,14 +173,14 @@ public class DropDown extends Button implements DataTransferable<Integer> {
         pressListener2.onEvent(e, index);
       }
       if (picker.size() == 0) return true;
-      downButton.text=UP;
+      downButton.text = UP;
       picker.setFixedSize((int)(pos.bottom - pos.top));
       picker.onLayout();
-      Rect screen=transformsAcc.getLast().trans(kyui.util.Transform.identity, new Rect(0, 0, KyUI.Ref.width, KyUI.Ref.height));
-      Rect rect=new Rect(pos.left, pos.bottom, pos.right, pos.bottom + picker.getPreferredSize().y);
+      Rect screen = transformsAcc.getLast().trans(kyui.util.Transform.identity, new Rect(0, 0, KyUI.Ref.width, KyUI.Ref.height));
+      Rect rect = new Rect(pos.left, pos.bottom, pos.right, pos.bottom + picker.getPreferredSize().y);
       if (screen.bottom - pos.bottom < pos.top - screen.top) {
-        rect.top=pos.top - picker.getPreferredSize().y;
-        rect.bottom=pos.top;
+        rect.top = pos.top - picker.getPreferredSize().y;
+        rect.bottom = pos.top;
       }
       picker.setPosition(Rect.getIntersection(rect, screen, new Rect()));
       downLayer.setTransform(transformsAcc.getLast());
@@ -174,9 +191,9 @@ public class DropDown extends Button implements DataTransferable<Integer> {
   class DropDownClickListener implements ItemSelectListener {
     public void onEvent(int index) {
       KyUI.removeLayer();
-      downButton.text=DOWN;
-      selectedIndex=index;
-      text=((Button)picker.getItems().get(selectedIndex)).text;
+      downButton.text = DOWN;
+      selectedIndex = index;
+      text = ((Button)picker.getItems().get(selectedIndex)).text;
       if (selectListener != null) {
         selectListener.onEvent(index);//propagate. set text and etc...
       }
@@ -192,11 +209,11 @@ public class DropDown extends Button implements DataTransferable<Integer> {
   @Override
   public void set(Integer value) {
     if (value < 0 || value >= picker.getItems().size()) return;
-    selectedIndex=value;
-    text=((Button)picker.getItems().get(selectedIndex)).text;
+    selectedIndex = value;
+    text = ((Button)picker.getItems().get(selectedIndex)).text;
   }
   @Override
   public void setDataChangeListener(EventListener event) {
-    dataChangeListener=event;
+    dataChangeListener = event;
   }
 }
