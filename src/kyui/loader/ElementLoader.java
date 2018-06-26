@@ -285,7 +285,7 @@ public class ElementLoader {
           image=loadImageResource(className + ".png");
           if (image == null) {
             if (imager == null) {
-              imager=KyUI.Ref.createGraphics(120, 120);
+              imager=KyUI.Ref.createGraphics(120, 120,KyUI.Ref.sketchRenderer());
             }
             imager.beginDraw();
             imager.textFont(KyUI.fontMain);

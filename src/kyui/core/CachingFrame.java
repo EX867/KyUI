@@ -10,7 +10,7 @@ public final class CachingFrame extends Element {
   public CachingFrame(String name, Rect pos_) {
     super(name);
     pos=pos_;
-    display=KyUI.Ref.createGraphics((int)(pos.right - pos.left), (int)(pos.bottom - pos.top));
+    display=KyUI.Ref.createGraphics((int)(pos.right - pos.left), (int)(pos.bottom - pos.top),KyUI.Ref.sketchRenderer());
   }
   public CachingFrame setAlpha(int a){
     alpha=a;
@@ -64,7 +64,7 @@ public final class CachingFrame extends Element {
       return;
     }
     display.dispose();
-    display=KyUI.Ref.createGraphics(width, height);
+    display=KyUI.Ref.createGraphics(width, height,KyUI.Ref.sketchRenderer());
     onLayout();//FIX>> resize layout problem!!!
     invalidate();
   }
