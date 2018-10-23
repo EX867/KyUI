@@ -12,9 +12,12 @@ public class TaskManager {
       tasks.pollFirst().execute();
     }
   }
-  class TaskSet {
-    Task task;
-    Object data;
+  public LinkedList<TaskSet> getTaskSet(){
+    return tasks;
+  }
+  public class TaskSet {
+    public Task task;
+    public Object data;
     public TaskSet(Task task_, Object data_) {
       task=task_;
       data=data_;

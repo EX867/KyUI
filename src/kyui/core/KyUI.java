@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 //===To ADD list===//
@@ -171,12 +172,60 @@ public class KyUI {
       //      f.setAccessible(true);//Very important, this allows the setting to work.
       //      f.set(Ref, false);
       //canvas
-      if (Ref.getSurface() instanceof processing.awt.PSurfaceAWT ) {
+      if (Ref.getSurface() instanceof processing.awt.PSurfaceAWT) {
         Field f = Ref.getSurface().getClass().getDeclaredField("canvas");
         f.setAccessible(true);//Very important, this allows the setting to work.
         java.awt.Component cp = (java.awt.Component)f.get(Ref.getSurface());
         drop = new SDrop(cp);
-      } else if(Ref.getSurface() instanceof processing.opengl.PSurfaceJOGL){
+        cp.addComponentListener(new ComponentListener() {
+          @Override
+          public void componentResized(ComponentEvent e) {
+            //System.out.println(0);
+            if (updater == null) {
+              return;
+            }
+            int w = e.getComponent().getSize().width;
+            int h = e.getComponent().getSize().height;
+            class ResizeTask implements Task {
+              public void execute(Object o) {
+                synchronized (updater.resizeLock) {
+                  for (CachingFrame root : roots) {
+                    root.pos.set(0, 0, w, h);
+                    root.resize(w, h);
+                  }
+                  if (!roots.contains(descriptionLayer)) {
+                    descriptionLayer.pos.set(0, 0, w, h);
+                    descriptionLayer.resize(w, h);
+                  }
+                }
+                for (ResizeListener resizeListener : resizeListeners) {
+                  resizeListener.onEvent(w, h);
+                }
+                //System.out.println(2);
+              }
+            }
+            synchronized (taskManager) {
+              ListIterator<TaskManager.TaskSet> iter = taskManager.getTaskSet().listIterator();
+              while (iter.hasNext()) {
+                if (iter.next().task instanceof ResizeTask) {
+                  iter.remove();
+                }
+              }
+            }
+            taskManager.addTask(new ResizeTask(), null);
+            //System.out.println(1);
+          }
+          @Override
+          public void componentMoved(ComponentEvent e) {
+          }
+          @Override
+          public void componentShown(ComponentEvent e) {
+          }
+          @Override
+          public void componentHidden(ComponentEvent e) {
+          }
+        });
+      } else if (Ref.getSurface() instanceof processing.opengl.PSurfaceJOGL) {
         //surface have component called canvas but sadly primary graphics is not awt based.
       }
     } catch (Exception e) {
@@ -202,35 +251,6 @@ public class KyUI {
         }
       });
     }
-    Ref.frame.addComponentListener(new ComponentListener() {
-      @Override
-      public void componentResized(ComponentEvent e) {
-        if (updater == null) {
-          return;
-        }
-        try {
-          synchronized (updater) {
-            //System.out.println(e.getComponent().getSize().width+" "+e.getComponent().getSize().height);
-            resize(e.getComponent().getSize().width, e.getComponent().getSize().height);
-            KyUI.taskManager.executeAll();
-            if (panel != null) {
-              Ref.frame.doLayout();
-            }
-          }
-        } catch (NullPointerException ex) {
-          ex.printStackTrace();
-        }
-      }
-      @Override
-      public void componentMoved(ComponentEvent e) {
-      }
-      @Override
-      public void componentShown(ComponentEvent e) {
-      }
-      @Override
-      public void componentHidden(ComponentEvent e) {
-      }
-    });
     pwidth = Ref.width;
     pheight = Ref.height;
     //other things
@@ -263,17 +283,6 @@ public class KyUI {
   }
   public static void end() {
     end = true;
-  }
-  public static void resize(int w, int h) {
-    for (CachingFrame root : roots) {
-      root.pos.set(0, 0, w, h);
-      root.resize(w, h);
-    }
-    descriptionLayer.pos.set(0, 0, w, h);
-    descriptionLayer.resize(w, h);
-    for (ResizeListener resizeListener : resizeListeners) {
-      resizeListener.onEvent(w, h);
-    }
   }
   public static void addResizeListener(ResizeListener e) {
     resizeListeners.add(e);
@@ -354,6 +363,7 @@ public class KyUI {
     drawStart = drawEnd;
     g.imageMode(PApplet.CENTER);
     g.rectMode(PApplet.CORNERS);
+    g.scale(KyUI.scaleGlobal);
     //synchronized (updater) {//no multi thread!!!
     boolean started = false;
     for (int a = 0; a < roots.size(); a++) {
@@ -375,7 +385,8 @@ public class KyUI {
       KyUI.updater.loop();
     }
   }
-  static class Updater implements Runnable {
+  public static class Updater implements Runnable {
+    public Object resizeLock = new Object();
     @Override
     public void run() {
       while (!end) {
@@ -389,38 +400,40 @@ public class KyUI {
     }
     public void loop() {
       synchronized (this) {
-        //System.out.println("start "+frameCount);
-        //empty EventQueue.
-        while (EventQueue.size() > 0) {
-          Event e = EventQueue.pollFirst();
-          if (e instanceof KeyEvent) {
-            keyEvent((KeyEvent)e);
-          } else if (e instanceof MouseEvent) {
-            mouseEvent((MouseEvent)e);
+        synchronized (resizeLock) {
+          //System.out.println("start "+frameCount);
+          //empty EventQueue.
+          while (EventQueue.size() > 0) {
+            Event e = EventQueue.pollFirst();
+            if (e instanceof KeyEvent) {
+              keyEvent((KeyEvent)e);
+            } else if (e instanceof MouseEvent) {
+              mouseEvent((MouseEvent)e);
+            }
           }
-        }
-        KyUI.taskManager.executeAll();
-        roots.getLast().update_();
-        //rendering
-        for (int a = 0; a < roots.size(); a++) {
-          roots.get(a).render_(null);
-        }
-        //description
-        if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
-          Element el = roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, descriptionCheck);
-          if (el != null) {
-            descriptionLayer.setTransform(Element.overlayCondition_transform);
-            currentDescription = el.description;
-            descriptionLayer.children.set(0, currentDescription);
-            descriptionLayer.invalidate();
-            currentDescription.onShow();
-            descriptionLayer.render_(null);
+          KyUI.taskManager.executeAll();
+          roots.getLast().update_();
+          //rendering
+          for (int a = 0; a < roots.size(); a++) {
+            roots.get(a).render_(null);
           }
-          canShowDescription = false;
-        } else if (currentDescription != null && System.currentTimeMillis() - mouseEventTime < DESCRIPTION_THRESHOLD) {
-          descriptionLayer.children.set(0, descriptionDefault);
-          descriptionLayer.clear();
-          currentDescription = null;
+          //description
+          if (currentDescription == null && canShowDescription && System.currentTimeMillis() - mouseEventTime > DESCRIPTION_THRESHOLD) {
+            Element el = roots.getLast().checkOverlayCondition(roots.getLast().pos, mouseGlobal.getLast(), Transform.identity, descriptionCheck);
+            if (el != null) {
+              descriptionLayer.setTransform(Element.overlayCondition_transform);
+              currentDescription = el.description;
+              descriptionLayer.children.set(0, currentDescription);
+              descriptionLayer.invalidate();
+              currentDescription.onShow();
+              descriptionLayer.render_(null);
+            }
+            canShowDescription = false;
+          } else if (currentDescription != null && System.currentTimeMillis() - mouseEventTime < DESCRIPTION_THRESHOLD) {
+            descriptionLayer.children.set(0, descriptionDefault);
+            descriptionLayer.clear();
+            currentDescription = null;
+          }
         }
       }
       //System.out.println("end "+frameCount);
