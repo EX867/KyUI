@@ -1,6 +1,5 @@
 ### KyUI  
-Awt-like simple UI framework running over processing.  
-I am coding newbie! so this code contains som bad things... it was just for practice really.
+spaghetti code alert
   
 <b>ant</b> : library build (includes some library)  
 <b>ant launcher</b> : executable jar build (includes all library)  
